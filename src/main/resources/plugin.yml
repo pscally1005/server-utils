@@ -1,4 +1,9 @@
-name: Server Utils
+name: scally
 version: '${project.version}'
 main: com.scally.serverutils.ServerUtils
 api-version: 1.18
+
+commands:
+  slabs:
+    description: Replace slabs
+    usage: /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
