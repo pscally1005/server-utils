@@ -1,0 +1,4 @@
+name: Server Utils
+version: '${project.version}'
+main: com.scally.serverutils.ServerUtils
+api-version: 1.18
