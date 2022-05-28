@@ -1,0 +1,6 @@
+#!/bin/bash
+ftp -inv $FTP_SERVER_IP <<EOF
+user $FTP_SERVER_USERNAME $FTP_SERVER_PASSWORD
+ls
+bye
+EOF
