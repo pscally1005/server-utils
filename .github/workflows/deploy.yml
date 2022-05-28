@@ -6,8 +6,6 @@ name: Deploy JAR
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -27,6 +25,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
+    # TODO: don't hardcode the JAR name
     - name: Move JAR
       run: |
         mkdir ftp
