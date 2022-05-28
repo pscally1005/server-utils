@@ -27,10 +27,18 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Upload JAR
+    - name: Move JAR
       run: |
-        sh ftp.sh
-      env:
-        FTP_SERVER_IP: ${{ secrets.FTP_SERVER_IP }}
-        FTP_SERVER_USERNAME: ${{ secrets.FTP_SERVER_USERNAME }}
-        FTP_SERVER_PASSWORD: ${{ secrets.FTP_SERVER_PASSWORD }}
+        mkdir ftp
+        mv ./target/server-utils-1.0-SNAPSHOT.jar ./ftp
+
+    - name: Upload JAR
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER_IP }}
+        username: ${{ secrets.FTP_SERVER_USERNAME }}
+        password: ${{ secrets.FTP_SERVER_PASSWORD }}
+        local-dir: "./ftp/"
+        server-dir: "/plugins/"
+        dry-run: true
+
