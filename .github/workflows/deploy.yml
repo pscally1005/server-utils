@@ -40,5 +40,4 @@ jobs:
         password: ${{ secrets.FTP_SERVER_PASSWORD }}
         local-dir: "./ftp/"
         server-dir: "/plugins/"
-        dry-run: true
 
