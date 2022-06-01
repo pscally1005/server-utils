@@ -1,9 +1,15 @@
 package com.scally.serverutils.executors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Slab;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 // TODO: unit tests
@@ -56,9 +62,49 @@ public class SlabsCommandExecutor implements CommandExecutor {
         }
 
         // TODO: actually do the replacement
+        final int min_x = Math.min(x1, x2);
+        final int min_y = Math.min(y1, y2);
+        final int min_z = Math.min(z1, z2);
 
-        commandSender.sendMessage("That was valid but it's not implemented yet");
+        final int max_x = Math.max(x1, x2);
+        final int max_y = Math.max(y1, y2);
+        final int max_z = Math.max(z1, z2);
+
+        if (!(commandSender instanceof Player)) {
+            commandSender.sendMessage("Must be sent by a player!");
+            return false;
+        }
+
+        final Player player = (Player) commandSender;
+        World world = player.getWorld();
+
+        for(int x = min_x; x <= max_x; x++) {
+            for(int y = min_y; y <= max_y; y++) {
+                for(int z = min_z; z <= max_z; z++) {
+
+                    Block block = world.getBlockAt(x, y, z);
+                    BlockData bd = block.getBlockData();
+                    Material mat = bd.getMaterial();
+
+                    if(mat == fromSlab) {
+
+                        /*Slab slab = (Slab) bd;
+                        slab.getType();
+
+                        //block.setType(toSlab, false);
+                        bd = bd.merge(toSlab.);*/
+
+                        block.setType(toSlab, false);
+                        //Slab slab = (Slab) bd;
+
+                    }
+
+                }
+            }
+        }
+
         return true;
+
     }
 
     // TODO: change to use Slab interface
