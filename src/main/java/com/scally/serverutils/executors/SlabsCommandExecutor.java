@@ -1,6 +1,5 @@
 package com.scally.serverutils.executors;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -53,8 +52,8 @@ public class SlabsCommandExecutor implements CommandExecutor {
             return false;
         }
 
-        final Material fromSlab = getSlab(args[6]);
-        final Material toSlab = getSlab(args[7]);
+        final Slab fromSlab = getSlab(args[6]);
+        final Slab toSlab = getSlab(args[7]);
 
         if (fromSlab == null || toSlab == null) {
             commandSender.sendMessage("Slab blocks must be valid!");
@@ -86,7 +85,7 @@ public class SlabsCommandExecutor implements CommandExecutor {
                     BlockData bd = block.getBlockData();
                     Material mat = bd.getMaterial();
 
-                    if(mat == fromSlab) {
+                    if(mat == fromSlab.getMaterial()) {
 
                         /*Slab slab = (Slab) bd;
                         slab.getType();
@@ -94,7 +93,7 @@ public class SlabsCommandExecutor implements CommandExecutor {
                         //block.setType(toSlab, false);
                         bd = bd.merge(toSlab.);*/
 
-                        block.setType(toSlab, false);
+                        block.setType(toSlab.getMaterial(), false);
                         //Slab slab = (Slab) bd;
 
                     }
@@ -107,11 +106,16 @@ public class SlabsCommandExecutor implements CommandExecutor {
 
     }
 
-    // TODO: change to use Slab interface
-    private Material getSlab(String arg) {
-        if (!arg.toLowerCase().endsWith("_slab")) {
+    private Slab getSlab(String arg) {
+        final Material material = Material.matchMaterial(arg);
+        if (material == null) {
             return null;
         }
-        return Material.matchMaterial(arg);
+
+        final BlockData blockData = material.createBlockData();
+        if (blockData instanceof Slab) {
+            return (Slab) blockData;
+        }
+        return null;
     }
 }
