@@ -15,8 +15,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class FillContainerExecutor implements CommandExecutor {
+public class FillContainerCommandExecutor implements CommandExecutor {
 
+    // TODO: how to handle double chests?
     private static final Set<Material> ALLOWED_MATERIALS = Set.of(
             Material.CHEST,
             Material.BARREL,
@@ -64,7 +65,7 @@ public class FillContainerExecutor implements CommandExecutor {
             return false;
         }
 
-        final Container container = (Container) block;
+        final Container container = (Container) block.getState();
         final Inventory inventory = container.getInventory();
         distribution.fill(inventory);
         return true;
