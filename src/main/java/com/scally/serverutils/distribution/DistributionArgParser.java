@@ -42,7 +42,7 @@ public final class DistributionArgParser {
             }
 
             sum += ratio;
-            pairs.add(new DistributionPair(material, ratio));
+            pairs.add(new DistributionPair(material, sum));
         }
 
         return new Distribution(pairs);

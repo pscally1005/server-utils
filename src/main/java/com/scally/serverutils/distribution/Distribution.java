@@ -5,23 +5,28 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Distribution {
 
-    private final List<DistributionPair> pairs;
+    private final List<DistributionPair> pairs = new ArrayList<>();
     private final double max;
+    private final Set<Material> materials = new HashSet<>();
 
     public Distribution(List<DistributionPair> pairs) {
-        this.pairs = new ArrayList<>();
-        this.pairs.addAll(pairs);
+        for (int i = 0 ; i < pairs.size(); i++) {
+            this.pairs.add(pairs.get(i));
+            this.materials.add(pairs.get(i).getMaterial());
+        }
         this.max = this.pairs.get(this.pairs.size() - 1).getRatio();
     }
 
     public Distribution(Material material) {
-        this.pairs = new ArrayList<>();
         pairs.add(new DistributionPair(material, 100D));
         max = 100D;
+        materials.add(material);
     }
 
     public Material pick(double d) {
@@ -72,5 +77,9 @@ public class Distribution {
             items[i] = new ItemStack(pick(randomDouble));
         }
         inventory.setContents(items);
+    }
+
+    public Set<Material> getMaterials() {
+        return new HashSet<>(materials);
     }
 }
