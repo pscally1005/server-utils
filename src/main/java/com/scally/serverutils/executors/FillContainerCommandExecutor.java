@@ -1,7 +1,6 @@
 package com.scally.serverutils.executors;
 
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionArgParser;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -53,7 +52,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             }
         }
 
-        final Distribution distribution = DistributionArgParser.parse(args[3]);
+        final Distribution distribution = Distribution.parse(args[3]);
         if (distribution == null) {
             return false;
         }

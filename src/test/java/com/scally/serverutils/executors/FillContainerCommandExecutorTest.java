@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.Inventory;
@@ -17,8 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FillContainerCommandExecutorTest {
@@ -74,6 +74,41 @@ public class FillContainerCommandExecutorTest {
         for (int i = 0; i < items.length; i++) {
             assertNotNull(items[i]);
         }
+    }
+
+    @Test
+    public void onCommand_invalidSender() {
+        final String[] args = new String[] { "0", "0", "0", "50%cobblestone,50%oak_planks" };
+        final BlockCommandSender blockSender = Mockito.mock(BlockCommandSender.class);
+
+        final boolean result = fillContainerCommandExecutor.onCommand(blockSender, command, "fill-container", args);
+        assertFalse(result);
+    }
+
+    @Test
+    public void onCommand_invalidCoords() {
+        final String[] args = new String[] { "test", "0", "0", "cobblestone" };
+        final boolean result = fillContainerCommandExecutor.onCommand(sender, command, "fill-container", args);
+        assertFalse(result);
+    }
+
+    @Test
+    public void onCommand_invalidDistribution() {
+        final String[] args = new String[] { "0", "0", "0", "sponge_slab" };
+        final boolean result = fillContainerCommandExecutor.onCommand(sender, command, "fill-container", args);
+        assertFalse(result);
+    }
+
+    @Test
+    public void onCommand_invalidBlockAtCoords() {
+        final String[] args = new String[] { "0", "0", "0", "cobblestone" };
+
+        Mockito.when(block.getType()).thenReturn(Material.FURNACE);
+        Mockito.when(sender.getWorld()).thenReturn(world);
+        Mockito.when(world.getBlockAt(0, 0, 0)).thenReturn(block);
+
+        final boolean result = fillContainerCommandExecutor.onCommand(sender, command, "fill-container", args);
+        assertFalse(result);
     }
 
 }
