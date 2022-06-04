@@ -1,4 +1,5 @@
-import com.scally.serverutils.executors.SlabsCommandExecutor;
+package com.scally.serverutils.executors;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.AfterEach;
