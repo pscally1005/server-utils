@@ -11,3 +11,7 @@ commands:
   stairs:
     description: Replace stairs
     usage: /stairs <x1> <y1> <z1> <x2> <y2> <z2> <from-stair> <to-stair>
+
+  fill-container:
+    description: Fill a container with a random distribution
+    usage: /fill-container <x> <y> <z> <distribution>
