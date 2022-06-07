@@ -94,7 +94,7 @@ public class SlabsCommandExecutor implements CommandExecutor {
                         bd = block.getBlockData();
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
-                        //world.setBlockData(x, y, z, bd);
+                        world.setBlockData(x, y, z, bd);
 
                     }
 
