@@ -87,18 +87,14 @@ public class SlabsCommandExecutor implements CommandExecutor {
 
                     if(mat == fromSlab.getMaterial()) {
 
-                        /*Slab slab = (Slab) bd;
-                        slab.getType();
-
-                        //block.setType(toSlab, false);
-                        bd = bd.merge(toSlab.);*/
-
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
                         boolean isWaterlogged = slab.isWaterlogged();
                         block.setType(toSlab.getMaterial(), false);
+                        bd = block.getBlockData();
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
+                        //world.setBlockData(x, y, z, bd);
 
                     }
 
