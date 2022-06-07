@@ -60,7 +60,7 @@ public class SlabsCommandExecutor implements CommandExecutor {
             return false;
         }
 
-        // TODO: actually do the replacement
+        // TODO: add distributions to the replacement
         final int min_x = Math.min(x1, x2);
         final int min_y = Math.min(y1, y2);
         final int min_z = Math.min(z1, z2);
@@ -87,14 +87,15 @@ public class SlabsCommandExecutor implements CommandExecutor {
 
                     if(mat == fromSlab.getMaterial()) {
 
-                        /*Slab slab = (Slab) bd;
-                        slab.getType();
-
-                        //block.setType(toSlab, false);
-                        bd = bd.merge(toSlab.);*/
-
+                        //TODO: Why does this work?
+                        Slab slab = (Slab) bd;
+                        Slab.Type type = slab.getType();
+                        boolean isWaterlogged = slab.isWaterlogged();
                         block.setType(toSlab.getMaterial(), false);
-                        //Slab slab = (Slab) bd;
+                        bd = block.getBlockData();
+                        ((Slab) bd).setWaterlogged(isWaterlogged);
+                        ((Slab) bd).setType(type);
+                        world.setBlockData(x, y, z, bd);
 
                     }
 
