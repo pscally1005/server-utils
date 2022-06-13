@@ -8,11 +8,16 @@ import org.bukkit.block.data.type.Slab;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 // TODO: unit tests
-public class SlabsCommandExecutor implements CommandExecutor {
+public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
     private static final int VOLUME_LIMIT = 50 * 50 * 50;
 
@@ -106,6 +111,22 @@ public class SlabsCommandExecutor implements CommandExecutor {
         return true;
 
     }
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!(sender instanceof Player)) {
+            return Collections.EMPTY_LIST;
+        }
+        Player player = (Player) sender;
+        Block targ = player.getTargetBlock(Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER), 5);
+        switch(args.length) {
+            case 1, 4:
+                return Collections.singletonList(targ.getX() + "");
+            case 2, 5:
+                return Collections.singletonList(targ.getY() + "");
+            case 3, 6:
+                return Collections.singletonList(targ.getZ() + "");
+        }
+        return Collections.EMPTY_LIST;
+    }
 
     private Slab getSlab(String arg) {
         final Material material = Material.matchMaterial(arg);
@@ -119,4 +140,5 @@ public class SlabsCommandExecutor implements CommandExecutor {
         }
         return null;
     }
+
 }
