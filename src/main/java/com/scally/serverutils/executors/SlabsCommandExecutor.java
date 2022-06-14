@@ -1,6 +1,7 @@
 package com.scally.serverutils.executors;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // TODO: unit tests
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
@@ -127,6 +129,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             case 3, 6:
                 //return Collections.singletonList(targ.getZ() + "");
                 return List.of(targ.getZ() + "" );
+            case 7, 8:
+                return Tag.SLABS.getValues().stream().map(Material::toString).sorted().collect(Collectors.toList());
         }
         return Collections.EMPTY_LIST;
     }
