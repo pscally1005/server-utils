@@ -119,11 +119,14 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         Block targ = player.getTargetBlock(Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER), 5);
         switch(args.length) {
             case 1, 4:
-                return Collections.singletonList(targ.getX() + "");
+                //return Collections.singletonList(targ.getX() + "");
+                return List.of(targ.getX() + "", targ.getX() + " " + targ.getY(), targ.getX() + " " + targ.getY() + " " + targ.getZ() );
             case 2, 5:
-                return Collections.singletonList(targ.getY() + "");
+                //return Collections.singletonList(targ.getY() + "");
+                return List.of(targ.getY() + "", targ.getY() + " " + targ.getZ() );
             case 3, 6:
-                return Collections.singletonList(targ.getZ() + "");
+                //return Collections.singletonList(targ.getZ() + "");
+                return List.of(targ.getZ() + "" );
         }
         return Collections.EMPTY_LIST;
     }
