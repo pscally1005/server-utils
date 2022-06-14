@@ -5,7 +5,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class Distribution {
 
@@ -19,9 +21,13 @@ public final class Distribution {
         this.max = this.pairs.get(this.pairs.size() - 1).getThreshold();
     }
 
-    private Distribution(Material material) {
-        pairs.add(new DistributionPair(material, 100D));
-        max = 100D;
+    private Distribution(Set<Material> materials) {
+        double sum = 0D;
+        for (Material material : materials) {
+            sum += 1D;
+            pairs.add(new DistributionPair(material, sum));
+        }
+        max = sum;
     }
 
     /**
@@ -105,13 +111,36 @@ public final class Distribution {
         final List<DistributionPair> pairs = new ArrayList<>();
         final String[] materials = distributionStr.split(",");
 
-        // Handle case where the String is just a single Material
-        if (materials.length == 1 && !distributionStr.contains("%")) {
-            final Material material = Material.matchMaterial(materials[0]);
-            if (material == null) {
+        // TODO : call this from Slabs command + write some unit tests
+
+        // Check that all materials either have a % or don't
+        boolean allHavePercentage = true;
+        boolean noneHavePercentage = true;
+
+        final Set<Material> materialSet = new HashSet<>();
+        for (String materialStr : materials) {
+            final String[] parts = materialStr.split("%");
+            if (parts.length == 1) {
+                allHavePercentage = false;
+            } else if (parts.length == 2) {
+                noneHavePercentage = false;
+            } else {
                 return null;
             }
-            return new Distribution(material);
+
+            if (!allHavePercentage || !noneHavePercentage) {
+                return null;
+            }
+
+            final Material material = Material.matchMaterial(parts[parts.length - 1]);
+            if (material == null || materialSet.contains(material)) {
+                return null;
+            }
+            materialSet.add(material);
+        }
+
+        if (noneHavePercentage) {
+            return new Distribution(materialSet);
         }
 
         double sum = 0D;
