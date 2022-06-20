@@ -128,7 +128,7 @@ public final class Distribution {
                 return null;
             }
 
-            if (!allHavePercentage || !noneHavePercentage) {
+            if (!allHavePercentage && !noneHavePercentage) {
                 return null;
             }
 

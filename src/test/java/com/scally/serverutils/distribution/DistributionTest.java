@@ -71,7 +71,7 @@ public class DistributionTest {
         final List<DistributionPair> pairs = distribution.getPairs();
         assertEquals(1, pairs.size());
         assertEquals(Material.BIRCH_STAIRS, pairs.get(0).getMaterial());
-        assertEquals(100D, pairs.get(0).getThreshold());
+        assertEquals(1D, pairs.get(0).getThreshold());
     }
 
     @Test
