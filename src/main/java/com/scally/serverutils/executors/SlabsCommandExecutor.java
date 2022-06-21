@@ -15,6 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -141,10 +142,10 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 }
                 final String finalPrefix = prefix;*/
 
-                String[] slabs = prefix.split(",");
-
-                for(int i = 0; i < slabs.length; i++) {
-                    sender.sendMessage(slabs[i]);
+                String[] parts = prefix.split(",");
+                final List<String> slabs = Arrays.asList(parts);
+                for(int i = 0; i < slabs.size(); i++) {
+                    sender.sendMessage(slabs.get(i));
                 }
 
                 return Tag.SLABS.getValues()
