@@ -131,7 +131,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 String prefix = args[args.length-1];
                 if(prefix.contains(",")) {
                     int comma_loc = prefix.lastIndexOf(",");
-                    prefix = prefix.substring(comma_loc, prefix.length()-1);
+                    prefix = prefix.substring(comma_loc+1, prefix.length()-1);
                 }
                 final String finalPrefix = prefix;
                 return Tag.SLABS.getValues()
