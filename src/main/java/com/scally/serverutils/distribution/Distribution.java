@@ -169,6 +169,18 @@ public final class Distribution {
         return new Distribution(pairs);
     }
 
+    public boolean hasMaterial(Material m) {
+
+        for(DistributionPair distPair : pairs) {
+            final Material mat = distPair.getMaterial();
+            if(mat == m) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
     @Override
     public String toString() {
         return "Distribution{" +
@@ -176,4 +188,5 @@ public final class Distribution {
                 ", max=" + max +
                 '}';
     }
+
 }

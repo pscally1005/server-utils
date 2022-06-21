@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 // TODO: unit tests
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
-    private static final int VOLUME_LIMIT = 50 * 50 * 50;
+    private static final int VOLUME_LIMIT = 64 * 64 * 64;
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
@@ -59,30 +59,13 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        final Slab fromSlab = getSlab(args[6]);
-        //final Slab toSlab = getSlab(args[7]);
-
-        final Distribution toDistribution = Distribution.parse(args[7]);
-        if(toDistribution == null) {
-            return false;
-        }
-
-        final List<DistributionPair> toPairs = toDistribution.getPairs();
-        for(DistributionPair pair : toPairs) {
-            final BlockData blockData = pair.getMaterial().createBlockData();
-            if(!(blockData instanceof Slab)) {
-                return false;
-            }
-        }
-
-
-
-        if (fromSlab == null) {
+        Distribution fromDistribution = isValidSlabsDistribution(args[6]);
+        Distribution toDistribution = isValidSlabsDistribution(args[7]);
+        if(fromDistribution == null || toDistribution == null) {
             commandSender.sendMessage("Slab blocks must be valid!");
             return false;
         }
 
-        // TODO: add distributions to the replacement
         final int min_x = Math.min(x1, x2);
         final int min_y = Math.min(y1, y2);
         final int min_z = Math.min(z1, z2);
@@ -107,7 +90,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                     BlockData bd = block.getBlockData();
                     Material mat = bd.getMaterial();
 
-                    if(mat == fromSlab.getMaterial()) {
+                    if(fromDistribution.hasMaterial(mat) == true) {
 
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
@@ -165,6 +148,25 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             return (Slab) blockData;
         }
         return null;
+    }
+
+    private Distribution isValidSlabsDistribution(String arg) {
+
+        final Distribution dist = Distribution.parse(arg);
+        if(dist == null) {
+            return null;
+        }
+
+        final List<DistributionPair> fromPairs = dist.getPairs();
+        for(DistributionPair pair : fromPairs) {
+            final BlockData blockData = pair.getMaterial().createBlockData();
+            if(!(blockData instanceof Slab)) {
+                return null;
+            }
+        }
+
+        return dist;
+
     }
 
 }
