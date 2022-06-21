@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DistributionTest {
 
@@ -98,6 +97,38 @@ public class DistributionTest {
 
         assertEquals(Material.OAK_PLANKS, pairs.get(1).getMaterial());
         assertEquals(100D, pairs.get(1).getThreshold());
+    }
+
+    @Test
+    public void parse_threeMaterialsNoRatio() {
+        final String str = "birch_planks,oak_planks,spruce_planks";
+        final Distribution distribution = Distribution.parse(str);
+
+        final List<DistributionPair> pairs = distribution.getPairs();
+        assertEquals(3, pairs.size());
+
+        boolean hasBirch = false;
+        boolean hasOak = false;
+        boolean hasSpruce = false;
+
+        for (int i = 0; i < pairs.size(); i++) {
+            assertEquals(i + 1D, pairs.get(i).getThreshold());
+            switch (pairs.get(i).getMaterial()) {
+                case BIRCH_PLANKS:
+                    hasBirch = true;
+                    break;
+                case OAK_PLANKS:
+                    hasOak = true;
+                    break;
+                case SPRUCE_PLANKS:
+                    hasSpruce = true;
+                    break;
+            }
+        }
+
+        assertTrue(hasBirch);
+        assertTrue(hasOak);
+        assertTrue(hasSpruce);
     }
 
     @Test
