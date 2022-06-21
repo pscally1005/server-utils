@@ -130,10 +130,11 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             case 7, 8:
                 String prefix = args[args.length-1];
                 final int len = prefix.length();
+                final String original = prefix;
                 if(prefix.contains(",")) {
                     int comma_loc = prefix.lastIndexOf(",");
+                    final String prev = original.substring(0, comma_loc);
                     prefix = prefix.substring(comma_loc+1, len);
-                    final String prev = prefix.substring(0, comma_loc);
                     sender.sendMessage("Prev = " + prev);
                     sender.sendMessage("Prefix = " + prefix);
                 }
