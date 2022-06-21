@@ -128,7 +128,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             case 3, 6:
                 return List.of(targ.getZ() + "" );
             case 7, 8:
-                String prefix = args[args.length-1];
+                final String prefix = args[args.length-1];
 
                 /*final int len = prefix.length();
                 final String original = prefix;
@@ -145,7 +145,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
-                        .filter(s -> s.startsWith(finalPrefix))
+                        .filter(s -> s.startsWith(prefix))
                         .sorted()
                         .collect(Collectors.toList());
 
