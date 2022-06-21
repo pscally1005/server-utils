@@ -141,6 +141,19 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 }
                 final String finalPrefix = prefix;*/
 
+                List<String> slabs = null;
+                int start = 0;
+                for(int i = 0; i < prefix.length(); i++) {
+                    if(prefix.substring(i, i+1).equals(",")) {
+                        slabs.add(prefix.substring(start, i));
+                        start = i+1;
+                    }
+                }
+
+                for(int i = 0; i < slabs.size(); i++) {
+                    sender.sendMessage(slabs.get(i));
+                }
+
                 return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
