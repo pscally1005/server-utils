@@ -144,15 +144,15 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
                 String[] parts = prefix.split(",");
                 final List<String> slabs = Arrays.asList(parts);
-                for(int i = 0; i < slabs.size(); i++) {
+                /*for(int i = 0; i < slabs.size(); i++) {
                     sender.sendMessage(slabs.get(i));
-                }
+                }*/
 
                 return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
-                        .filter(s -> s.startsWith(prefix))
+                        .filter(s -> s.startsWith(slabs.get(slabs.size()-1)))
                         .sorted()
                         .collect(Collectors.toList());
 
