@@ -129,13 +129,9 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 return List.of(targ.getZ() + "" );
             case 7, 8:
                 String prefix = args[args.length-1];
-                if(prefix.endsWith(",")) {
-                    return Tag.SLABS.getValues()
-                            .stream()
-                            .map(Material::toString)
-                            .map(String::toLowerCase)
-                            .sorted()
-                            .collect(Collectors.toList());
+                if(prefix.contains(",")) {
+                    int comma_loc = prefix.lastIndexOf(",");
+                    prefix = prefix.substring((comma_loc, prefix.length()-1));
                 }
                 return Tag.SLABS.getValues()
                         .stream()
