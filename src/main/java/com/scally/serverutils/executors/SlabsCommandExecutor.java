@@ -137,17 +137,15 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                     sender.sendMessage(slabs.get(i));
                 }*/
 
-                List<String> returned =  Tag.SLABS.getValues()
+                return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
-                        .filter(s -> s.startsWith(slabs.get(slabs.size()-1)))
+                        .filter(s -> s.startsWith(prefix))
                         .sorted()
                         .collect(Collectors.toList());
-                args[7] = prefix;
-                return returned;
 
-                // TODO: tab fill for distribution of more than one from or to slab
+            // TODO: tab fill currently prompting correctly, but hitting tab replaces previous slabs
         }
         return Collections.EMPTY_LIST;
     }
