@@ -1,5 +1,7 @@
 package com.scally.serverutils.executors;
 
+import com.scally.serverutils.distribution.Distribution;
+import com.scally.serverutils.distribution.DistributionPair;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -32,8 +34,6 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        // TODO: figure out how to tab-fill the coordinates
-
         final int[] coords = new int[6];
         for (int i = 0; i < 6; i++) {
             try {
@@ -60,9 +60,24 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         }
 
         final Slab fromSlab = getSlab(args[6]);
-        final Slab toSlab = getSlab(args[7]);
+        //final Slab toSlab = getSlab(args[7]);
 
-        if (fromSlab == null || toSlab == null) {
+        final Distribution toDistribution = Distribution.parse(args[7]);
+        if(toDistribution == null) {
+            return false;
+        }
+
+        final List<DistributionPair> toPairs = toDistribution.getPairs();
+        for(DistributionPair pair : toPairs) {
+            final BlockData blockData = pair.getMaterial().createBlockData();
+            if(!(blockData instanceof Slab)) {
+                return false;
+            }
+        }
+
+
+
+        if (fromSlab == null) {
             commandSender.sendMessage("Slab blocks must be valid!");
             return false;
         }
@@ -94,11 +109,11 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
                     if(mat == fromSlab.getMaterial()) {
 
-                        //TODO: Why does this work?
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
                         boolean isWaterlogged = slab.isWaterlogged();
-                        block.setType(toSlab.getMaterial(), false);
+                        Material toSlab = toDistribution.pick();
+                        block.setType(toSlab, false);
                         bd = block.getBlockData();
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
