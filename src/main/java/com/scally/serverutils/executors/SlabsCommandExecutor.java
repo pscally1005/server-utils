@@ -131,30 +131,21 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             case 7, 8:
                 final String prefix = args[args.length-1];
 
-                /*final int len = prefix.length();
-                final String original = prefix;
-                if(prefix.contains(",")) {
-                    int comma_loc = prefix.lastIndexOf(",");
-                    final String prev = original.substring(0, comma_loc);
-                    prefix = prefix.substring(comma_loc+1, len);
-                    sender.sendMessage("Prev = " + prev);
-                    sender.sendMessage("Prefix = " + prefix);
-                }
-                final String finalPrefix = prefix;*/
-
                 String[] parts = prefix.split(",");
                 final List<String> slabs = Arrays.asList(parts);
                 /*for(int i = 0; i < slabs.size(); i++) {
                     sender.sendMessage(slabs.get(i));
                 }*/
 
-                return Tag.SLABS.getValues()
+                List<String> returned =  Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
                         .filter(s -> s.startsWith(slabs.get(slabs.size()-1)))
                         .sorted()
                         .collect(Collectors.toList());
+                args[7] = prefix;
+                return returned;
 
                 // TODO: tab fill for distribution of more than one from or to slab
         }
