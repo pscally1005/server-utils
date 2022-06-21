@@ -141,7 +141,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
-                        .filter(s -> s.startsWith(prefix))
+                        .filter(s -> s.startsWith(slabs.get(slabs.size()-1)))
                         .sorted()
                         .collect(Collectors.toList());
 
