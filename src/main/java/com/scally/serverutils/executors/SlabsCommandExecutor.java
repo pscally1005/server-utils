@@ -21,6 +21,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // TODO: unit tests
+// TODO: sel wand
+// TODO: undo
+// TODO: error and success messages
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
     private static final int VOLUME_LIMIT = 64 * 64 * 64;
@@ -133,6 +136,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         .filter(s -> s.startsWith(prefix))
                         .sorted()
                         .collect(Collectors.toList());
+
+                // TODO: tab fill for distribution of more than one from or to slab
         }
         return Collections.EMPTY_LIST;
     }
