@@ -133,9 +133,9 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
                 String[] parts = prefix.split(",");
                 final List<String> slabs = Arrays.asList(parts);
-                /*for(int i = 0; i < slabs.size(); i++) {
-                    sender.sendMessage(slabs.get(i));
-                }*/
+
+                final int lastCommaIndex = prefix.lastIndexOf(',');
+                final String previousPrefix = prefix.substring(0, lastCommaIndex + 1);
 
                 return Tag.SLABS.getValues()
                         .stream()
@@ -143,9 +143,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         .map(String::toLowerCase)
                         .filter(s -> s.startsWith(slabs.get(slabs.size()-1)))
                         .sorted()
+                        .map(s -> new StringBuilder(previousPrefix).append(s).toString())
                         .collect(Collectors.toList());
-
-            // TODO: tab fill currently prompting correctly, but hitting tab replaces previous slabs
         }
         return Collections.EMPTY_LIST;
     }
