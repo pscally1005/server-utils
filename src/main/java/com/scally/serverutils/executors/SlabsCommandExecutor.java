@@ -137,11 +137,15 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 final int lastCommaIndex = prefix.lastIndexOf(',');
                 final String previousPrefix = prefix.substring(0, lastCommaIndex + 1);
 
+
                 return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
-                        .filter(s -> s.startsWith(slabs.get(slabs.size()-1)))
+                        .filter(s -> {
+                            if(prefix.endsWith(",")) { return true; }
+                            else { return s.startsWith(slabs.get(slabs.size()-1)); }
+                        })
                         .sorted()
                         .map(s -> new StringBuilder(previousPrefix).append(s).toString())
                         .collect(Collectors.toList());

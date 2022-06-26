@@ -2,6 +2,8 @@ package com.scally.serverutils.executors;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import org.apache.commons.lang3.builder.ToStringExclude;
+import org.bukkit.Tag;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -71,8 +73,48 @@ public class SlabsCommandExecutorTest {
         assertTrue(tabOptions.contains("birch_slab,andesite_slab"));
     }
 
-    // TODO: test for "birch_slab,"
+    @Test
+    public void onTabComplete_firstSlab() {
+        final String[] args = new String[] {
+                "0", "0", "0", "0", "0", "0", "birch_sla"
+        };
 
-    // TODO: test for "birch_slab,acacia_slab,d"
+        final List<String> tabOptions = slabsCommandExecutor.onTabComplete(player, command, "slabs", args);
+        assertEquals(1, tabOptions.size());
+        assertEquals("birch_slab", tabOptions.get(0));
+    }
+
+    @Test
+    public void onTabComplete_endInComma() {
+        final String[] args = new String[] {
+                "0", "0", "0", "0", "0", "0", "birch_slab,"
+        };
+
+        final List<String> tabOptions = slabsCommandExecutor.onTabComplete(player, command, "slabs", args);
+        assertEquals(Tag.SLABS.getValues().size(), tabOptions.size());
+        assertEquals("birch_slab,acacia_slab", tabOptions.get(0));
+    }
+
+    @Test
+    public void onTabComplete_thirdSlab() {
+        final String[] args = new String[] {
+                "0", "0", "0", "0", "0", "0", "birch_slab,acacia_slab,j"
+        };
+
+        final List<String> tabOptions = slabsCommandExecutor.onTabComplete(player, command, "slabs", args);
+        assertEquals(1, tabOptions.size());
+        assertEquals("birch_slab,acacia_slab,jungle_slab", tabOptions.get(0));
+    }
+
+    @Test
+    public void onTabComplete_blank() {
+        final String[] args = new String[] {
+                "0", "0", "0", "0", "0", "0", ""
+        };
+
+        final List<String> tabOptions = slabsCommandExecutor.onTabComplete(player, command, "alias", args);
+        assertEquals(Tag.SLABS.getValues().size(), tabOptions.size());
+        assertEquals("acacia_slab", tabOptions.get(0));
+    }
 
 }
