@@ -153,7 +153,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 final String lastPart = prefix.substring(0, lastCommaIndex + 1);
 
                 // TODO: convert from stream paradigm. break out into own method for testing
-                // TODO: also refactor to make it easier to understand
+                // TODO: also refactor to make it easier to understand. might be a good candidate for a regex
                 return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
