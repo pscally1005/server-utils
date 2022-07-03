@@ -46,6 +46,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
         if (args.length != 8) {
+            messageSender.sendError(commandSender, "Invalid number of args!");
             return false;
         }
 
@@ -127,8 +128,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changedCount));
         return true;
-
     }
+
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!(sender instanceof Player)) {
             return Collections.EMPTY_LIST;
@@ -149,19 +150,35 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 final List<String> slabs = Arrays.asList(parts);
 
                 final int lastCommaIndex = prefix.lastIndexOf(',');
-                final String previousPrefix = prefix.substring(0, lastCommaIndex + 1);
+                final String lastPart = prefix.substring(0, lastCommaIndex + 1);
 
-
+                // TODO: convert from stream paradigm. break out into own method for testing
                 return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
                         .map(String::toLowerCase)
                         .filter(s -> {
-                            if(prefix.endsWith(",")) { return true; }
-                            else { return s.startsWith(slabs.get(slabs.size()-1)); }
+                            if (prefix.endsWith(",")) { return true; }
+                            else {
+                                final String lastSlab = slabs.get(slabs.size()-1);
+                                if (lastSlab.contains("%")) {
+                                    final String[] weights = lastSlab.split("%");
+                                    if (weights.length > 2) { return false; }
+                                    final String weightStr = weights[0];
+
+                                    try {
+                                        Double.parseDouble(weightStr);
+                                    } catch (NumberFormatException e) {
+                                        return false;
+                                    }
+
+                                    return s.startsWith(weights[1]);
+                                }
+                                return s.startsWith(lastSlab);
+                            }
                         })
                         .sorted()
-                        .map(s -> new StringBuilder(previousPrefix).append(s).toString())
+                        .map(s -> new StringBuilder(lastPart).append(s).toString())
                         .collect(Collectors.toList());
         }
         return Collections.EMPTY_LIST;
