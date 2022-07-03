@@ -153,6 +153,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 final String lastPart = prefix.substring(0, lastCommaIndex + 1);
 
                 // TODO: convert from stream paradigm. break out into own method for testing
+                // TODO: also refactor to make it easier to understand
                 return Tag.SLABS.getValues()
                         .stream()
                         .map(Material::toString)
@@ -163,13 +164,17 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                                 final String lastSlab = slabs.get(slabs.size()-1);
                                 if (lastSlab.contains("%")) {
                                     final String[] weights = lastSlab.split("%");
-                                    if (weights.length > 2) { return false; }
+                                    if (weights.length > 2 || weights.length < 1) { return false; }
                                     final String weightStr = weights[0];
 
                                     try {
                                         Double.parseDouble(weightStr);
                                     } catch (NumberFormatException e) {
                                         return false;
+                                    }
+
+                                    if (weights.length == 1) {
+                                        return true;
                                     }
 
                                     return s.startsWith(weights[1]);
