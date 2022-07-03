@@ -1,5 +1,6 @@
 package com.scally.serverutils.executors;
 
+import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
 import org.bukkit.Material;
@@ -27,7 +28,17 @@ import java.util.stream.Collectors;
 // TODO: error and success messages
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
-    private static final int VOLUME_LIMIT = 64 * 64 * 64;
+    public static final int VOLUME_LIMIT = 64 * 64 * 64;
+
+    private final ChatMessageSender messageSender;
+
+    public SlabsCommandExecutor() {
+        this.messageSender = new ChatMessageSender();
+    }
+
+    public SlabsCommandExecutor(ChatMessageSender messageSender) {
+        this.messageSender = messageSender;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
@@ -43,7 +54,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             try {
                 coords[i] = Integer.parseInt(args[i]);
             } catch (NumberFormatException exception) {
-                commandSender.sendMessage("Coordinates must be a valid number!");
+                messageSender.sendError(commandSender, "Coordinates must be a valid number!");
                 return false;
             }
         }
@@ -59,14 +70,14 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         final long volume = Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
         if (volume > VOLUME_LIMIT) {
-            commandSender.sendMessage(String.format("Volume must be less than %d blocks", VOLUME_LIMIT));
+            messageSender.sendError(commandSender, String.format("Volume must be less than %d blocks", VOLUME_LIMIT));
             return false;
         }
 
         Distribution fromDistribution = isValidSlabsDistribution(args[6]);
         Distribution toDistribution = isValidSlabsDistribution(args[7]);
         if(fromDistribution == null || toDistribution == null) {
-            commandSender.sendMessage("Slab blocks must be valid!");
+            messageSender.sendError(commandSender, "Slab blocks must be valid!");
             return false;
         }
 
@@ -79,13 +90,14 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         final int max_z = Math.max(z1, z2);
 
         if (!(commandSender instanceof Player)) {
-            commandSender.sendMessage("Must be sent by a player!");
+            messageSender.sendError(commandSender, "Must be sent by a player!");
             return false;
         }
 
         final Player player = (Player) commandSender;
         World world = player.getWorld();
 
+        int changedCount = 0;
         for(int x = min_x; x <= max_x; x++) {
             for(int y = min_y; y <= max_y; y++) {
                 for(int z = min_z; z <= max_z; z++) {
@@ -105,6 +117,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
                         world.setBlockData(x, y, z, bd);
+                        changedCount++;
 
                     }
 
@@ -112,6 +125,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             }
         }
 
+        messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changedCount));
         return true;
 
     }
