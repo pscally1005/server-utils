@@ -16,10 +16,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // TODO: unit tests
@@ -144,6 +141,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             case 3, 6:
                 return List.of(targ.getZ() + "" );
             case 7, 8:
+//                return onTabCompleteDistribution(args[args.length-1]);
+
                 final String prefix = args[args.length-1];
 
                 String[] parts = prefix.split(",");
@@ -187,6 +186,23 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         .collect(Collectors.toList());
         }
         return Collections.EMPTY_LIST;
+    }
+
+    List<String> onTabCompleteDistribution(String arg) {
+
+        /*
+            cases:
+                - empty ==> return all slabs
+                - ends with number ==> return "%"
+                    ("50", "50%oak_slab,4")
+                - ends with % ==> return all slabs but include existing value
+                    ("45%oak_slab,50%" ==> "45%oak_slab,50%acacia_slab")
+                - ends with [A-Za-z_] ==> return all slabs starting with last prefix, include existing value
+                - ends with comma ==> return all slabs
+                - ends with something else ==> return nothing
+         */
+
+        return new ArrayList<String>();
     }
 
     private Slab getSlab(String arg) {
