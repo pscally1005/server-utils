@@ -1,5 +1,6 @@
 package com.scally.serverutils.executors;
 
+import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -23,6 +24,8 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             Material.SHULKER_BOX
     );
 
+    private final ChatMessageSender messageSender = new ChatMessageSender();
+
     /**
      * /fill-container x y z distribution
      */
@@ -37,7 +40,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
         try {
             entity = (Entity) sender;
         } catch (ClassCastException exception) {
-            sender.sendMessage("Sender must be an entity!");
+            messageSender.sendError(sender, "Sender must be an entity!");
             return false;
         }
 
@@ -47,7 +50,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             try {
                 coords[i] = Integer.parseInt(args[i]);
             } catch (NumberFormatException exception) {
-                sender.sendMessage("Coordinates must be a valid number!");
+                messageSender.sendError(sender, "Coordinates must be a valid number!");
                 return false;
             }
         }
@@ -60,13 +63,15 @@ public class FillContainerCommandExecutor implements CommandExecutor {
         final World world = entity.getWorld();
         final Block block = world.getBlockAt(coords[0], coords[1], coords[2]);
         if (!ALLOWED_MATERIALS.contains(block.getType())) {
-            sender.sendMessage(String.format("Invalid block at position. Found %s", block.getType()));
+            messageSender.sendError(sender, String.format("Invalid block at position. Found %s", block.getType()));
             return false;
         }
 
         final Container container = (Container) block.getState();
         final Inventory inventory = container.getInventory();
         distribution.fill(inventory);
+
+        messageSender.sendSuccess(sender, "Success!");
         return true;
     }
 

@@ -24,6 +24,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    # TODO: are unit tests not running in the pipeline?
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
