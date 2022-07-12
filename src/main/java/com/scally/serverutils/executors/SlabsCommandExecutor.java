@@ -22,7 +22,9 @@ import java.util.stream.Collectors;
 // TODO: unit tests
 // TODO: sel wand
 // TODO: undo
-// TODO: error and success messages
+// TODO: implement tilda tab-complete + tilda coords
+//       getTargetBlock doesn't work when block isnt in range
+
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
     public static final int VOLUME_LIMIT = 64 * 64 * 64;
@@ -142,67 +144,11 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 return List.of(targ.getZ() + "" );
             case 7, 8:
                 return onTabCompleteDistribution(args[args.length-1]);
-                /*
-                final String prefix = args[args.length-1];
-
-                String[] parts = prefix.split(",");
-                final List<String> slabs = Arrays.asList(parts);
-
-                final int lastCommaIndex = prefix.lastIndexOf(',');
-                final String lastPart = prefix.substring(0, lastCommaIndex + 1);
-
-                // TODO: convert from stream paradigm. break out into own method for testing
-                // TODO: also refactor to make it easier to understand. might be a good candidate for a regex
-                return Tag.SLABS.getValues()
-                        .stream()
-                        .map(Material::toString)
-                        .map(String::toLowerCase)
-                        .filter(s -> {
-                            if (prefix.endsWith(",")) { return true; }
-                            else {
-                                final String lastSlab = slabs.get(slabs.size()-1);
-                                if (lastSlab.contains("%")) {
-                                    final String[] weights = lastSlab.split("%");
-                                    if (weights.length > 2 || weights.length < 1) { return false; }
-                                    final String weightStr = weights[0];
-
-                                    try {
-                                        Double.parseDouble(weightStr);
-                                    } catch (NumberFormatException e) {
-                                        return false;
-                                    }
-
-                                    if (weights.length == 1) {
-                                        return true;
-                                    }
-
-                                    return s.startsWith(weights[1]);
-                                }
-                                return s.startsWith(lastSlab);
-                            }
-                        })
-                        .sorted()
-                        .map(s -> new StringBuilder(lastPart).append(s).toString())
-                        .collect(Collectors.toList());
-
-                 */
         }
         return Collections.EMPTY_LIST;
     }
 
     List<String> onTabCompleteDistribution(String arg) {
-
-        /*
-            cases:
-                - empty ==> return all slabs
-                - ends with number ==> return "%"
-                    ("50", "50%oak_slab,4")
-                - ends with % ==> return all slabs but include existing value
-                    ("45%oak_slab,50%" ==> "45%oak_slab,50%acacia_slab")
-                - ends with [A-Za-z_] ==> return all slabs starting with last prefix, include existing value
-                - ends with comma ==> return all slabs
-                - ends with something else ==> return nothing
-         */
 
         char lastChar = 0;
         if (!arg.equals("")) {
@@ -245,7 +191,6 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         }
 
-        //return new ArrayList<String>();
     }
 
     private Slab getSlab(String arg) {
