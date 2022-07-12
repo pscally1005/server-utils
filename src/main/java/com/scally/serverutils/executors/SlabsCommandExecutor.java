@@ -202,7 +202,48 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 - ends with something else ==> return nothing
          */
 
-        return new ArrayList<String>();
+        char lastChar = arg.charAt(arg.length()-1);
+
+        if( Character.isDigit(lastChar) ) {
+            return List.of(arg + "%");
+
+        } else if(lastChar == '%' || arg.equals("")) {
+            return Tag.SLABS.getValues()
+                    .stream()
+                    .map(Material::toString)
+                    .map(String::toLowerCase)
+                    .sorted()
+                    .map(s -> new StringBuilder(arg).append(s).toString())
+                    .collect(Collectors.toList());
+
+        } else {
+            int lastPercent = arg.lastIndexOf("%");
+            int lastComma = arg.lastIndexOf(",");
+            String lastPart, firstPart;
+
+            if(lastPercent == -1 && lastComma == -1) {
+                lastPart = arg;
+                firstPart = "";
+            } else if(lastPercent >= lastComma) {
+                lastPart = arg.substring(lastPercent+1);
+                firstPart = arg.substring(0,lastPercent);
+            } else {
+                lastPart = arg.substring(lastComma+1);
+                firstPart = arg.substring(0,lastComma);
+            }
+
+            return Tag.SLABS.getValues()
+                    .stream()
+                    .map(Material::toString)
+                    .map(String::toLowerCase)
+                    .filter(s -> s.startsWith(lastPart))
+                    .sorted()
+                    .map(s -> new StringBuilder(firstPart).append(s).toString())
+                    .collect(Collectors.toList());
+
+        }
+
+        //return new ArrayList<String>();
     }
 
     private Slab getSlab(String arg) {
