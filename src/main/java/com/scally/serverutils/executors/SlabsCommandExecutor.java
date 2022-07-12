@@ -209,10 +209,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             lastChar = arg.charAt(arg.length() - 1);
         }
 
-        if( Character.isDigit(lastChar) ) {
-            return List.of(arg + "%");
-
-        } else if(lastChar == '%' || arg.equals("")) {
+        if(lastChar == '%' || arg.equals("")) {
             return Tag.SLABS.getValues()
                     .stream()
                     .map(Material::toString)
