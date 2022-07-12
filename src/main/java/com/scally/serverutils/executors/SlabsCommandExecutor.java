@@ -141,8 +141,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             case 3, 6:
                 return List.of(targ.getZ() + "" );
             case 7, 8:
-//                return onTabCompleteDistribution(args[args.length-1]);
-
+                return onTabCompleteDistribution(args[args.length-1]);
+                /*
                 final String prefix = args[args.length-1];
 
                 String[] parts = prefix.split(",");
@@ -184,6 +184,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         .sorted()
                         .map(s -> new StringBuilder(lastPart).append(s).toString())
                         .collect(Collectors.toList());
+
+                 */
         }
         return Collections.EMPTY_LIST;
     }
@@ -202,7 +204,10 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 - ends with something else ==> return nothing
          */
 
-        char lastChar = arg.charAt(arg.length()-1);
+        char lastChar = 0;
+        if (!arg.equals("")) {
+            lastChar = arg.charAt(arg.length() - 1);
+        }
 
         if( Character.isDigit(lastChar) ) {
             return List.of(arg + "%");
@@ -226,10 +231,10 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 firstPart = "";
             } else if(lastPercent >= lastComma) {
                 lastPart = arg.substring(lastPercent+1);
-                firstPart = arg.substring(0,lastPercent);
+                firstPart = arg.substring(0,lastPercent+1);
             } else {
                 lastPart = arg.substring(lastComma+1);
-                firstPart = arg.substring(0,lastComma);
+                firstPart = arg.substring(0,lastComma+1);
             }
 
             return Tag.SLABS.getValues()
