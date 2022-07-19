@@ -136,4 +136,14 @@ public class SlabsCommandExecutorTest {
                 .sendError(player, expectedMessage);
     }
 
+    @Test
+    public void onCommand_enterTilda() {
+        final String[] args = new String[] {
+                "~", "~", "~", "~", "~", "~"
+        };
+
+
+
+    }
+
 }
