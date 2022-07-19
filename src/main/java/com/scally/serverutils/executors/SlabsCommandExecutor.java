@@ -3,6 +3,7 @@ package com.scally.serverutils.executors;
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -49,15 +50,13 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        final int[] coords = new int[6];
-        for (int i = 0; i < 6; i++) {
-            try {
-                coords[i] = Integer.parseInt(args[i]);
-            } catch (NumberFormatException exception) {
-                messageSender.sendError(commandSender, "Coordinates must be a valid number!");
-                return false;
-            }
+        if (!(commandSender instanceof Player)) {
+            messageSender.sendError(commandSender, "Must be sent by a player!");
+            return false;
         }
+
+        final Player player = (Player) commandSender;
+        final int[] coords = getCoordinates(player, args);
 
         // verify that the volume is under a certain size
         final int x1 = coords[0];
@@ -89,15 +88,9 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         final int max_y = Math.max(y1, y2);
         final int max_z = Math.max(z1, z2);
 
-        if (!(commandSender instanceof Player)) {
-            messageSender.sendError(commandSender, "Must be sent by a player!");
-            return false;
-        }
-
-        final Player player = (Player) commandSender;
         World world = player.getWorld();
-
         int changedCount = 0;
+
         for(int x = min_x; x <= max_x; x++) {
             for(int y = min_y; y <= max_y; y++) {
                 for(int z = min_z; z <= max_z; z++) {
@@ -146,6 +139,42 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 return onTabCompleteDistribution(args[args.length-1]);
         }
         return Collections.EMPTY_LIST;
+    }
+
+    public int[] getCoordinates(Player player, String[] args) {
+
+        int[] coords = new int[6];
+        final Location loc = player.getLocation();
+        for(int i = 0; i < coords.length; i++) {
+            boolean isRelative = false;
+            if(args[i].startsWith("~")) {
+
+                if(args[i].equals('~')) {
+                    if(i == 0 || i == 3) { coords[i] = (int) loc.getX(); }
+                    else if(i == 1 || i == 4) { coords[i] = (int) loc.getY(); }
+                    else if(i == 2 || i == 5) { coords[i] = (int) loc.getZ(); }
+                    continue;
+                }
+                args[i] = args[i].substring(1);
+                isRelative = true;
+            }
+
+            try {
+                coords[i] = Integer.parseInt(args[i]);
+            } catch (NumberFormatException exception) {
+                messageSender.sendError(player, "Coordinates must be a valid number!");
+                return null;
+            }
+
+            if(isRelative == true) {
+                if(i == 0 || i == 3) { coords[i] = ((int) loc.getX()) + coords[i]; }
+                else if(i == 1 || i == 4) { coords[i] = ((int) loc.getY()) + coords[i]; }
+                else if(i == 2 || i == 5) { coords[i] = ((int) loc.getZ()) + coords[i]; }
+            }
+
+        }
+        return coords;
+
     }
 
     List<String> onTabCompleteDistribution(String arg) {
