@@ -3,6 +3,7 @@ package com.scally.serverutils.executors;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.scally.serverutils.chat.ChatMessageSender;
+import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,6 +35,9 @@ public class SlabsCommandExecutorTest {
 
     @Mock
     private ChatMessageSender messageSender;
+
+    @Mock
+    private Location location;
 
     private ServerMock server;
 
@@ -142,7 +146,17 @@ public class SlabsCommandExecutorTest {
                 "~", "~", "~", "~", "~", "~"
         };
 
+        Mockito.when(location.getBlockX()).thenReturn(0);
+        Mockito.when(location.getBlockY()).thenReturn(0);
+        Mockito.when(location.getBlockZ()).thenReturn(0);
+        Mockito.when(player.getLocation()).thenReturn(location);
 
+        final int[] coords = slabsCommandExecutor.getCoordinates(player, args);
+        for(int i = 0; i < coords.length; i++) {
+            if(i == 0 || i == 3) { assertEquals(coords[i], location.getBlockX()); }
+            else if(i == 1 || i == 4) { assertEquals(coords[i], location.getBlockY()); }
+            else if(i == 2 || i == 5) { assertEquals(coords[i], location.getBlockZ()); }
+        }
 
     }
 

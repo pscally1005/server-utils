@@ -57,6 +57,10 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         final Player player = (Player) commandSender;
         final int[] coords = getCoordinates(player, args);
+        if(coords == null) {
+            messageSender.sendError(player, "Coordinates must be a valid number!");
+            return false;
+        }
 
         // verify that the volume is under a certain size
         final int x1 = coords[0];
@@ -150,9 +154,9 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             if(args[i].startsWith("~")) {
 
                 if(args[i].equals('~')) {
-                    if(i == 0 || i == 3) { coords[i] = (int) loc.getX(); }
-                    else if(i == 1 || i == 4) { coords[i] = (int) loc.getY(); }
-                    else if(i == 2 || i == 5) { coords[i] = (int) loc.getZ(); }
+                    if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
+                    else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
+                    else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ(); }
                     continue;
                 }
                 args[i] = args[i].substring(1);
@@ -162,14 +166,13 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             try {
                 coords[i] = Integer.parseInt(args[i]);
             } catch (NumberFormatException exception) {
-                messageSender.sendError(player, "Coordinates must be a valid number!");
                 return null;
             }
 
             if(isRelative == true) {
-                if(i == 0 || i == 3) { coords[i] = ((int) loc.getX()) + coords[i]; }
-                else if(i == 1 || i == 4) { coords[i] = ((int) loc.getY()) + coords[i]; }
-                else if(i == 2 || i == 5) { coords[i] = ((int) loc.getZ()) + coords[i]; }
+                if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
+                else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
+                else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ() + coords[i]; }
             }
 
         }
