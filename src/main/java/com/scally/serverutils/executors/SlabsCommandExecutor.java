@@ -153,7 +153,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             boolean isRelative = false;
             if(args[i].startsWith("~")) {
 
-                if(args[i].equals('~')) {
+                if(args[i].equals("~")) {
                     if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
                     else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
                     else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ(); }
