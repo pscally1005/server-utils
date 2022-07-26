@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 // TODO: unit tests
 // TODO: sel wand
 // TODO: undo
-// TODO: implement tilda tab-complete + tilda coords
-//       getTargetBlock doesn't work when block isnt in range
 
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
