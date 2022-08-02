@@ -13,7 +13,7 @@ public class Changeset {
 
     private boolean locked = false;
 
-    public void store(Block beforeBlock, Block afterBlock) {
+    public void addChange(Block beforeBlock, Block afterBlock) {
         if (locked) {
             throw new IllegalStateException("Changeset is already locked!");
         }

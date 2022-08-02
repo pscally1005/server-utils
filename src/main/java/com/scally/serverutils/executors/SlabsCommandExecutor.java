@@ -119,7 +119,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         world.setBlockData(x, y, z, bd);
 
                         final Block after = world.getBlockAt(x, y, z);
-                        changeset.store(before, after);
+                        changeset.addChange(before, after);
 
                     }
 
@@ -127,6 +127,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             }
         }
 
+        undoManager.store(player, changeset);
         messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
         return true;
     }
