@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,23 @@ public class Changeset {
             changedCount++;*/
 
         }
+    }
+
+    public void returnStrings(Player player) {
+        String before = "BEFORE: ";
+        for(int i = 0; i < beforeList.size(); i++) {
+            before = before + beforeList.get(i).getBlockData().getMaterial().toString() + ", ";
+        }
+        before = before.substring(0, before.length()-2);
+        player.sendMessage(before);
+
+        String after = "AFTER: ";
+        for(int i = 0; i < afterList.size(); i++) {
+            after = after + afterList.get(i).getBlockData().getMaterial().toString() + ", ";
+        }
+        after = after.substring(0, after.length()-2);
+        player.sendMessage(after);
+
     }
 
 }
