@@ -3,6 +3,7 @@ package com.scally.serverutils.executors;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.undo.UndoManager;
 import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.command.Command;
@@ -37,6 +38,9 @@ public class SlabsCommandExecutorTest {
     private ChatMessageSender messageSender;
 
     @Mock
+    private UndoManager undoManager;
+
+    @Mock
     private Location location;
 
     private ServerMock server;
@@ -49,7 +53,7 @@ public class SlabsCommandExecutorTest {
     public void before() {
         mocks = MockitoAnnotations.openMocks(this);
         server = MockBukkit.mock();
-        slabsCommandExecutor = new SlabsCommandExecutor(messageSender);
+        slabsCommandExecutor = new SlabsCommandExecutor(messageSender, undoManager);
     }
 
     @AfterEach

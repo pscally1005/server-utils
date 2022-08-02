@@ -1,9 +1,6 @@
 package com.scally.serverutils.undo;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Slab;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -14,7 +11,12 @@ public class Changeset {
     private final List<Block> beforeList = new ArrayList<>();
     private final List<Block> afterList = new ArrayList<>();
 
+    private boolean locked = false;
+
     public void store(Block beforeBlock, Block afterBlock) {
+        if (locked) {
+            throw new IllegalStateException("Changeset is already locked!");
+        }
         beforeList.add(beforeBlock);
         afterList.add(afterBlock);
     }
@@ -38,6 +40,14 @@ public class Changeset {
             changedCount++;*/
 
         }
+    }
+
+    public void lock() {
+        locked = true;
+    }
+
+    public int count() {
+        return afterList.size();
     }
 
     public void returnStrings(Player player) {

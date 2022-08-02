@@ -1,5 +1,6 @@
 package com.scally.serverutils.executors;
 
+import com.scally.serverutils.chat.ChatMessageSender;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class FillContainerCommandExecutorTest {
 
-    private final FillContainerCommandExecutor fillContainerCommandExecutor = new FillContainerCommandExecutor();
+    private FillContainerCommandExecutor fillContainerCommandExecutor;
 
     @Mock
     private Entity sender;
@@ -43,11 +44,15 @@ public class FillContainerCommandExecutorTest {
     @Mock
     private Inventory inventory;
 
+    @Mock
+    private ChatMessageSender messageSender;
+
     private AutoCloseable mocks;
 
     @BeforeEach
     public void before() {
         mocks = MockitoAnnotations.openMocks(this);
+        fillContainerCommandExecutor = new FillContainerCommandExecutor(messageSender);
     }
 
     @AfterEach

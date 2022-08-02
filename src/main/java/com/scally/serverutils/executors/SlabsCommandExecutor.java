@@ -3,6 +3,8 @@ package com.scally.serverutils.executors;
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
+import com.scally.serverutils.undo.Changeset;
+import com.scally.serverutils.undo.UndoManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -18,11 +20,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 // TODO: unit tests
-// TODO: sel wand
 // TODO: undo
 
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
@@ -30,19 +32,18 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
     public static final int VOLUME_LIMIT = 64 * 64 * 64;
 
     private final ChatMessageSender messageSender;
+    private final UndoManager undoManager;
 
-    public SlabsCommandExecutor() {
-        this.messageSender = new ChatMessageSender();
-    }
-
-    public SlabsCommandExecutor(ChatMessageSender messageSender) {
+    public SlabsCommandExecutor(ChatMessageSender messageSender, UndoManager undoManager) {
         this.messageSender = messageSender;
+        this.undoManager = undoManager;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
 
+        // TODO: args number annotation
         // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
         if (args.length != 8) {
             messageSender.sendError(commandSender, "Invalid number of args!");
@@ -92,7 +93,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         final int max_z = Math.max(z1, z2);
 
         World world = player.getWorld();
-        int changedCount = 0;
+
+        final Changeset changeset = new Changeset();
 
         for(int x = min_x; x <= max_x; x++) {
             for(int y = min_y; y <= max_y; y++) {
@@ -104,6 +106,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
                     if(fromDistribution.hasMaterial(mat) == true) {
 
+                        final Block before = block;
+
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
                         boolean isWaterlogged = slab.isWaterlogged();
@@ -113,7 +117,9 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
                         world.setBlockData(x, y, z, bd);
-                        changedCount++;
+
+                        final Block after = world.getBlockAt(x, y, z);
+                        changeset.store(before, after);
 
                     }
 
@@ -121,7 +127,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             }
         }
 
-        messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changedCount));
+        messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
         return true;
     }
 
