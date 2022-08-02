@@ -1,9 +1,8 @@
-package com.scally.serverutils.executors;
+package com.scally.serverutils.slabs;
 
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
-import com.scally.serverutils.undo.Changeset;
 import com.scally.serverutils.undo.UndoManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -94,7 +93,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         World world = player.getWorld();
 
-        final Changeset changeset = new Changeset();
+        final SlabsChangeset changeset = new SlabsChangeset();
 
         for(int x = min_x; x <= max_x; x++) {
             for(int y = min_y; y <= max_y; y++) {
@@ -118,8 +117,29 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         ((Slab) bd).setType(type);
                         world.setBlockData(x, y, z, bd);
 
+                        /*
+
+                            interface Changeset
+                                undo()
+
+                            class SlabsChangeset implements Changeset
+                                undo():
+                                    - changes slab back to what it was, preserving the tags
+                                stores:
+                                    - List<Coordinates, Material> before
+                                    - List<Coordinates, Material> after
+
+                            class FillContainerChangeset implements Changeset
+                                undo():
+                                    - change the inventory of the block back to what it was
+                                stores:
+                                    - ItemStack[] before
+                                    - ItemStack[] after
+
+                         */
+
                         final Block after = world.getBlockAt(x, y, z);
-                        changeset.addChange(before, after);
+                        changeset.add(before, after);
 
                     }
 

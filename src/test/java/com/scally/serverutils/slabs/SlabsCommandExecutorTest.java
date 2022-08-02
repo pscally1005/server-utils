@@ -1,4 +1,4 @@
-package com.scally.serverutils.executors;
+package com.scally.serverutils.slabs;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;

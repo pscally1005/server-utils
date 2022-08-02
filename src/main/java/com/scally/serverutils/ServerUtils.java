@@ -1,8 +1,8 @@
 package com.scally.serverutils;
 
 import com.scally.serverutils.chat.ChatMessageSender;
-import com.scally.serverutils.executors.FillContainerCommandExecutor;
-import com.scally.serverutils.executors.SlabsCommandExecutor;
+import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
+import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.undo.UndoCommandExecutor;
 import com.scally.serverutils.undo.UndoManager;
 import org.bukkit.plugin.java.JavaPlugin;
