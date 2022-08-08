@@ -1,6 +1,5 @@
 package com.scally.serverutils.undo;
 
-import com.scally.serverutils.slabs.SlabsChangeset;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -11,7 +10,7 @@ public class UndoManager {
 
     private static UndoManager instance = null;
 
-    private final Map<UUID, SlabsChangeset> changes;
+    private final Map<UUID, Changeset> changes;
 
     private UndoManager() {
         changes = new HashMap<>();
@@ -26,20 +25,17 @@ public class UndoManager {
         }
     }
 
-    public void store(Player player, SlabsChangeset changeset) {
+    public void store(Player player, Changeset changeset) {
         changeset.lock();
         changes.put(player.getUniqueId(), changeset);
     }
 
     public boolean undo(Player player) {
-        final SlabsChangeset changeset = changes.get(player.getUniqueId());
+        final Changeset changeset = changes.get(player.getUniqueId());
         if (changeset == null) {
             return false;
         }
-
-//        changeset.undo();
-        changeset.returnStrings(player);
-        return true;
+        return changeset.undo();
     }
 
 }
