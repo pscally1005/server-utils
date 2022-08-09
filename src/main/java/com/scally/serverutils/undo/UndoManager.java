@@ -1,5 +1,6 @@
 package com.scally.serverutils.undo;
 
+import com.scally.serverutils.chat.ChatMessageSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -11,6 +12,8 @@ public class UndoManager {
     private static UndoManager instance = null;
 
     private final Map<UUID, Changeset> changes;
+
+    private final ChatMessageSender messageSender = new ChatMessageSender();
 
     private UndoManager() {
         changes = new HashMap<>();
@@ -35,7 +38,10 @@ public class UndoManager {
         if (changeset == null) {
             return false;
         }
-        return changeset.undo();
+
+        String message = changeset.undo();
+        messageSender.sendSuccess(player, message);
+        return true;
     }
 
 }

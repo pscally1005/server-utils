@@ -105,41 +105,19 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
                     if(fromDistribution.hasMaterial(mat) == true) {
 
-                        final Block before = block;
-
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
                         boolean isWaterlogged = slab.isWaterlogged();
-                        Material toSlab = toDistribution.pick();
-                        block.setType(toSlab, false);
+                        Material toMaterial = toDistribution.pick();
+                        block.setType(toMaterial, false);
                         bd = block.getBlockData();
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
                         world.setBlockData(x, y, z, bd);
 
-                        /*
-
-                            interface Changeset
-                                undo()
-
-                            class SlabsChangeset implements Changeset
-                                undo():
-                                    - changes slab back to what it was, preserving the tags
-                                stores:
-                                    - List<Coordinates, Material> before
-                                    - List<Coordinates, Material> after
-
-                            class FillContainerChangeset implements Changeset
-                                undo():
-                                    - change the inventory of the block back to what it was
-                                stores:
-                                    - ItemStack[] before
-                                    - ItemStack[] after
-
-                         */
-
-                        final Block after = world.getBlockAt(x, y, z);
-                        changeset.add(before, after);
+                        final Location loc = block.getLocation();
+                        SlabsChange slabsChange = new SlabsChange(loc, slab.getMaterial(), toMaterial);
+                        changeset.add(slabsChange);
 
                     }
 
