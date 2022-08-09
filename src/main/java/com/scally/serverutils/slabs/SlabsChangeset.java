@@ -12,9 +12,6 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: change from <Block> to a type that has the coordinate and the Material
-// TODO: try to explain generics better next time
-
 public class SlabsChangeset implements Changeset<SlabsChange> {
 
     private final List<SlabsChange> slabsChangeList = new ArrayList<>();
@@ -49,7 +46,7 @@ public class SlabsChangeset implements Changeset<SlabsChange> {
 
         }
 
-        String message = String.format("Success! %d blocks changed back", count());
+        String message = String.format(" %d blocks changed back.", count());
         return message;
 
     }

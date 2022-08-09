@@ -36,6 +36,7 @@ public class UndoManager {
     public boolean undo(Player player) {
         final Changeset changeset = changes.get(player.getUniqueId());
         if (changeset == null) {
+            messageSender.sendError(player, "Nothing to undo!");
             return false;
         }
 
