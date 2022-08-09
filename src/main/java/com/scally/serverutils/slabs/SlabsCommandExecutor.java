@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -116,7 +117,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         world.setBlockData(x, y, z, bd);
 
                         final Location loc = block.getLocation();
-                        SlabsChange slabsChange = new SlabsChange(loc, slab.getMaterial(), toMaterial);
+                        SlabsChange slabsChange = new SlabsChange(loc, slab.getMaterial(), toMaterial, type, isWaterlogged);
                         changeset.add(slabsChange);
 
                     }

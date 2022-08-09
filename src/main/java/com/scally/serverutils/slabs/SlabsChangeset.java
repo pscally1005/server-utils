@@ -34,15 +34,13 @@ public class SlabsChangeset implements Changeset<SlabsChange> {
 
             Location location = slabsChange.location();
             Block block = location.getBlock();
-            BlockData bd = block.getBlockData();
-            Slab slab = (Slab) bd;
 
-            Slab.Type type = slab.getType();
-            boolean isWaterlogged = slab.isWaterlogged();
+            Slab.Type type = slabsChange.type();
+            boolean isWaterlogged = slabsChange.waterlogged();
             block.setType(slabsChange.beforeMaterial(), false);
 
-            bd = block.getBlockData();
-            slab = (Slab) bd;
+            BlockData bd = block.getBlockData();
+            Slab slab = (Slab) bd;
             slab.setWaterlogged(isWaterlogged);
             slab.setType(type);
 

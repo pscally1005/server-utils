@@ -41,6 +41,8 @@ public class UndoManager {
 
         String message = changeset.undo();
         messageSender.sendSuccess(player, message);
+
+        changes.remove(player.getUniqueId());
         return true;
     }
 
