@@ -15,3 +15,7 @@ commands:
   fill-container:
     description: Fill a container with a random distribution
     usage: /fill-container <x> <y> <z> <distribution>
+
+  s-undo:
+    description: Undo last command
+    usage: /s-undo

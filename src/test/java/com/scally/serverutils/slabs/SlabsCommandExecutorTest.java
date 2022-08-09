@@ -1,8 +1,10 @@
-package com.scally.serverutils.executors;
+package com.scally.serverutils.slabs;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.undo.UndoManager;
+import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -35,6 +37,12 @@ public class SlabsCommandExecutorTest {
     @Mock
     private ChatMessageSender messageSender;
 
+    @Mock
+    private UndoManager undoManager;
+
+    @Mock
+    private Location location;
+
     private ServerMock server;
 
     private AutoCloseable mocks;
@@ -45,7 +53,7 @@ public class SlabsCommandExecutorTest {
     public void before() {
         mocks = MockitoAnnotations.openMocks(this);
         server = MockBukkit.mock();
-        slabsCommandExecutor = new SlabsCommandExecutor(messageSender);
+        slabsCommandExecutor = new SlabsCommandExecutor(messageSender, undoManager);
     }
 
     @AfterEach
@@ -134,6 +142,26 @@ public class SlabsCommandExecutorTest {
 
         Mockito.verify(messageSender, Mockito.times(1))
                 .sendError(player, expectedMessage);
+    }
+
+    @Test
+    public void onCommand_enterTilda() {
+        final String[] args = new String[] {
+                "~", "~", "~", "~", "~", "~"
+        };
+
+        Mockito.when(location.getBlockX()).thenReturn(0);
+        Mockito.when(location.getBlockY()).thenReturn(0);
+        Mockito.when(location.getBlockZ()).thenReturn(0);
+        Mockito.when(player.getLocation()).thenReturn(location);
+
+        final int[] coords = slabsCommandExecutor.getCoordinates(player, args);
+        for(int i = 0; i < coords.length; i++) {
+            if(i == 0 || i == 3) { assertEquals(coords[i], location.getBlockX()); }
+            else if(i == 1 || i == 4) { assertEquals(coords[i], location.getBlockY()); }
+            else if(i == 2 || i == 5) { assertEquals(coords[i], location.getBlockZ()); }
+        }
+
     }
 
 }

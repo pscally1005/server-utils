@@ -1,4 +1,4 @@
-package com.scally.serverutils.executors;
+package com.scally.serverutils.fillcontainer;
 
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
@@ -24,7 +24,11 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             Material.SHULKER_BOX
     );
 
-    private final ChatMessageSender messageSender = new ChatMessageSender();
+    private final ChatMessageSender messageSender;
+
+    public FillContainerCommandExecutor(ChatMessageSender messageSender) {
+        this.messageSender = messageSender;
+    }
 
     /**
      * /fill-container x y z distribution

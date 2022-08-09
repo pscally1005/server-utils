@@ -1,8 +1,10 @@
-package com.scally.serverutils.executors;
+package com.scally.serverutils.slabs;
 
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
+import com.scally.serverutils.undo.UndoManager;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -14,49 +16,50 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 // TODO: unit tests
-// TODO: sel wand
 // TODO: undo
-// TODO: implement tilda tab-complete + tilda coords
-//       getTargetBlock doesn't work when block isnt in range
 
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
     public static final int VOLUME_LIMIT = 64 * 64 * 64;
 
     private final ChatMessageSender messageSender;
+    private final UndoManager undoManager;
 
-    public SlabsCommandExecutor() {
-        this.messageSender = new ChatMessageSender();
-    }
-
-    public SlabsCommandExecutor(ChatMessageSender messageSender) {
+    public SlabsCommandExecutor(ChatMessageSender messageSender, UndoManager undoManager) {
         this.messageSender = messageSender;
+        this.undoManager = undoManager;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
 
+        // TODO: args number annotation
         // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
         if (args.length != 8) {
             messageSender.sendError(commandSender, "Invalid number of args!");
             return false;
         }
 
-        final int[] coords = new int[6];
-        for (int i = 0; i < 6; i++) {
-            try {
-                coords[i] = Integer.parseInt(args[i]);
-            } catch (NumberFormatException exception) {
-                messageSender.sendError(commandSender, "Coordinates must be a valid number!");
-                return false;
-            }
+        if (!(commandSender instanceof Player)) {
+            messageSender.sendError(commandSender, "Must be sent by a player!");
+            return false;
+        }
+
+        final Player player = (Player) commandSender;
+        final int[] coords = getCoordinates(player, args);
+        if(coords == null) {
+            messageSender.sendError(player, "Coordinates must be a valid number!");
+            return false;
         }
 
         // verify that the volume is under a certain size
@@ -89,15 +92,10 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         final int max_y = Math.max(y1, y2);
         final int max_z = Math.max(z1, z2);
 
-        if (!(commandSender instanceof Player)) {
-            messageSender.sendError(commandSender, "Must be sent by a player!");
-            return false;
-        }
-
-        final Player player = (Player) commandSender;
         World world = player.getWorld();
 
-        int changedCount = 0;
+        final SlabsChangeset changeset = new SlabsChangeset();
+
         for(int x = min_x; x <= max_x; x++) {
             for(int y = min_y; y <= max_y; y++) {
                 for(int z = min_z; z <= max_z; z++) {
@@ -111,13 +109,16 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
                         boolean isWaterlogged = slab.isWaterlogged();
-                        Material toSlab = toDistribution.pick();
-                        block.setType(toSlab, false);
+                        Material toMaterial = toDistribution.pick();
+                        block.setType(toMaterial, false);
                         bd = block.getBlockData();
                         ((Slab) bd).setWaterlogged(isWaterlogged);
                         ((Slab) bd).setType(type);
                         world.setBlockData(x, y, z, bd);
-                        changedCount++;
+
+                        final Location loc = block.getLocation();
+                        SlabsChange slabsChange = new SlabsChange(loc, slab.getMaterial(), toMaterial, type, isWaterlogged);
+                        changeset.add(slabsChange);
 
                     }
 
@@ -125,7 +126,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
             }
         }
 
-        messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changedCount));
+        undoManager.store(player, changeset);
+        messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
         return true;
     }
 
@@ -133,8 +135,24 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         if (!(sender instanceof Player)) {
             return Collections.EMPTY_LIST;
         }
+
         Player player = (Player) sender;
-        Block targ = player.getTargetBlock(Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER), 5);
+        final RayTraceResult rayTraceResult = player.rayTraceBlocks(5);
+        if (rayTraceResult == null) {
+            switch(args.length) {
+                case 1,4:
+                    return List.of("~", "~ ~", "~ ~ ~");
+                case 2,5:
+                    return List.of("~", "~ ~");
+                case 3, 6:
+                    return List.of("~");
+                case 7, 8:
+                    return onTabCompleteDistribution(args[args.length-1]);
+            }
+        }
+
+        final Block targ = rayTraceResult.getHitBlock();
+        //Block targ = player.getTargetBlock(Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER), 5);
         switch(args.length) {
             case 1, 4:
                 return List.of(targ.getX() + "", targ.getX() + " " + targ.getY(), targ.getX() + " " + targ.getY() + " " + targ.getZ() );
@@ -146,6 +164,41 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 return onTabCompleteDistribution(args[args.length-1]);
         }
         return Collections.EMPTY_LIST;
+    }
+
+    public int[] getCoordinates(Player player, String[] args) {
+
+        int[] coords = new int[6];
+        final Location loc = player.getLocation();
+        for(int i = 0; i < coords.length; i++) {
+            boolean isRelative = false;
+            if(args[i].startsWith("~")) {
+
+                if(args[i].equals("~")) {
+                    if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
+                    else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
+                    else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ(); }
+                    continue;
+                }
+                args[i] = args[i].substring(1);
+                isRelative = true;
+            }
+
+            try {
+                coords[i] = Integer.parseInt(args[i]);
+            } catch (NumberFormatException exception) {
+                return null;
+            }
+
+            if(isRelative == true) {
+                if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
+                else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
+                else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ() + coords[i]; }
+            }
+
+        }
+        return coords;
+
     }
 
     List<String> onTabCompleteDistribution(String arg) {

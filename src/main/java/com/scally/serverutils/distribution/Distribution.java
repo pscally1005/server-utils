@@ -111,8 +111,6 @@ public final class Distribution {
         final List<DistributionPair> pairs = new ArrayList<>();
         final String[] materials = distributionStr.split(",");
 
-        // TODO : call this from Slabs command + write some unit tests
-
         // Check that all materials either have a % or don't
         boolean allHavePercentage = true;
         boolean noneHavePercentage = true;
