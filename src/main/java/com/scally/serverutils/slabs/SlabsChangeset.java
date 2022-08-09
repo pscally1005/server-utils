@@ -46,7 +46,7 @@ public class SlabsChangeset implements Changeset<SlabsChange> {
 
         }
 
-        String message = String.format(" %d blocks changed back.", count());
+        String message = String.format("%d blocks changed back.", count());
         return message;
 
     }
