@@ -52,7 +52,7 @@ public class UndoManager {
 
     }
 
-    public boolean undo(Player player) {
+    public boolean undo(Player player, int undoSize) {
 
         final Stack<Changeset> stack = changes.get(player.getUniqueId());
         if (stack == null || stack.empty()) {
@@ -60,10 +60,23 @@ public class UndoManager {
             return false;
         }
 
-        String message = stack.pop().undo();
-        messageSender.sendSuccess(player, message);
-        changes.put(player.getUniqueId(), stack);
+        String message;
+        if(undoSize > stackSize) {
+            message = String.format("Undid %d edits", stackSize);
+        } else {
+            message = String.format("Undid %d edits", undoSize);
+        }
 
+        while(undoSize > 0) {
+            stack.pop().undo();
+            undoSize--;
+            if(stack.empty()) {
+                break;
+            }
+        }
+        messageSender.sendSuccess(player, message);
+
+        changes.put(player.getUniqueId(), stack);
         return true;
     }
 

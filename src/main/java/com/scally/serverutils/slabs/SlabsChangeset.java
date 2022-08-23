@@ -25,7 +25,7 @@ public class SlabsChangeset implements Changeset<SlabsChange> {
         slabsChangeList.add(slabsChange);
     }
 
-    public String undo() {
+    public boolean undo() {
 
         for(SlabsChange slabsChange : slabsChangeList) {
 
@@ -46,8 +46,8 @@ public class SlabsChangeset implements Changeset<SlabsChange> {
 
         }
 
-        String message = String.format("%d blocks changed back.", count());
-        return message;
+        //String message = String.format("%d blocks changed back.", count());
+        return true;
 
     }
 

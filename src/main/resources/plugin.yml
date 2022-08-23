@@ -17,5 +17,5 @@ commands:
     usage: /fill-container <x> <y> <z> <distribution>
 
   s-undo:
-    description: Undo last command
-    usage: /s-undo
+    description: Undo last command(s)
+    usage: /s-undo [int]
