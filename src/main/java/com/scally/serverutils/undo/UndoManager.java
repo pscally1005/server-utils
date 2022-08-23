@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class UndoManager {
 
-    public static final int stackSize = 10;
+    public static final int STACK_SIZE = 10;
 
     private static UndoManager instance = null;
 
@@ -41,7 +41,7 @@ public class UndoManager {
             stack = changes.get(player.getUniqueId());
         }
 
-        if(stack.size() >= stackSize) {
+        if(stack.size() >= STACK_SIZE) {
             stack.remove(0);
         }
 
@@ -61,8 +61,8 @@ public class UndoManager {
         }
 
         String message;
-        if(undoSize > stackSize) {
-            message = String.format("Undid %d edits", stackSize);
+        if(undoSize > stack.size()) {
+            message = String.format("Undid %d edits", stack.size());
         } else {
             message = String.format("Undid %d edits", undoSize);
         }
