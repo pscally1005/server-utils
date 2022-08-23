@@ -62,9 +62,9 @@ public class UndoManager {
 
         String message;
         if(undoSize > stack.size()) {
-            message = String.format("Undid %d edits", stack.size());
+            message = String.format("Undid %d edit(s)", stack.size());
         } else {
-            message = String.format("Undid %d edits", undoSize);
+            message = String.format("Undid %d edit(s)", undoSize);
         }
 
         while(undoSize > 0) {
