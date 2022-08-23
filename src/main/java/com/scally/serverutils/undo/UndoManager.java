@@ -5,13 +5,16 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 import java.util.UUID;
 
 public class UndoManager {
 
+    public static final int STACK_SIZE = 10;
+
     private static UndoManager instance = null;
 
-    private final Map<UUID, Changeset> changes;
+    private final Map<UUID, Stack<Changeset> > changes;
 
     private final ChatMessageSender messageSender = new ChatMessageSender();
 
@@ -30,20 +33,50 @@ public class UndoManager {
 
     public void store(Player player, Changeset changeset) {
         changeset.lock();
-        changes.put(player.getUniqueId(), changeset);
+
+        Stack<Changeset> stack;
+        if(changes.get(player.getUniqueId()) == null) {
+            stack = new Stack<Changeset>();
+        } else {
+            stack = changes.get(player.getUniqueId());
+        }
+
+        if(stack.size() >= STACK_SIZE) {
+            stack.remove(0);
+        }
+
+        if(changeset.count() > 0) {
+            stack.push(changeset);
+            changes.put(player.getUniqueId(), stack);
+        }
+
     }
 
-    public boolean undo(Player player) {
-        final Changeset changeset = changes.get(player.getUniqueId());
-        if (changeset == null) {
+    public boolean undo(Player player, int undoSize) {
+
+        final Stack<Changeset> stack = changes.get(player.getUniqueId());
+        if (stack == null || stack.empty()) {
             messageSender.sendError(player, "Nothing to undo!");
             return false;
         }
 
-        String message = changeset.undo();
+        String message;
+        if(undoSize > stack.size()) {
+            message = String.format("Undid %d edit(s)", stack.size());
+        } else {
+            message = String.format("Undid %d edit(s)", undoSize);
+        }
+
+        while(undoSize > 0) {
+            stack.pop().undo();
+            undoSize--;
+            if(stack.empty()) {
+                break;
+            }
+        }
         messageSender.sendSuccess(player, message);
 
-        changes.remove(player.getUniqueId());
+        changes.put(player.getUniqueId(), stack);
         return true;
     }
 
