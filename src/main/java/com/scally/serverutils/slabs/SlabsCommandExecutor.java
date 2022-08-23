@@ -148,6 +148,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                     return List.of("~");
                 case 7, 8:
                     return onTabCompleteDistribution(args[args.length-1]);
+                default:
+                    return List.of();
             }
         }
 

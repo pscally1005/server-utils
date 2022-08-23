@@ -44,8 +44,12 @@ public class UndoManager {
         if(stack.size() >= stackSize) {
             stack.remove(0);
         }
-        stack.push(changeset);
-        changes.put(player.getUniqueId(), stack);
+
+        if(changeset.count() > 0) {
+            stack.push(changeset);
+            changes.put(player.getUniqueId(), stack);
+        }
+
     }
 
     public boolean undo(Player player) {
