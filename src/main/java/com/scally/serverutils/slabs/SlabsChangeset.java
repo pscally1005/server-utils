@@ -2,12 +2,10 @@ package com.scally.serverutils.slabs;
 
 import com.scally.serverutils.undo.Changeset;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;

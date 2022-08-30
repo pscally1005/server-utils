@@ -1,5 +1,6 @@
 package com.scally.serverutils.slabs;
 
+import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
@@ -19,18 +20,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 // TODO: unit tests
-// TODO: undo
 
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
-
-    public static final int VOLUME_LIMIT = 64 * 64 * 64;
-
+    
     private final ChatMessageSender messageSender;
     private final UndoManager undoManager;
 
@@ -72,8 +69,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         final int z2 = coords[5];
 
         final long volume = Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
-        if (volume > VOLUME_LIMIT) {
-            messageSender.sendError(commandSender, String.format("Volume must be less than %d blocks", VOLUME_LIMIT));
+        if (volume > ServerUtils.VOLUME_LIMIT) {
+            messageSender.sendError(commandSender, String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT));
             return false;
         }
 

@@ -2,6 +2,7 @@ package com.scally.serverutils.slabs;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageSender;
 import com.scally.serverutils.undo.UndoManager;
 import org.bukkit.Location;
@@ -138,7 +139,7 @@ public class SlabsCommandExecutorTest {
         assertFalse(result);
 
         final String expectedMessage = String.format("Volume must be less than %d blocks",
-                SlabsCommandExecutor.VOLUME_LIMIT);
+                ServerUtils.VOLUME_LIMIT);
 
         Mockito.verify(messageSender, Mockito.times(1))
                 .sendError(player, expectedMessage);
