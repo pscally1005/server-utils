@@ -1,6 +1,5 @@
 package com.scally.serverutils.fillcontainer;
 
-import com.scally.serverutils.chat.ChatMessageUtils;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -44,15 +43,12 @@ public class FillContainerCommandExecutorTest {
     @Mock
     private Inventory inventory;
 
-    @Mock
-    private ChatMessageUtils messageSender;
-
     private AutoCloseable mocks;
 
     @BeforeEach
     public void before() {
         mocks = MockitoAnnotations.openMocks(this);
-        fillContainerCommandExecutor = new FillContainerCommandExecutor(messageSender);
+        fillContainerCommandExecutor = new FillContainerCommandExecutor();
     }
 
     @AfterEach

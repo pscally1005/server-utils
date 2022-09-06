@@ -3,37 +3,96 @@ package com.scally.serverutils.validation;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class InputValidator {
 
-    public static boolean checkArgNumber(CommandSender commandSender, int argsNum, int correctNum) {
+    private final int expectedNumArgs;
+    private final boolean playerOnly;
+    private final boolean performCoordinateValidation;
 
-        if (argsNum != correctNum) {
-            ChatMessageUtils.sendError(commandSender, "Invalid number of args!");
-            return false;
-        }
-
-        return true;
-
+    private InputValidator(Builder builder) {
+        this.expectedNumArgs = builder.expectedNumArgs;
+        this.playerOnly = builder.playerOnly;
+        this.performCoordinateValidation = builder.performCoordinateValidation;
     }
 
-    public static boolean isPlayer(CommandSender commandSender) {
+    public static Builder builder() {
+        return new Builder();
+    }
 
-        if (!(commandSender instanceof Player)) {
+    public static class Builder {
+        private int expectedNumArgs;
+        private boolean playerOnly;
+        private boolean performCoordinateValidation;
+
+        public Builder expectedNumArgs(int expectedNumArgs) {
+            this.expectedNumArgs = expectedNumArgs;
+            return this;
+        }
+
+        public Builder playerOnly() {
+            this.playerOnly = true;
+            return this;
+        }
+
+        public Builder withCoordinateValidation() {
+            this.playerOnly = true;
+            this.performCoordinateValidation = true;
+            return this;
+        }
+
+        public InputValidator build() {
+            return new InputValidator(this);
+        }
+    }
+
+    public ValidationResult validate(CommandSender commandSender, String[] args) {
+        if (!validateArgsNumber(args)) {
+            ChatMessageUtils.sendError(commandSender, "Invalid number of args!");
+            return ValidationResult.invalid();
+        }
+
+        if (!validateCommandSenderType(commandSender)) {
+            return ValidationResult.invalid();
+        }
+
+        if (performCoordinateValidation) {
+            final int[] coordinates = validateCoordinates(commandSender, args);
+            if (coordinates == null) {
+                return ValidationResult.invalid();
+            }
+            return new ValidationResult(true, coordinates);
+        }
+
+        return new ValidationResult(true, null);
+    }
+
+    private boolean validateArgsNumber(String[] args) {
+        if (expectedNumArgs != args.length) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateCommandSenderType(CommandSender commandSender) {
+        if (playerOnly && !(commandSender instanceof Player)) {
             ChatMessageUtils.sendError(commandSender, "Must be sent by a player!");
             return false;
         }
-
         return true;
-
     }
 
-    public static int[] parseArgs(Player player, String[] args) {
+    private int[] validateCoordinates(CommandSender commandSender, String[] args) {
+        if (!(commandSender instanceof Entity)) {
+            return null;
+        }
+        final Entity entity = (Entity) commandSender;
 
         int[] coords = new int[6];
-        final Location loc = player.getLocation();
-        for(int i = 0; i < coords.length; i++) {
+        final Location loc = entity.getLocation();
+        for (int i = 0; i < coords.length; i++) {
             boolean isRelative = false;
             if(args[i].startsWith("~")) {
 
@@ -61,7 +120,5 @@ public class InputValidator {
 
         }
         return coords;
-
     }
-
 }

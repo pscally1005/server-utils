@@ -2,10 +2,11 @@ package com.scally.serverutils.slabs;
 
 import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageUtils;
-import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
 import com.scally.serverutils.undo.UndoManager;
+import com.scally.serverutils.validation.InputValidator;
+import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -31,24 +32,26 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
     private final UndoManager undoManager;
 
+    private final InputValidator inputValidator = InputValidator.builder()
+            .expectedNumArgs(8)
+            .playerOnly()
+            .build();
+
     public SlabsCommandExecutor(UndoManager undoManager) {
         this.undoManager = undoManager;
     }
 
+    // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
-
-        // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
-
-        if(InputValidator.checkArgNumber(commandSender, args.length, 8) == false) {
+        final ValidationResult validationResult = inputValidator.validate(commandSender, args);
+        if (!validationResult.validated()) {
             return false;
         }
 
-        if(InputValidator.isPlayer(commandSender) == false) { return false; }
-
         final Player player = (Player) commandSender;
-        final int[] coords = InputValidator.parseArgs(player, args);
+        final int[] coords = validationResult.coordinates();
         if(coords == null) {
             ChatMessageUtils.sendError(player, "Coordinates must be a valid number!");
             return false;
