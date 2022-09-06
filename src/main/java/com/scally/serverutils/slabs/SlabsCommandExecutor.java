@@ -1,7 +1,8 @@
 package com.scally.serverutils.slabs;
 
 import com.scally.serverutils.ServerUtils;
-import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.chat.ChatMessageUtils;
+import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
 import com.scally.serverutils.undo.UndoManager;
@@ -27,12 +28,10 @@ import java.util.stream.Collectors;
 // TODO: unit tests
 
 public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
-    
-    private final ChatMessageSender messageSender;
+
     private final UndoManager undoManager;
 
-    public SlabsCommandExecutor(ChatMessageSender messageSender, UndoManager undoManager) {
-        this.messageSender = messageSender;
+    public SlabsCommandExecutor(UndoManager undoManager) {
         this.undoManager = undoManager;
     }
 
@@ -40,22 +39,18 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
 
-        // TODO: args number annotation
         // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
-        if (args.length != 8) {
-            messageSender.sendError(commandSender, "Invalid number of args!");
+
+        if(InputValidator.checkArgNumber(commandSender, args.length, 8) == false) {
             return false;
         }
 
-        if (!(commandSender instanceof Player)) {
-            messageSender.sendError(commandSender, "Must be sent by a player!");
-            return false;
-        }
+        if(InputValidator.isPlayer(commandSender) == false) { return false; }
 
         final Player player = (Player) commandSender;
-        final int[] coords = getCoordinates(player, args);
+        final int[] coords = InputValidator.parseArgs(player, args);
         if(coords == null) {
-            messageSender.sendError(player, "Coordinates must be a valid number!");
+            ChatMessageUtils.sendError(player, "Coordinates must be a valid number!");
             return false;
         }
 
@@ -70,14 +65,14 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         final long volume = Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
         if (volume > ServerUtils.VOLUME_LIMIT) {
-            messageSender.sendError(commandSender, String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT));
+            ChatMessageUtils.sendError(commandSender, String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT));
             return false;
         }
 
         Distribution fromDistribution = isValidSlabsDistribution(args[6]);
         Distribution toDistribution = isValidSlabsDistribution(args[7]);
         if(fromDistribution == null || toDistribution == null) {
-            messageSender.sendError(commandSender, "Slab blocks must be valid!");
+            ChatMessageUtils.sendError(commandSender, "Slab blocks must be valid!");
             return false;
         }
 
@@ -124,7 +119,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         }
 
         undoManager.store(player, changeset);
-        messageSender.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
+        ChatMessageUtils.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
         return true;
     }
 
@@ -163,41 +158,6 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                 return onTabCompleteDistribution(args[args.length-1]);
         }
         return Collections.EMPTY_LIST;
-    }
-
-    public int[] getCoordinates(Player player, String[] args) {
-
-        int[] coords = new int[6];
-        final Location loc = player.getLocation();
-        for(int i = 0; i < coords.length; i++) {
-            boolean isRelative = false;
-            if(args[i].startsWith("~")) {
-
-                if(args[i].equals("~")) {
-                    if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
-                    else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
-                    else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ(); }
-                    continue;
-                }
-                args[i] = args[i].substring(1);
-                isRelative = true;
-            }
-
-            try {
-                coords[i] = Integer.parseInt(args[i]);
-            } catch (NumberFormatException exception) {
-                return null;
-            }
-
-            if(isRelative == true) {
-                if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
-                else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
-                else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ() + coords[i]; }
-            }
-
-        }
-        return coords;
-
     }
 
     List<String> onTabCompleteDistribution(String arg) {

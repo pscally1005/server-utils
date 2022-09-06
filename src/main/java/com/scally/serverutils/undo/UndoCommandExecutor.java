@@ -1,24 +1,19 @@
 package com.scally.serverutils.undo;
 
-import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.chat.ChatMessageUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 
 public class UndoCommandExecutor implements CommandExecutor, TabCompleter {
-
-    private final ChatMessageSender messageSender;
     private final UndoManager undoManager;
 
-    public UndoCommandExecutor(ChatMessageSender messageSender, UndoManager undoManager) {
-        this.messageSender = messageSender;
+    public UndoCommandExecutor(UndoManager undoManager) {
         this.undoManager = undoManager;
     }
 
@@ -28,7 +23,7 @@ public class UndoCommandExecutor implements CommandExecutor, TabCompleter {
 
         // TODO: look into making this an annotation
         if (!(commandSender instanceof Player)) {
-            messageSender.sendError(commandSender, "Must be sent by a player!");
+            ChatMessageUtils.sendError(commandSender, "Must be sent by a player!");
             return false;
         }
 
@@ -49,7 +44,7 @@ public class UndoCommandExecutor implements CommandExecutor, TabCompleter {
             return undoManager.undo(player, undoSize);
 
         } else {
-            messageSender.sendError(commandSender, "Invalid number of arguments");
+            ChatMessageUtils.sendError(commandSender, "Invalid number of arguments");
             return false;
         }
 

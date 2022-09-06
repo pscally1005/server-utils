@@ -18,7 +18,7 @@ public class ChatMessageSenderTest {
 
     private AutoCloseable mocks;
 
-    private ChatMessageSender messageSender = new ChatMessageSender();
+    private ChatMessageUtils messageSender = new ChatMessageUtils();
 
     @BeforeEach
     public void before() {

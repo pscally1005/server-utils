@@ -3,8 +3,9 @@ package com.scally.serverutils.slabs;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.scally.serverutils.ServerUtils;
-import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.undo.UndoManager;
+import com.scally.serverutils.validation.InputValidator;
 import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.command.Command;
@@ -36,7 +37,7 @@ public class SlabsCommandExecutorTest {
     private Player player;
 
     @Mock
-    private ChatMessageSender messageSender;
+    private ChatMessageUtils messageSender;
 
     @Mock
     private UndoManager undoManager;
@@ -54,7 +55,7 @@ public class SlabsCommandExecutorTest {
     public void before() {
         mocks = MockitoAnnotations.openMocks(this);
         server = MockBukkit.mock();
-        slabsCommandExecutor = new SlabsCommandExecutor(messageSender, undoManager);
+        slabsCommandExecutor = new SlabsCommandExecutor(undoManager);
     }
 
     @AfterEach
@@ -156,7 +157,7 @@ public class SlabsCommandExecutorTest {
         Mockito.when(location.getBlockZ()).thenReturn(0);
         Mockito.when(player.getLocation()).thenReturn(location);
 
-        final int[] coords = slabsCommandExecutor.getCoordinates(player, args);
+        final int[] coords = InputValidator.parseArgs(player, args);
         for(int i = 0; i < coords.length; i++) {
             if(i == 0 || i == 3) { assertEquals(coords[i], location.getBlockX()); }
             else if(i == 1 || i == 4) { assertEquals(coords[i], location.getBlockY()); }

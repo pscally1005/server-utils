@@ -3,16 +3,18 @@ package com.scally.serverutils.chat;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class ChatMessageSender {
+public final class ChatMessageUtils {
 
     private static final ChatColor SUCCESS_COLOR = ChatColor.GREEN;
     private static final ChatColor ERROR_COLOR = ChatColor.RED;
 
-    public void sendSuccess(CommandSender sender, String message) {
+    private ChatMessageUtils() {}
+
+    public static void sendSuccess(CommandSender sender, String message) {
         sender.sendMessage(SUCCESS_COLOR + message);
     }
 
-    public void sendError(CommandSender sender, String message) {
+    public static void sendError(CommandSender sender, String message) {
         sender.sendMessage(ERROR_COLOR + message);
     }
 }

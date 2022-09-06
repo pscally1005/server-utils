@@ -1,6 +1,6 @@
 package com.scally.serverutils.fillcontainer;
 
-import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.chat.ChatMessageUtils;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -45,7 +45,7 @@ public class FillContainerCommandExecutorTest {
     private Inventory inventory;
 
     @Mock
-    private ChatMessageSender messageSender;
+    private ChatMessageUtils messageSender;
 
     private AutoCloseable mocks;
 
