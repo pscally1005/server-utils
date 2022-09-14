@@ -1,7 +1,9 @@
 package com.scally.serverutils.validation;
 
+import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import org.bukkit.Location;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -49,20 +51,31 @@ public class InputValidator {
     }
 
     public ValidationResult validate(CommandSender commandSender, String[] args) {
+
         if (!validateArgsNumber(args)) {
             ChatMessageUtils.sendError(commandSender, "Invalid number of args!");
             return ValidationResult.invalid();
         }
 
         if (!validateCommandSenderType(commandSender)) {
+            ChatMessageUtils.sendError(commandSender,"Command must be sent by a player!");
             return ValidationResult.invalid();
         }
 
         if (performCoordinateValidation) {
+
             final int[] coordinates = validateCoordinates(commandSender, args);
+
             if (coordinates == null) {
+                ChatMessageUtils.sendError(commandSender, "Coordinates must be a valid number!");
                 return ValidationResult.invalid();
             }
+
+            if(!validateVolumeSize(coordinates)) {
+                ChatMessageUtils.sendError(commandSender, String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT));
+                return ValidationResult.invalid();
+            }
+
             return new ValidationResult(true, coordinates);
         }
 
@@ -78,7 +91,6 @@ public class InputValidator {
 
     private boolean validateCommandSenderType(CommandSender commandSender) {
         if (playerOnly && !(commandSender instanceof Player)) {
-            ChatMessageUtils.sendError(commandSender, "Must be sent by a player!");
             return false;
         }
         return true;
@@ -120,5 +132,24 @@ public class InputValidator {
 
         }
         return coords;
+    }
+
+    public boolean validateVolumeSize(int[] coords) {
+
+        final int x1 = coords[0];
+        final int y1 = coords[1];
+        final int z1 = coords[2];
+
+        final int x2 = coords[3];
+        final int y2 = coords[4];
+        final int z2 = coords[5];
+
+        final long volume = Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
+        if (volume > ServerUtils.VOLUME_LIMIT) {
+            return false;
+        }
+
+        return true;
+
     }
 }

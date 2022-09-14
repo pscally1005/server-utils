@@ -1,6 +1,5 @@
 package com.scally.serverutils;
 
-import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
 import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.stairs.StairsCommandExecutor;

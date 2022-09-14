@@ -1,6 +1,6 @@
 package com.scally.serverutils.slabs;
 
-import com.scally.serverutils.ServerUtils;
+import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
@@ -17,18 +17,14 @@ import org.bukkit.block.data.type.Slab;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 // TODO: unit tests
 
-public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
+public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCompleter {
 
     private final UndoManager undoManager;
 
@@ -45,6 +41,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
+
         final ValidationResult validationResult = inputValidator.validate(commandSender, args);
         if (!validationResult.validated()) {
             return false;
@@ -52,12 +49,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
 
         final Player player = (Player) commandSender;
         final int[] coords = validationResult.coordinates();
-        if(coords == null) {
-            ChatMessageUtils.sendError(player, "Coordinates must be a valid number!");
-            return false;
-        }
 
-        // verify that the volume is under a certain size
         final int x1 = coords[0];
         final int y1 = coords[1];
         final int z1 = coords[2];
@@ -65,12 +57,6 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         final int x2 = coords[3];
         final int y2 = coords[4];
         final int z2 = coords[5];
-
-        final long volume = Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
-        if (volume > ServerUtils.VOLUME_LIMIT) {
-            ChatMessageUtils.sendError(commandSender, String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT));
-            return false;
-        }
 
         Distribution fromDistribution = isValidSlabsDistribution(args[6]);
         Distribution toDistribution = isValidSlabsDistribution(args[7]);
@@ -104,6 +90,7 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
                         Slab slab = (Slab) bd;
                         Slab.Type type = slab.getType();
                         boolean isWaterlogged = slab.isWaterlogged();
+
                         Material toMaterial = toDistribution.pick();
                         block.setType(toMaterial, false);
                         bd = block.getBlockData();
@@ -126,99 +113,8 @@ public class SlabsCommandExecutor implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!(sender instanceof Player)) {
-            return Collections.EMPTY_LIST;
-        }
-
-        Player player = (Player) sender;
-        final RayTraceResult rayTraceResult = player.rayTraceBlocks(5);
-        if (rayTraceResult == null) {
-            switch(args.length) {
-                case 1,4:
-                    return List.of("~", "~ ~", "~ ~ ~");
-                case 2,5:
-                    return List.of("~", "~ ~");
-                case 3, 6:
-                    return List.of("~");
-                case 7, 8:
-                    return onTabCompleteDistribution(args[args.length-1]);
-                default:
-                    return List.of();
-            }
-        }
-
-        final Block targ = rayTraceResult.getHitBlock();
-        //Block targ = player.getTargetBlock(Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER), 5);
-        switch(args.length) {
-            case 1, 4:
-                return List.of(targ.getX() + "", targ.getX() + " " + targ.getY(), targ.getX() + " " + targ.getY() + " " + targ.getZ() );
-            case 2, 5:
-                return List.of(targ.getY() + "", targ.getY() + " " + targ.getZ() );
-            case 3, 6:
-                return List.of(targ.getZ() + "" );
-            case 7, 8:
-                return onTabCompleteDistribution(args[args.length-1]);
-        }
-        return Collections.EMPTY_LIST;
-    }
-
-    List<String> onTabCompleteDistribution(String arg) {
-
-        char lastChar = 0;
-        if (!arg.equals("")) {
-            lastChar = arg.charAt(arg.length() - 1);
-        }
-
-        if(lastChar == '%' || arg.equals("")) {
-            return Tag.SLABS.getValues()
-                    .stream()
-                    .map(Material::toString)
-                    .map(String::toLowerCase)
-                    .sorted()
-                    .map(s -> new StringBuilder(arg).append(s).toString())
-                    .collect(Collectors.toList());
-
-        } else {
-            int lastPercent = arg.lastIndexOf("%");
-            int lastComma = arg.lastIndexOf(",");
-            String lastPart, firstPart;
-
-            if(lastPercent == -1 && lastComma == -1) {
-                lastPart = arg;
-                firstPart = "";
-            } else if(lastPercent >= lastComma) {
-                lastPart = arg.substring(lastPercent+1);
-                firstPart = arg.substring(0,lastPercent+1);
-            } else {
-                lastPart = arg.substring(lastComma+1);
-                firstPart = arg.substring(0,lastComma+1);
-            }
-
-            return Tag.SLABS.getValues()
-                    .stream()
-                    .map(Material::toString)
-                    .map(String::toLowerCase)
-                    .filter(s -> s.startsWith(lastPart))
-                    .sorted()
-                    .map(s -> new StringBuilder(firstPart).append(s).toString())
-                    .collect(Collectors.toList());
-
-        }
-
-    }
-
-    private Slab getSlab(String arg) {
-        final Material material = Material.matchMaterial(arg);
-        if (material == null) {
-            return null;
-        }
-
-        final BlockData blockData = material.createBlockData();
-        if (blockData instanceof Slab) {
-            return (Slab) blockData;
-        }
-        return null;
+    public List<String> onTabCompleteDistribution(String arg) {
+        return onTabCompleteDistribution(arg, Tag.SLABS);
     }
 
     private Distribution isValidSlabsDistribution(String arg) {
