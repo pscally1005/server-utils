@@ -1,9 +1,9 @@
 package com.scally.serverutils.slabs;
 
-import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionPair;
+import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
@@ -31,6 +31,7 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
     private final InputValidator inputValidator = InputValidator.builder()
             .expectedNumArgs(8)
             .playerOnly()
+            .withCoordinateValidation()
             .build();
 
     public SlabsCommandExecutor(UndoManager undoManager) {
