@@ -1,17 +1,21 @@
-package com.scally.serverutils.slabs;
+package com.scally.serverutils.stairs;
 
 import com.scally.serverutils.undo.Change;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.Stairs;
 
-public record SlabsChange (Location location,
+public record StairsChange(Location location,
                            Material beforeMaterial,
                            Material afterMaterial,
-                           Slab.Type type,
+                           Bisected.Half half,
+                           BlockFace facing,
+                           Stairs.Shape shape,
                            boolean waterlogged) implements Change {
     @Override
     public boolean undo() {
@@ -20,9 +24,11 @@ public record SlabsChange (Location location,
         block.setType(beforeMaterial, false);
 
         BlockData bd = block.getBlockData();
-        Slab slab = (Slab) bd;
-        slab.setWaterlogged(waterlogged);
-        slab.setType(type);
+        Stairs stair = (Stairs) bd;
+        stair.setHalf(half);
+        stair.setFacing(facing);
+        stair.setShape(shape);
+        stair.setWaterlogged(waterlogged);
 
         World world = location.getWorld();
         world.setBlockData(location, bd);

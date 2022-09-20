@@ -1,6 +1,6 @@
 package com.scally.serverutils.fillcontainer;
 
-import com.scally.serverutils.chat.ChatMessageSender;
+import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -24,11 +24,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             Material.SHULKER_BOX
     );
 
-    private final ChatMessageSender messageSender;
-
-    public FillContainerCommandExecutor(ChatMessageSender messageSender) {
-        this.messageSender = messageSender;
-    }
+    public FillContainerCommandExecutor() {}
 
     /**
      * /fill-container x y z distribution
@@ -44,7 +40,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
         try {
             entity = (Entity) sender;
         } catch (ClassCastException exception) {
-            messageSender.sendError(sender, "Sender must be an entity!");
+            ChatMessageUtils.sendError(sender, "Sender must be an entity!");
             return false;
         }
 
@@ -54,7 +50,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             try {
                 coords[i] = Integer.parseInt(args[i]);
             } catch (NumberFormatException exception) {
-                messageSender.sendError(sender, "Coordinates must be a valid number!");
+                ChatMessageUtils.sendError(sender, "Coordinates must be a valid number!");
                 return false;
             }
         }
@@ -67,7 +63,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
         final World world = entity.getWorld();
         final Block block = world.getBlockAt(coords[0], coords[1], coords[2]);
         if (!ALLOWED_MATERIALS.contains(block.getType())) {
-            messageSender.sendError(sender, String.format("Invalid block at position. Found %s", block.getType()));
+            ChatMessageUtils.sendError(sender, String.format("Invalid block at position. Found %s", block.getType()));
             return false;
         }
 
@@ -75,7 +71,7 @@ public class FillContainerCommandExecutor implements CommandExecutor {
         final Inventory inventory = container.getInventory();
         distribution.fill(inventory);
 
-        messageSender.sendSuccess(sender, "Success!");
+        ChatMessageUtils.sendSuccess(sender, "Success!");
         return true;
     }
 
