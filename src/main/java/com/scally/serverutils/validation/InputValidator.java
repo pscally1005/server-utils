@@ -3,7 +3,6 @@ package com.scally.serverutils.validation;
 import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import org.bukkit.Location;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -64,12 +63,13 @@ public class InputValidator {
 
         if (performCoordinateValidation) {
 
-            final int[] coordinates = validateCoordinates(commandSender, args);
-
-            if (coordinates == null) {
+            final int[] coordinateInts = validateCoordinates(commandSender, args);
+            if (coordinateInts == null) {
                 ChatMessageUtils.sendError(commandSender, "Coordinates must be a valid number!");
                 return ValidationResult.invalid();
             }
+
+            final Coordinates coordinates = new Coordinates(coordinateInts);
 
             if(!validateVolumeSize(coordinates)) {
                 ChatMessageUtils.sendError(commandSender, String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT));
@@ -83,24 +83,17 @@ public class InputValidator {
     }
 
     private boolean validateArgsNumber(String[] args) {
-        if (expectedNumArgs != args.length) {
-            return false;
-        }
-        return true;
+        return expectedNumArgs == args.length;
     }
 
     private boolean validateCommandSenderType(CommandSender commandSender) {
-        if (playerOnly && !(commandSender instanceof Player)) {
-            return false;
-        }
-        return true;
+        return !playerOnly || commandSender instanceof Player;
     }
 
     private int[] validateCoordinates(CommandSender commandSender, String[] args) {
-        if (!(commandSender instanceof Entity)) {
+        if (!(commandSender instanceof final Entity entity)) {
             return null;
         }
-        final Entity entity = (Entity) commandSender;
 
         int[] coords = new int[6];
         final Location loc = entity.getLocation();
@@ -124,7 +117,7 @@ public class InputValidator {
                 return null;
             }
 
-            if(isRelative == true) {
+            if(isRelative) {
                 if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
                 else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
                 else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ() + coords[i]; }
@@ -134,22 +127,7 @@ public class InputValidator {
         return coords;
     }
 
-    public boolean validateVolumeSize(int[] coords) {
-
-        final int x1 = coords[0];
-        final int y1 = coords[1];
-        final int z1 = coords[2];
-
-        final int x2 = coords[3];
-        final int y2 = coords[4];
-        final int z2 = coords[5];
-
-        final long volume = Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
-        if (volume > ServerUtils.VOLUME_LIMIT) {
-            return false;
-        }
-
-        return true;
-
+    public boolean validateVolumeSize(Coordinates coordinates) {
+        return coordinates.volume() <= ServerUtils.VOLUME_LIMIT;
     }
 }
