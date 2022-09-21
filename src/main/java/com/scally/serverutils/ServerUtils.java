@@ -3,6 +3,7 @@ package com.scally.serverutils;
 import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
 import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.stairs.StairsCommandExecutor;
+import com.scally.serverutils.trapdoors.TrapDoorsCommandExecutor;
 import com.scally.serverutils.undo.UndoCommandExecutor;
 import com.scally.serverutils.undo.UndoManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,6 +21,7 @@ public final class ServerUtils extends JavaPlugin {
         this.getCommand("stairs").setExecutor(new StairsCommandExecutor(undoManager));
         this.getCommand("fill-container").setExecutor(new FillContainerCommandExecutor());
         this.getCommand("s-undo").setExecutor(new UndoCommandExecutor(undoManager));
+        this.getCommand("trapdoors").setExecutor(new TrapDoorsCommandExecutor(undoManager));
     }
 
     @Override
