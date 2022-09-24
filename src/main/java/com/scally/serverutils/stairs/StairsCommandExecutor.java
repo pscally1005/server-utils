@@ -1,10 +1,10 @@
 package com.scally.serverutils.stairs;
 
-import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionPair;
+import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.undo.UndoManager;
+import com.scally.serverutils.validation.Coordinates;
 import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
@@ -32,6 +32,8 @@ public class StairsCommandExecutor implements CommandExecutor, DistributionTabCo
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .withFromDistribution(6, Stairs.class)
+            .withToDistribution(7, Stairs.class)
             .build();
 
     public StairsCommandExecutor(UndoManager undoManager) {
@@ -48,44 +50,23 @@ public class StairsCommandExecutor implements CommandExecutor, DistributionTabCo
         }
 
         final Player player = (Player) commandSender;
-        final int[] coords = validationResult.coordinates();
-
-        final int x1 = coords[0];
-        final int y1 = coords[1];
-        final int z1 = coords[2];
-
-        final int x2 = coords[3];
-        final int y2 = coords[4];
-        final int z2 = coords[5];
-
-        Distribution fromDistribution = isValidStairsDistribution(args[6]);
-        Distribution toDistribution = isValidStairsDistribution(args[7]);
-        if(fromDistribution == null || toDistribution == null) {
-            ChatMessageUtils.sendError(commandSender, "Stair blocks must be valid!");
-            return false;
-        }
-
-        final int min_x = Math.min(x1, x2);
-        final int min_y = Math.min(y1, y2);
-        final int min_z = Math.min(z1, z2);
-
-        final int max_x = Math.max(x1, x2);
-        final int max_y = Math.max(y1, y2);
-        final int max_z = Math.max(z1, z2);
+        final Coordinates coordinates = validationResult.coordinates();
+        final Distribution fromDistribution = validationResult.fromDistribution();
+        final Distribution toDistribution = validationResult.toDistribution();
 
         World world = player.getWorld();
 
         final StairsChangeset changeset = new StairsChangeset();
 
-        for(int x = min_x; x <= max_x; x++) {
-            for (int y = min_y; y <= max_y; y++) {
-                for (int z = min_z; z <= max_z; z++) {
+        for (int x = coordinates.minX(); x <= coordinates.maxX(); x++) {
+            for (int y = coordinates.minY(); y <= coordinates.maxY(); y++) {
+                for (int z = coordinates.minZ(); z <= coordinates.maxZ(); z++) {
 
                     Block block = world.getBlockAt(x, y, z);
                     BlockData bd = block.getBlockData();
                     Material mat = bd.getMaterial();
 
-                    if (fromDistribution.hasMaterial(mat) == true) {
+                    if (fromDistribution.hasMaterial(mat)) {
 
                         Stairs stair = (Stairs) bd;
                         Bisected.Half half = stair.getHalf();
@@ -121,23 +102,4 @@ public class StairsCommandExecutor implements CommandExecutor, DistributionTabCo
         return onTabCompleteDistribution(arg, Tag.STAIRS);
     }
 
-    //TODO: make this more generic
-    private Distribution isValidStairsDistribution(String arg) {
-
-        final Distribution dist = Distribution.parse(arg);
-        if(dist == null) {
-            return null;
-        }
-
-        final List<DistributionPair> fromPairs = dist.getPairs();
-        for(DistributionPair pair : fromPairs) {
-            final BlockData blockData = pair.getMaterial().createBlockData();
-            if(!(blockData instanceof Stairs)) {
-                return null;
-            }
-        }
-
-        return dist;
-
-    }
 }

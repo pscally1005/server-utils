@@ -1,4 +1,4 @@
-package com.scally.serverutils.slabs;
+package com.scally.serverutils.trapdoors;
 
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
@@ -12,8 +12,10 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,9 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-// TODO: unit tests
-
-public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCompleter {
+public class TrapDoorsCommandExecutor implements CommandExecutor, DistributionTabCompleter {
 
     private final UndoManager undoManager;
 
@@ -32,18 +32,15 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withToDistribution(6, Slab.class)
-            .withToDistribution(7, Slab.class)
+            .withFromDistribution(6, TrapDoor.class)
+            .withToDistribution(7, TrapDoor.class)
             .build();
 
-    public SlabsCommandExecutor(UndoManager undoManager) {
-        this.undoManager = undoManager;
-    }
+    public TrapDoorsCommandExecutor(UndoManager undoManager) { this.undoManager = undoManager; }
 
-    // /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
+    // /trapdoors <x1> <y1> <z1> <x2> <y2> <z2> <from-trapdoor> <to-trapdoor>
     @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         final ValidationResult validationResult = inputValidator.validate(commandSender, args);
         if (!validationResult.validated()) {
@@ -57,7 +54,7 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
 
         World world = player.getWorld();
 
-        final SlabsChangeset changeset = new SlabsChangeset();
+        final TrapDoorsChangeset changeset = new TrapDoorsChangeset();
 
         for (int x = coordinates.minX(); x <= coordinates.maxX(); x++) {
             for (int y = coordinates.minY(); y <= coordinates.maxY(); y++) {
@@ -67,25 +64,30 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
                     BlockData bd = block.getBlockData();
                     Material mat = bd.getMaterial();
 
-                    if(fromDistribution.hasMaterial(mat)) {
+                    if (fromDistribution.hasMaterial(mat)) {
 
-                        Slab slab = (Slab) bd;
-                        Slab.Type type = slab.getType();
-                        boolean isWaterlogged = slab.isWaterlogged();
+                        TrapDoor trapdoor = (TrapDoor) bd;
+                        Bisected.Half half = trapdoor.getHalf();
+                        BlockFace facing = trapdoor.getFacing();
+                        boolean open = trapdoor.isOpen();
+                        boolean powered = trapdoor.isPowered();
+                        boolean isWaterlogged = trapdoor.isWaterlogged();
 
                         Material toMaterial = toDistribution.pick();
                         block.setType(toMaterial, false);
                         bd = block.getBlockData();
-                        ((Slab) bd).setWaterlogged(isWaterlogged);
-                        ((Slab) bd).setType(type);
+                        ((TrapDoor) bd).setHalf(half);
+                        ((TrapDoor) bd).setFacing(facing);
+                        ((TrapDoor) bd).setOpen(open);
+                        ((TrapDoor) bd).setPowered(powered);
+                        ((TrapDoor) bd).setWaterlogged(isWaterlogged);
                         world.setBlockData(x, y, z, bd);
 
                         final Location loc = block.getLocation();
-                        SlabsChange slabsChange = new SlabsChange(loc, slab.getMaterial(), toMaterial, type, isWaterlogged);
-                        changeset.add(slabsChange);
+                        TrapDoorsChange trapdoorsChange = new TrapDoorsChange(loc, trapdoor.getMaterial(), toMaterial, half, facing, open, powered, isWaterlogged);
+                        changeset.add(trapdoorsChange);
 
                     }
-
                 }
             }
         }
@@ -93,10 +95,12 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
         undoManager.store(player, changeset);
         ChatMessageUtils.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
         return true;
+
     }
 
+    @Override
     public List<String> onTabCompleteDistribution(String arg) {
-        return onTabCompleteDistribution(arg, Tag.SLABS);
+        return onTabCompleteDistribution(arg, Tag.TRAPDOORS);
     }
 
 }
