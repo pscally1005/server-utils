@@ -32,7 +32,7 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withToDistribution(6, Slab.class)
+            .withFromDistribution(6, Slab.class)
             .withToDistribution(7, Slab.class)
             .build();
 
