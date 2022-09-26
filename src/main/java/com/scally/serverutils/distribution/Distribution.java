@@ -1,6 +1,7 @@
 package com.scally.serverutils.distribution;
 
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,9 +16,7 @@ public final class Distribution {
     private final double max;
 
     private Distribution(List<DistributionPair> pairs) {
-        for (int i = 0 ; i < pairs.size(); i++) {
-            this.pairs.add(pairs.get(i));
-        }
+        this.pairs.addAll(pairs);
         this.max = this.pairs.get(this.pairs.size() - 1).getThreshold();
     }
 
@@ -102,6 +101,7 @@ public final class Distribution {
         return new ArrayList<>(pairs);
     }
 
+    // TODO: clean this up
     /**
      * @param distributionStr arg from command
      * @return Distribution object if valid, null if invalid
@@ -150,7 +150,7 @@ public final class Distribution {
 
             double ratio;
             try {
-                ratio = Double.valueOf(parts[0]);
+                ratio = Double.parseDouble(parts[0]);
             } catch (NumberFormatException exception) {
                 return null;
             }
@@ -177,6 +177,16 @@ public final class Distribution {
         }
         return false;
 
+    }
+
+    public <T extends BlockData> boolean isDistributionOf(Class<T> type) {
+        for (DistributionPair pair : pairs) {
+            final BlockData blockData = pair.getMaterial().createBlockData();
+            if (!type.isInstance(blockData)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

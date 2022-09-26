@@ -2,7 +2,6 @@ package com.scally.serverutils.slabs;
 
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionPair;
 import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
@@ -33,6 +32,8 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .withFromDistribution(6, Slab.class)
+            .withToDistribution(7, Slab.class)
             .build();
 
     public SlabsCommandExecutor(UndoManager undoManager) {
@@ -51,13 +52,8 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
 
         final Player player = (Player) commandSender;
         final Coordinates coordinates = validationResult.coordinates();
-
-        Distribution fromDistribution = isValidSlabsDistribution(args[6]);
-        Distribution toDistribution = isValidSlabsDistribution(args[7]);
-        if(fromDistribution == null || toDistribution == null) {
-            ChatMessageUtils.sendError(commandSender, "Slab blocks must be valid!");
-            return false;
-        }
+        final Distribution fromDistribution = validationResult.fromDistribution();
+        final Distribution toDistribution = validationResult.toDistribution();
 
         World world = player.getWorld();
 
@@ -101,25 +97,6 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
 
     public List<String> onTabCompleteDistribution(String arg) {
         return onTabCompleteDistribution(arg, Tag.SLABS);
-    }
-
-    private Distribution isValidSlabsDistribution(String arg) {
-
-        final Distribution dist = Distribution.parse(arg);
-        if(dist == null) {
-            return null;
-        }
-
-        final List<DistributionPair> fromPairs = dist.getPairs();
-        for(DistributionPair pair : fromPairs) {
-            final BlockData blockData = pair.getMaterial().createBlockData();
-            if(!(blockData instanceof Slab)) {
-                return null;
-            }
-        }
-
-        return dist;
-
     }
 
 }

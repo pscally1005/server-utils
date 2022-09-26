@@ -2,7 +2,6 @@ package com.scally.serverutils.trapdoors;
 
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionPair;
 import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
@@ -33,6 +32,8 @@ public class TrapDoorsCommandExecutor implements CommandExecutor, DistributionTa
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .withFromDistribution(6, TrapDoor.class)
+            .withToDistribution(7, TrapDoor.class)
             .build();
 
     public TrapDoorsCommandExecutor(UndoManager undoManager) { this.undoManager = undoManager; }
@@ -48,13 +49,8 @@ public class TrapDoorsCommandExecutor implements CommandExecutor, DistributionTa
 
         final Player player = (Player) commandSender;
         final Coordinates coordinates = validationResult.coordinates();
-
-        Distribution fromDistribution = isValidTrapDoorDistribution(args[6]);
-        Distribution toDistribution = isValidTrapDoorDistribution(args[7]);
-        if(fromDistribution == null || toDistribution == null) {
-            ChatMessageUtils.sendError(commandSender, "Trapdoor blocks must be valid!");
-            return false;
-        }
+        final Distribution fromDistribution = validationResult.fromDistribution();
+        final Distribution toDistribution = validationResult.toDistribution();
 
         World world = player.getWorld();
 
@@ -105,26 +101,6 @@ public class TrapDoorsCommandExecutor implements CommandExecutor, DistributionTa
     @Override
     public List<String> onTabCompleteDistribution(String arg) {
         return onTabCompleteDistribution(arg, Tag.TRAPDOORS);
-    }
-
-
-    private Distribution isValidTrapDoorDistribution(String arg) {
-
-        final Distribution dist = Distribution.parse(arg);
-        if(dist == null) {
-            return null;
-        }
-
-        final List<DistributionPair> fromPairs = dist.getPairs();
-        for(DistributionPair pair : fromPairs) {
-            final BlockData blockData = pair.getMaterial().createBlockData();
-            if(!(blockData instanceof TrapDoor)) {
-                return null;
-            }
-        }
-
-        return dist;
-
     }
 
 }
