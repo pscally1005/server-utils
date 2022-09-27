@@ -97,23 +97,23 @@ public class InputValidator {
         }
     }
 
-    private void validateArgsNumber(String[] args) {
+    void validateArgsNumber(String[] args) {
         if (expectedNumArgs != args.length)
             throw new InputValidationException("Invalid number of args!");
     }
 
-    private void validateCommandSenderType(CommandSender commandSender) {
+    void validateCommandSenderType(CommandSender commandSender) {
         if (playerOnly && !(commandSender instanceof Player))
             throw new InputValidationException("Command must be send by a player!");
     }
 
-    private Distribution validateFromDistribution(String[] args) {
+    Distribution validateFromDistribution(String[] args) {
         if (fromDistributionType == null)
             return null;
         return validateDistribution(args[fromDistributionIndex], fromDistributionType);
     }
 
-    private Distribution validateToDistribution(String[] args) {
+    Distribution validateToDistribution(String[] args) {
         if (toDistributionType == null)
             return null;
         return validateDistribution(args[toDistributionIndex], toDistributionType);
@@ -131,7 +131,7 @@ public class InputValidator {
         return distribution;
     }
 
-    private Coordinates validateCoordinates(CommandSender commandSender, String[] args) {
+    Coordinates validateCoordinates(CommandSender commandSender, String[] args) {
         if (!performCoordinateValidation)
             return null;
 
@@ -171,7 +171,7 @@ public class InputValidator {
         return new Coordinates(coords);
     }
 
-    private void validateVolumeSize(Coordinates coordinates) {
+    void validateVolumeSize(Coordinates coordinates) {
         if (!performCoordinateValidation || coordinates == null)
             return;
         if (coordinates.volume() > ServerUtils.VOLUME_LIMIT) {

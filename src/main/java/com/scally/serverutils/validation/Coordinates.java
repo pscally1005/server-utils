@@ -47,7 +47,9 @@ public class Coordinates {
     }
     
     public int volume() {
-        return Math.abs(x2 - x1) * Math.abs(y2 - y1) * Math.abs(z2 - z1);
+        return (Math.abs(x2 - x1) + 1)
+                * (Math.abs(y2 - y1) + 1)
+                * (Math.abs(z2 - z1) + 1);
     }
 
 }

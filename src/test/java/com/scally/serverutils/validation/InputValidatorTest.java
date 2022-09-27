@@ -2,22 +2,35 @@ package com.scally.serverutils.validation;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InputValidatorTest {
 
     private ServerMock server;
+    private AutoCloseable mocks;
+
+    @Mock
+    private Player player;
+
+    @Mock
+    private AbstractHorse abstractHorse;
 
     @BeforeEach
     public void before() {
+        mocks = MockitoAnnotations.openMocks(this);
         server = MockBukkit.mock();
     }
 
@@ -50,6 +63,43 @@ public class InputValidatorTest {
         assertNotNull(result.coordinates());
         assertNotNull(result.fromDistribution());
         assertNotNull(result.toDistribution());
+    }
+
+    @Test
+    public void validateArgsNumber_correctArgs_happyPath() {
+        final InputValidator validator = InputValidator.builder()
+                .expectedNumArgs(3)
+                .build();
+        final String[] input = {"a", "b", "c"};
+
+        validator.validateArgsNumber(input);
+    }
+
+    @Test
+    public void validateArgsNumber_correctArgs_sadPath() {
+        final InputValidator validator = InputValidator.builder()
+                .expectedNumArgs(4)
+                .build();
+        final String[] input = {"a", "b", "c"};
+        assertThrows(InputValidationException.class,
+                () -> validator.validateArgsNumber(input));
+    }
+
+    @Test
+    public void validateCommandSenderType_happyPath_PlayerOnly() {
+        final InputValidator validator = InputValidator.builder()
+                .playerOnly()
+                .build();
+        validator.validateCommandSenderType(player);
+    }
+
+    @Test
+    public void validateCommandSenderType_sadPath_PlayerOnly() {
+        final InputValidator validator = InputValidator.builder()
+                .playerOnly()
+                .build();
+        assertThrows(InputValidationException.class,
+                () -> validator.validateCommandSenderType(abstractHorse));
     }
 
     // TODO: more validate tests
