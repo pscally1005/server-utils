@@ -52,4 +52,5 @@ public class InputValidatorTest {
         assertNotNull(result.toDistribution());
     }
 
+    // TODO: more validate tests
 }

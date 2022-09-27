@@ -67,6 +67,7 @@ public class SlabsCommandExecutorTest {
         assertFalse(result);
     }
 
+    // TODO: can probably move to DistributionTabCompleter
     @Test
     public void onTabComplete_secondSlab() {
         final String[] args = new String[] {
@@ -160,5 +161,7 @@ public class SlabsCommandExecutorTest {
 //        }
 //
 //    }
+
+    // TODO: onCommand tests
 
 }

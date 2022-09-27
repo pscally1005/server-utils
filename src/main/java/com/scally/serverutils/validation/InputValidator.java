@@ -171,7 +171,7 @@ public class InputValidator {
         return new Coordinates(coords);
     }
 
-    public void validateVolumeSize(Coordinates coordinates) {
+    private void validateVolumeSize(Coordinates coordinates) {
         if (!performCoordinateValidation || coordinates == null)
             return;
         if (coordinates.volume() > ServerUtils.VOLUME_LIMIT) {

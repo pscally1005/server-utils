@@ -144,4 +144,7 @@ public class DistributionTest {
         final Distribution distribution = Distribution.parse(str);
         assertNull(distribution);
     }
+
+    // TODO: hasMaterial tests
+    // TODO: isDistributionOf tests
 }
