@@ -3,6 +3,7 @@ package com.scally.serverutils.distribution;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -21,8 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DistributionTabCompleterTest {
@@ -190,6 +190,60 @@ public class DistributionTabCompleterTest {
         assertEquals(0, result.size());
     }
 
+    @Test
+    public void onTabCompleteDistribution_emptyString_returnsFullList() {
+        final List<String> result = testTabCompleter.onTabCompleteDistribution("");
+
+        assertNotNull(result);
+        assertContainsAllLeaves(result);
+    }
+
+    @Test
+    public void onTabCompleteDistribution_noCommaOrPercent_filterMatchesNone_returnsEmptyList() {
+        final List<String> result = testTabCompleter.onTabCompleteDistribution("5");
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void onTabCompleteDistribution_noCommaOrPercent_filterMatchesSome_returnsFilteredList() {
+        final List<String> result = testTabCompleter.onTabCompleteDistribution("oak_l");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("oak_leaves", result.get(0));
+    }
+
+    @Test
+    public void onTabCompleteDistribution_percentMoreRecent_singleMaterialDistribution() {
+        final List<String> result = testTabCompleter.onTabCompleteDistribution("50%s");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("50%spruce_leaves", result.get(0));
+    }
+
+    @Test
+    public void onTabCompleteDistribution_percentMoreRecent_multiMaterialDistribution() {
+        final String arg = "50%spruce_leaves,40%";
+        final List<String> result = testTabCompleter.onTabCompleteDistribution(arg);
+
+        assertNotNull(result);
+        assertContainsAllLeaves(result, arg);
+    }
+
+    @Test
+    public void onTabCompleteDistribution_commaMoreRecent_multiMaterialDistribution() {
+        final String arg = "oak_leaves,a";
+        final List<String> result = testTabCompleter.onTabCompleteDistribution(arg);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains("oak_leaves,acacia_leaves"));
+        assertTrue(result.contains("oak_leaves,azalea_leaves"));
+    }
+
     private String[] argsOfLength(int length) {
         final String[] args = new String[length];
         for (int i = 0; i < length; i++) {
@@ -208,12 +262,14 @@ public class DistributionTabCompleterTest {
         Mockito.when(hitBlockLocation.getBlockZ()).thenReturn(300);
     }
 
-    /*
-        TODO onTabCompleteDistribution:
-            - percentages:
-                - ???
-                - will come back to this
-            - materials happy path
-     */
+    private void assertContainsAllLeaves(List<String> result) {
+        assertContainsAllLeaves(result, "");
+    }
 
+    private void assertContainsAllLeaves(List<String> result, String prefix) {
+        assertEquals(Tag.LEAVES.getValues().size(), result.size());
+        for (Material leaves : Tag.LEAVES.getValues()) {
+            assertTrue(result.contains(prefix + leaves.toString().toLowerCase()));
+        }
+    }
 }

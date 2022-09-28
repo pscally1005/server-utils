@@ -61,53 +61,37 @@ public interface DistributionTabCompleter extends TabCompleter {
     }
 
     default List<String> onTabCompleteDistribution(String arg, Tag<Material> tag) {
-        final boolean suggestPercentages = shouldSuggestPercentages(arg);
-        if (suggestPercentages) {
-            return onTabCompleteMaterialPercentages(arg, tag);
-        }
-        return onTabCompleteMaterials(arg, tag);
+        final TabCompleteParams params = calculateTagCompleteParams(arg);
+        return filterMaterials(tag, params);
     }
 
-    private boolean shouldSuggestPercentages(String arg) {
-        if ("".equals(arg)) {
-            return false;
-        }
-        return arg.charAt(arg.length() - 1) != '%';
-    }
+    record TabCompleteParams(String filter, String prefix) {}
 
-    private List<String> onTabCompleteMaterialPercentages(String arg, Tag<Material> tag) {
-        int lastPercent = arg.lastIndexOf("%");
-        int lastComma = arg.lastIndexOf(",");
-        String lastPart, firstPart;
+    private TabCompleteParams calculateTagCompleteParams(String arg) {
+        final int lastPercentIndex = arg.lastIndexOf("%");
+        final int lastCommaIndex = arg.lastIndexOf(",");
 
-        if(lastPercent == -1 && lastComma == -1) {
-            lastPart = arg;
-            firstPart = "";
-        } else if(lastPercent >= lastComma) {
-            lastPart = arg.substring(lastPercent+1);
-            firstPart = arg.substring(0,lastPercent+1);
+        if (lastPercentIndex == -1 && lastCommaIndex == -1) {
+            return new TabCompleteParams(arg, "");
+        } else if (lastPercentIndex > lastCommaIndex) {
+            final String filter = arg.substring(lastPercentIndex + 1);
+            final String prefix = arg.substring(0, lastPercentIndex + 1);
+            return new TabCompleteParams(filter, prefix);
         } else {
-            lastPart = arg.substring(lastComma+1);
-            firstPart = arg.substring(0,lastComma+1);
+            final String filter = arg.substring(lastCommaIndex + 1);
+            final String prefix = arg.substring(0, lastCommaIndex + 1);
+            return new TabCompleteParams(filter, prefix);
         }
-
-        return tag.getValues()
-                .stream()
-                .map(Material::toString)
-                .map(String::toLowerCase)
-                .filter(s -> s.startsWith(lastPart))
-                .sorted()
-                .map(s -> firstPart + s)
-                .collect(Collectors.toList());
     }
 
-    private List<String> onTabCompleteMaterials(String arg, Tag<Material> tag) {
+    private List<String> filterMaterials(Tag<Material> tag, TabCompleteParams params) {
         return tag.getValues()
                 .stream()
                 .map(Material::toString)
                 .map(String::toLowerCase)
+                .filter(s -> s.startsWith(params.filter))
                 .sorted()
-                .map(s -> arg + s)
+                .map(s -> params.prefix + s)
                 .collect(Collectors.toList());
     }
 
