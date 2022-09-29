@@ -2,6 +2,8 @@ package com.scally.serverutils.distribution;
 
 import org.bukkit.Material;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
 
@@ -12,99 +14,99 @@ public class DistributionTest {
     @Test
     public void pick_length1_pickFirst() {
         final Distribution distribution = Distribution.parse("1%air");
+        assertNotNull(distribution);
+
         final Material material = distribution.pick(0.5D);
         assertEquals(Material.AIR, material);
     }
 
-    @Test
-    public void pick_length2() {
+    @ParameterizedTest
+    @CsvSource(value = {"25D,STONE", "75D,COBBLESTONE"})
+    public void pick_length2(double threshold, String expectedMaterial) {
         final Distribution distribution = Distribution.parse("50%stone,50%cobblestone");
-        final Material first = distribution.pick(25D);
-        final Material second = distribution.pick(75D);
+        assertNotNull(distribution);
 
-        assertEquals(Material.STONE, first);
-        assertEquals(Material.COBBLESTONE, second);
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
-    @Test
-    public void pick_length3() {
+    @ParameterizedTest
+    @CsvSource(value = {"1.5D,BIRCH_PLANKS", "2.5D,OAK_PLANKS", "3.5D,JUNGLE_PLANKS"})
+    public void pick_length3(double threshold, String expectedMaterial) {
         final Distribution distribution = Distribution.parse("2%birch_planks,1%oak_planks,1%jungle_planks");
-        final Material first = distribution.pick(1.5D);
-        final Material second = distribution.pick(2.5D);
-        final Material third = distribution.pick(3.5D);
+        assertNotNull(distribution);
 
-        assertEquals(Material.BIRCH_PLANKS, first);
-        assertEquals(Material.OAK_PLANKS, second);
-        assertEquals(Material.JUNGLE_PLANKS, third);
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
-    @Test
-    public void pick_length4() {
+    @ParameterizedTest
+    @CsvSource(value = {"1.5D,BRICKS", "2.5D,POLISHED_ANDESITE", "3.5D,POLISHED_GRANITE", "5.5D,AIR"})
+    public void pick_length4(double threshold, String expectedMaterial) {
         final Distribution distribution = Distribution.parse("2%bricks,1%polished_andesite,1%polished_granite,2%air");
-        final Material first = distribution.pick(1.5D);
-        final Material second = distribution.pick(2.5D);
-        final Material third = distribution.pick(3.5D);
-        final Material fourth = distribution.pick(5.5D);
+        assertNotNull(distribution);
 
-        assertEquals(Material.BRICKS, first);
-        assertEquals(Material.POLISHED_ANDESITE, second);
-        assertEquals(Material.POLISHED_GRANITE, third);
-        assertEquals(Material.AIR, fourth);
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
-    @Test
-    public void pick_outOfRange() {
+    @ParameterizedTest
+    @CsvSource(value = {"-100D,STRIPPED_BIRCH_LOG", "100D,STRIPPED_ACACIA_LOG"})
+    public void pick_outOfRange(double threshold, String expectedMaterial) {
         final Distribution distribution = Distribution.parse("1%stripped_birch_log,1%stripped_oak_log,1%stripped_acacia_log");
-        final Material lessThanMin = distribution.pick(-100D);
-        final Material greaterThanMax = distribution.pick(100D);
+        assertNotNull(distribution);
 
-        assertEquals(Material.STRIPPED_BIRCH_LOG, lessThanMin);
-        assertEquals(Material.STRIPPED_ACACIA_LOG, greaterThanMax);
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
     @Test
     public void parse_oneMaterial() {
         final String str = "birch_stairs";
         final Distribution distribution = Distribution.parse(str);
+        assertNotNull(distribution);
 
-        final List<DistributionPair> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getPairs();
         assertEquals(1, pairs.size());
         assertEquals(Material.BIRCH_STAIRS, pairs.get(0).getMaterial());
-        assertEquals(1D, pairs.get(0).getThreshold());
+        assertEquals(1D, pairs.get(0).getMaxRange());
     }
 
     @Test
     public void parse_oneMaterialWithRatio() {
         final String str = "33%oak_log";
         final Distribution distribution = Distribution.parse(str);
+        assertNotNull(distribution);
 
-        final List<DistributionPair> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getPairs();
         assertEquals(1, pairs.size());
         assertEquals(Material.OAK_LOG, pairs.get(0).getMaterial());
-        assertEquals(33D, pairs.get(0).getThreshold());
+        assertEquals(33D, pairs.get(0).getMaxRange());
     }
 
     @Test
     public void parse_twoMaterials() {
         final String str = "50%cobblestone,50%oak_planks";
         final Distribution distribution = Distribution.parse(str);
+        assertNotNull(distribution);
 
-        final List<DistributionPair> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getPairs();
         assertEquals(2, pairs.size());
 
         assertEquals(Material.COBBLESTONE, pairs.get(0).getMaterial());
-        assertEquals(50D, pairs.get(0).getThreshold());
+        assertEquals(50D, pairs.get(0).getMaxRange());
 
         assertEquals(Material.OAK_PLANKS, pairs.get(1).getMaterial());
-        assertEquals(100D, pairs.get(1).getThreshold());
+        assertEquals(100D, pairs.get(1).getMaxRange());
     }
 
     @Test
     public void parse_threeMaterialsNoRatio() {
         final String str = "birch_planks,oak_planks,spruce_planks";
         final Distribution distribution = Distribution.parse(str);
+        assertNotNull(distribution);
 
-        final List<DistributionPair> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getPairs();
         assertEquals(3, pairs.size());
 
         boolean hasBirch = false;
@@ -112,17 +114,11 @@ public class DistributionTest {
         boolean hasSpruce = false;
 
         for (int i = 0; i < pairs.size(); i++) {
-            assertEquals(i + 1D, pairs.get(i).getThreshold());
+            assertEquals(i + 1D, pairs.get(i).getMaxRange());
             switch (pairs.get(i).getMaterial()) {
-                case BIRCH_PLANKS:
-                    hasBirch = true;
-                    break;
-                case OAK_PLANKS:
-                    hasOak = true;
-                    break;
-                case SPRUCE_PLANKS:
-                    hasSpruce = true;
-                    break;
+                case BIRCH_PLANKS -> hasBirch = true;
+                case OAK_PLANKS -> hasOak = true;
+                case SPRUCE_PLANKS -> hasSpruce = true;
             }
         }
 

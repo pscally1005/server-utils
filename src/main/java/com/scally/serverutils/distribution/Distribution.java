@@ -12,66 +12,23 @@ import java.util.Set;
 
 public final class Distribution {
 
-    private final List<DistributionPair> pairs = new ArrayList<>();
+    private final List<DistributionMaterial> pairs = new ArrayList<>();
     private final double max;
 
-    private Distribution(List<DistributionPair> pairs) {
+    private Distribution(List<DistributionMaterial> pairs) {
         this.pairs.addAll(pairs);
-        this.max = this.pairs.get(this.pairs.size() - 1).getThreshold();
+        this.max = this.pairs.get(this.pairs.size() - 1).getMaxRange();
     }
 
     private Distribution(Set<Material> materials) {
         double sum = 0D;
+        double previous;
         for (Material material : materials) {
+            previous = sum;
             sum += 1D;
-            pairs.add(new DistributionPair(material, sum));
+            pairs.add(new DistributionMaterial(material, previous, sum));
         }
         max = sum;
-    }
-
-    /**
-     * @param d double threshold to use for picking
-     * @return Material for the given threshold
-     */
-    public Material pick(double d) {
-        if (d > max) {
-            return pairs.get(pairs.size() - 1).getMaterial();
-        }
-
-        int start = 0;
-        int end = pairs.size() - 1;
-
-        while (start < end) {
-            int mid = (start + end) / 2;
-            if (d == pairs.get(mid).getThreshold()) {
-                // holy crap you basically won the lottery
-                return pairs.get(mid).getMaterial();
-            } else if (d < pairs.get(mid).getThreshold()) {
-                end = mid - 1;
-            } else {
-                start = mid + 1;
-            }
-        }
-
-        // TODO: clean up this logic
-        if (start == end) {
-            final double ratio = pairs.get(start).getThreshold();
-            if (d > ratio) {
-                return pairs.get(start + 1).getMaterial();
-            } else {
-                return pairs.get(start).getMaterial();
-            }
-        } else if (end < 0) {
-            return pairs.get(start).getMaterial();
-        } else if (start > pairs.size() - 1) {
-            return pairs.get(end).getMaterial();
-        }
-
-        if (pairs.get(start).getThreshold() > d) {
-            return pairs.get(start).getMaterial();
-        } else {
-            return pairs.get(end).getMaterial();
-        }
     }
 
     /**
@@ -80,6 +37,40 @@ public final class Distribution {
     public Material pick() {
         final double randomDouble = Math.random() * max;
         return pick(randomDouble);
+    }
+
+    /**
+     * @param threshold to use for picking
+     * @return Material for the given threshold
+     */
+    public Material pick(double threshold) {
+        if (threshold >= max) {
+            return pairs.get(pairs.size() - 1).getMaterial();
+        } else if (threshold <= 0) {
+            return pairs.get(0).getMaterial();
+        }
+
+        int start = 0;
+        int end = pairs.size() - 1;
+        int mid = (start + end) / 2;
+
+        DistributionMaterial current = pairs.get(mid);
+        DistributionMaterial previous = current;
+
+        while (start <= end) {
+            mid = (start + end) / 2;
+            current = pairs.get(mid);
+
+            if (current.inRange(threshold)) {
+                return current.getMaterial();
+            } else if (threshold <= current.getMinRange()) {
+                end = mid - 1;
+            } else {
+                start = mid + 1;
+            }
+            previous = current;
+        }
+        return previous.getMaterial();
     }
 
     /**
@@ -97,7 +88,7 @@ public final class Distribution {
     /**
      * @return copy of the List of DistributionPairs
      */
-    public List<DistributionPair> getPairs() {
+    public List<DistributionMaterial> getPairs() {
         return new ArrayList<>(pairs);
     }
 
@@ -108,7 +99,7 @@ public final class Distribution {
      */
     public static Distribution parse(String distributionStr) {
 
-        final List<DistributionPair> pairs = new ArrayList<>();
+        final List<DistributionMaterial> pairs = new ArrayList<>();
         final String[] materials = distributionStr.split(",");
 
         // Check that all materials either have a % or don't
@@ -142,6 +133,7 @@ public final class Distribution {
         }
 
         double sum = 0D;
+        double previous;
         for (String materialStr : materials) {
             final String[] parts = materialStr.split("%");
             if (parts.length != 2) {
@@ -160,27 +152,26 @@ public final class Distribution {
                 return null;
             }
 
+            previous = sum;
             sum += ratio;
-            pairs.add(new DistributionPair(material, sum));
+            pairs.add(new DistributionMaterial(material, previous, sum));
         }
 
         return new Distribution(pairs);
     }
 
     public boolean hasMaterial(Material m) {
-
-        for(DistributionPair distPair : pairs) {
+        for(DistributionMaterial distPair : pairs) {
             final Material mat = distPair.getMaterial();
             if(mat == m) {
                 return true;
             }
         }
         return false;
-
     }
 
     public <T extends BlockData> boolean isDistributionOf(Class<T> type) {
-        for (DistributionPair pair : pairs) {
+        for (DistributionMaterial pair : pairs) {
             final BlockData blockData = pair.getMaterial().createBlockData();
             if (!type.isInstance(blockData)) {
                 return false;
