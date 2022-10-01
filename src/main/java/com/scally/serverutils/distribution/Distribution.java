@@ -6,7 +6,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,12 +14,12 @@ public final class Distribution {
     private final List<DistributionMaterial> pairs = new ArrayList<>();
     private final double max;
 
-    private Distribution(List<DistributionMaterial> pairs) {
+    public Distribution(List<DistributionMaterial> pairs) {
         this.pairs.addAll(pairs);
         this.max = this.pairs.get(this.pairs.size() - 1).getMaxRange();
     }
 
-    private Distribution(Set<Material> materials) {
+    public Distribution(Set<Material> materials) {
         double sum = 0D;
         double previous;
         for (Material material : materials) {
@@ -90,74 +89,6 @@ public final class Distribution {
      */
     public List<DistributionMaterial> getPairs() {
         return new ArrayList<>(pairs);
-    }
-
-    // TODO: clean this up
-    /**
-     * @param distributionStr arg from command
-     * @return Distribution object if valid, null if invalid
-     */
-    public static Distribution parse(String distributionStr) {
-
-        final List<DistributionMaterial> pairs = new ArrayList<>();
-        final String[] materials = distributionStr.split(",");
-
-        // Check that all materials either have a % or don't
-        boolean allHavePercentage = true;
-        boolean noneHavePercentage = true;
-
-        final Set<Material> materialSet = new HashSet<>();
-        for (String materialStr : materials) {
-            final String[] parts = materialStr.split("%");
-            if (parts.length == 1) {
-                allHavePercentage = false;
-            } else if (parts.length == 2) {
-                noneHavePercentage = false;
-            } else {
-                return null;
-            }
-
-            if (!allHavePercentage && !noneHavePercentage) {
-                return null;
-            }
-
-            final Material material = Material.matchMaterial(parts[parts.length - 1]);
-            if (material == null || materialSet.contains(material)) {
-                return null;
-            }
-            materialSet.add(material);
-        }
-
-        if (noneHavePercentage) {
-            return new Distribution(materialSet);
-        }
-
-        double sum = 0D;
-        double previous;
-        for (String materialStr : materials) {
-            final String[] parts = materialStr.split("%");
-            if (parts.length != 2) {
-                return null;
-            }
-
-            double ratio;
-            try {
-                ratio = Double.parseDouble(parts[0]);
-            } catch (NumberFormatException exception) {
-                return null;
-            }
-
-            final Material material = Material.matchMaterial(parts[1]);
-            if (material == null) {
-                return null;
-            }
-
-            previous = sum;
-            sum += ratio;
-            pairs.add(new DistributionMaterial(material, previous, sum));
-        }
-
-        return new Distribution(pairs);
     }
 
     public boolean hasMaterial(Material m) {

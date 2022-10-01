@@ -3,6 +3,8 @@ package com.scally.serverutils.validation;
 import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
+import com.scally.serverutils.distribution.DistributionParser;
+import com.scally.serverutils.distribution.InvalidDistributionException;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
@@ -91,7 +93,7 @@ public class InputValidator {
             validateVolumeSize(coordinates);
 
             return new ValidationResult(true, coordinates, fromDistribution, toDistribution);
-        } catch (InputValidationException exception) {
+        } catch (InputValidationException | InvalidDistributionException exception) {
             ChatMessageUtils.sendError(commandSender, exception.getMessage());
             return ValidationResult.invalid();
         }
@@ -120,14 +122,10 @@ public class InputValidator {
     }
 
     private <T extends BlockData> Distribution validateDistribution(String distributionStr, Class<T> type) {
-        final Distribution distribution = Distribution.parse(distributionStr);
-        if (distribution == null)
-            throw new InputValidationException("Invalid distribution!");
-
+        final Distribution distribution = DistributionParser.parse(distributionStr);
         final boolean hasValidTypes = distribution.isDistributionOf(type);
         if (!hasValidTypes)
             throw new InputValidationException("Invalid types in distribution!");
-
         return distribution;
     }
 
@@ -148,7 +146,7 @@ public class InputValidator {
                 if(args[i].equals("~")) {
                     if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
                     else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
-                    else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ(); }
+                    else { coords[i] = loc.getBlockZ(); }
                     continue;
                 }
                 args[i] = args[i].substring(1);
@@ -164,7 +162,7 @@ public class InputValidator {
             if(isRelative) {
                 if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
                 else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
-                else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ() + coords[i]; }
+                else { coords[i] = loc.getBlockZ() + coords[i]; }
             }
 
         }
