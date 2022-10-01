@@ -32,8 +32,8 @@ public class SlabsCommandExecutor implements CommandExecutor, DistributionTabCom
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withFromDistribution(6, Slab.class)
-            .withToDistribution(7, Slab.class)
+            .withFromDistribution(6, Tag.SLABS)
+            .withToDistribution(7, Tag.SLABS)
             .build();
 
     public SlabsCommandExecutor(UndoManager undoManager) {

@@ -1,14 +1,30 @@
 package com.scally.serverutils.distribution;
 
+import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DistributionTest {
+
+    private ServerMock serverMock;
+
+    @BeforeEach
+    public void before() {
+        serverMock = MockBukkit.mock();
+    }
+
+    @AfterEach
+    public void after() {
+        MockBukkit.unmock();
+    }
 
     @Test
     public void pick_length1_pickFirst() {
@@ -62,6 +78,33 @@ public class DistributionTest {
         assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
-    // TODO: hasMaterial tests
-    // TODO: isDistributionOf tests
+    @Test
+    public void hasMaterial_doesHaveMaterial() {
+        final Distribution distribution = DistributionParser.parse("oak_stairs,birch_stairs");
+        assertTrue(distribution.hasMaterial(Material.BIRCH_STAIRS));
+    }
+
+    @Test
+    public void hasMaterial_doesNotHaveMaterial() {
+        final Distribution distribution = DistributionParser.parse("oak_slab,birch_slab");
+        assertFalse(distribution.hasMaterial(Material.SPRUCE_SLAB));
+    }
+
+    @Test
+    public void isDistributionOf_allMatchType_returnsTrue() {
+        final Distribution distribution = DistributionParser.parse("oak_leaves,spruce_leaves");
+        assertTrue(distribution.isDistributionOf(Tag.LEAVES));
+    }
+
+    @Test
+    public void isDistributionOf_someMatchType_returnsFalse() {
+        final Distribution distribution = DistributionParser.parse("oak_log,oak_leaves");
+        assertFalse(distribution.isDistributionOf(Tag.LEAVES));
+    }
+
+    @Test
+    public void isDistributionOf_noneMatchType_returnsFalse() {
+        final Distribution distribution = DistributionParser.parse("jungle_slab,dark_oak_slab");
+        assertFalse(distribution.isDistributionOf(Tag.STAIRS));
+    }
 }

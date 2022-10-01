@@ -17,7 +17,7 @@ public class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getMaterials();
         assertEquals(1, pairs.size());
         assertEquals(Material.BIRCH_STAIRS, pairs.get(0).getMaterial());
         assertEquals(1D, pairs.get(0).getMaxRange());
@@ -29,7 +29,7 @@ public class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getMaterials();
         assertEquals(1, pairs.size());
         assertEquals(Material.OAK_LOG, pairs.get(0).getMaterial());
         assertEquals(33D, pairs.get(0).getMaxRange());
@@ -41,7 +41,7 @@ public class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getMaterials();
         assertEquals(2, pairs.size());
 
         assertEquals(Material.COBBLESTONE, pairs.get(0).getMaterial());
@@ -57,7 +57,7 @@ public class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getPairs();
+        final List<DistributionMaterial> pairs = distribution.getMaterials();
         assertEquals(3, pairs.size());
 
         boolean hasBirch = false;

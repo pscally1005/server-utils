@@ -32,8 +32,8 @@ public class StairsCommandExecutor implements CommandExecutor, DistributionTabCo
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withFromDistribution(6, Stairs.class)
-            .withToDistribution(7, Stairs.class)
+            .withFromDistribution(6, Tag.STAIRS)
+            .withToDistribution(7, Tag.STAIRS)
             .build();
 
     public StairsCommandExecutor(UndoManager undoManager) {

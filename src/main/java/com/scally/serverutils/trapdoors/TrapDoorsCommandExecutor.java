@@ -32,8 +32,8 @@ public class TrapDoorsCommandExecutor implements CommandExecutor, DistributionTa
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withFromDistribution(6, TrapDoor.class)
-            .withToDistribution(7, TrapDoor.class)
+            .withFromDistribution(6, Tag.TRAPDOORS)
+            .withToDistribution(7, Tag.TRAPDOORS)
             .build();
 
     public TrapDoorsCommandExecutor(UndoManager undoManager) { this.undoManager = undoManager; }

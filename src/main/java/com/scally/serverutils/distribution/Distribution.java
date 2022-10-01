@@ -1,9 +1,10 @@
 package com.scally.serverutils.distribution;
 
 import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.Tag;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,12 @@ import java.util.Set;
 
 public final class Distribution {
 
-    private final List<DistributionMaterial> pairs = new ArrayList<>();
+    private final List<DistributionMaterial> materials = new ArrayList<>();
     private final double max;
 
-    public Distribution(List<DistributionMaterial> pairs) {
-        this.pairs.addAll(pairs);
-        this.max = this.pairs.get(this.pairs.size() - 1).getMaxRange();
+    public Distribution(List<DistributionMaterial> materials) {
+        this.materials.addAll(materials);
+        this.max = this.materials.get(this.materials.size() - 1).getMaxRange();
     }
 
     public Distribution(Set<Material> materials) {
@@ -25,7 +26,7 @@ public final class Distribution {
         for (Material material : materials) {
             previous = sum;
             sum += 1D;
-            pairs.add(new DistributionMaterial(material, previous, sum));
+            this.materials.add(new DistributionMaterial(material, previous, sum));
         }
         max = sum;
     }
@@ -44,21 +45,21 @@ public final class Distribution {
      */
     public Material pick(double threshold) {
         if (threshold >= max) {
-            return pairs.get(pairs.size() - 1).getMaterial();
+            return materials.get(materials.size() - 1).getMaterial();
         } else if (threshold <= 0) {
-            return pairs.get(0).getMaterial();
+            return materials.get(0).getMaterial();
         }
 
         int start = 0;
-        int end = pairs.size() - 1;
+        int end = materials.size() - 1;
         int mid = (start + end) / 2;
 
-        DistributionMaterial current = pairs.get(mid);
+        DistributionMaterial current = materials.get(mid);
         DistributionMaterial previous = current;
 
         while (start <= end) {
             mid = (start + end) / 2;
-            current = pairs.get(mid);
+            current = materials.get(mid);
 
             if (current.inRange(threshold)) {
                 return current.getMaterial();
@@ -85,38 +86,32 @@ public final class Distribution {
     }
 
     /**
-     * @return copy of the List of DistributionPairs
+     * @return copy of the List of DistributionMaterials
      */
-    public List<DistributionMaterial> getPairs() {
-        return new ArrayList<>(pairs);
+    @VisibleForTesting
+    public List<DistributionMaterial> getMaterials() {
+        return new ArrayList<>(materials);
     }
 
     public boolean hasMaterial(Material m) {
-        for(DistributionMaterial distPair : pairs) {
-            final Material mat = distPair.getMaterial();
-            if(mat == m) {
+        for (DistributionMaterial distMaterial : materials) {
+            final Material mat = distMaterial.getMaterial();
+            if (mat == m) {
                 return true;
             }
         }
         return false;
     }
 
-    public <T extends BlockData> boolean isDistributionOf(Class<T> type) {
-        for (DistributionMaterial pair : pairs) {
-            final BlockData blockData = pair.getMaterial().createBlockData();
-            if (!type.isInstance(blockData)) {
-                return false;
-            }
-        }
-        return true;
+    public boolean isDistributionOf(Tag<Material> tag) {
+        return materials.stream().allMatch(m -> tag.getValues().contains(m.getMaterial()));
     }
 
     @Override
     public String toString() {
         return "Distribution{" +
-                "pairs=" + pairs +
+                "materials=" + materials +
                 ", max=" + max +
                 '}';
     }
-
 }

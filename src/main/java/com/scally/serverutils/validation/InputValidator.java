@@ -6,7 +6,8 @@ import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionParser;
 import com.scally.serverutils.distribution.InvalidDistributionException;
 import org.bukkit.Location;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -18,10 +19,10 @@ public class InputValidator {
     private final boolean performCoordinateValidation;
 
     private final int fromDistributionIndex;
-    private final Class<? extends BlockData> fromDistributionType;
+    private final Tag<Material> fromDistributionTag;
 
     private final int toDistributionIndex;
-    private final Class<? extends BlockData> toDistributionType;
+    private final Tag<Material> toDistributionTag;
 
     private InputValidator(Builder builder) {
         this.expectedNumArgs = builder.expectedNumArgs;
@@ -29,10 +30,10 @@ public class InputValidator {
         this.performCoordinateValidation = builder.performCoordinateValidation;
 
         this.fromDistributionIndex = builder.fromDistributionIndex;
-        this.fromDistributionType = builder.fromDistributionType;
+        this.fromDistributionTag = builder.fromDistributionTag;
 
         this.toDistributionIndex = builder.toDistributionIndex;
-        this.toDistributionType = builder.toDistributionType;
+        this.toDistributionTag = builder.toDistributionTag;
     }
 
     public static Builder builder() {
@@ -45,10 +46,10 @@ public class InputValidator {
         private boolean performCoordinateValidation;
 
         private int fromDistributionIndex;
-        private Class<? extends BlockData> fromDistributionType;
+        private Tag<Material> fromDistributionTag;
 
         private int toDistributionIndex;
-        private Class<? extends BlockData> toDistributionType;
+        private Tag<Material> toDistributionTag;
 
         public Builder expectedNumArgs(int expectedNumArgs) {
             this.expectedNumArgs = expectedNumArgs;
@@ -66,15 +67,15 @@ public class InputValidator {
             return this;
         }
 
-        public <T extends BlockData> Builder withFromDistribution(int index, Class<T> type) {
+        public Builder withFromDistribution(int index, Tag<Material> tag) {
             this.fromDistributionIndex = index;
-            this.fromDistributionType = type;
+            this.fromDistributionTag = tag;
             return this;
         }
 
-        public <T extends BlockData> Builder withToDistribution(int index, Class<T> type) {
+        public Builder withToDistribution(int index, Tag<Material> tag) {
             this.toDistributionIndex = index;
-            this.toDistributionType = type;
+            this.toDistributionTag = tag;
             return this;
         }
 
@@ -110,20 +111,20 @@ public class InputValidator {
     }
 
     Distribution validateFromDistribution(String[] args) {
-        if (fromDistributionType == null)
+        if (fromDistributionTag == null)
             return null;
-        return validateDistribution(args[fromDistributionIndex], fromDistributionType);
+        return validateDistribution(args[fromDistributionIndex], fromDistributionTag);
     }
 
     Distribution validateToDistribution(String[] args) {
-        if (toDistributionType == null)
+        if (toDistributionTag == null)
             return null;
-        return validateDistribution(args[toDistributionIndex], toDistributionType);
+        return validateDistribution(args[toDistributionIndex], toDistributionTag);
     }
 
-    private <T extends BlockData> Distribution validateDistribution(String distributionStr, Class<T> type) {
+    private Distribution validateDistribution(String distributionStr, Tag<Material> tag) {
         final Distribution distribution = DistributionParser.parse(distributionStr);
-        final boolean hasValidTypes = distribution.isDistributionOf(type);
+        final boolean hasValidTypes = distribution.isDistributionOf(tag);
         if (!hasValidTypes)
             throw new InputValidationException("Invalid types in distribution!");
         return distribution;

@@ -2,10 +2,7 @@ package com.scally.serverutils.validation;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import org.bukkit.block.CommandBlock;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.Tag;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
@@ -45,8 +42,8 @@ public class InputValidatorTest {
                 .expectedNumArgs(8)
                 .playerOnly()
                 .withCoordinateValidation()
-                .withFromDistribution(6, BlockData.class)
-                .withToDistribution(7, BlockData.class)
+                .withFromDistribution(6, Tag.SLABS)
+                .withToDistribution(7, Tag.SLABS)
                 .build();
 
         final String[] args = new String[] {
