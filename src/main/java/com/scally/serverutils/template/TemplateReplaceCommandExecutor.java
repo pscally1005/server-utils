@@ -20,7 +20,7 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
 
     private final UndoManager undoManager;
 
-    public TemplateReplaceCommandExecutor(UndoManager undoManager) {
+    protected TemplateReplaceCommandExecutor(UndoManager undoManager) {
         this.undoManager = undoManager;
     }
 

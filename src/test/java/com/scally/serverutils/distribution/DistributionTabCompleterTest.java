@@ -25,7 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class DistributionTabCompleterTest {
+class DistributionTabCompleterTest {
 
     private static class TestTabCompleter implements DistributionTabCompleter {
         @Override
@@ -64,7 +64,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabComplete_notPlayer_returnsEmptyList() {
+    void onTabComplete_notPlayer_returnsEmptyList() {
         final Zoglin zoglin = Mockito.mock(Zoglin.class);
         final List<String> result = testTabCompleter.onTabComplete(zoglin, command, "test", null);
 
@@ -74,7 +74,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {7, 8})
-    public void onTabComplete_suggestsDistribution(int input) {
+    void onTabComplete_suggestsDistribution(int input) {
         final String[] args = argsOfLength(input);
         args[args.length - 1] = "oak_";
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
@@ -86,7 +86,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {1, 4})
-    public void onTabComplete_relativeCoordinates_threeOptions(int input) {
+    void onTabComplete_relativeCoordinates_threeOptions(int input) {
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
 
@@ -99,7 +99,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {2, 5})
-    public void onTabComplete_relativeCoordinates_twoOptions(int input) {
+    void onTabComplete_relativeCoordinates_twoOptions(int input) {
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
 
@@ -111,7 +111,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {3, 6})
-    public void onTabComplete_relativeCoordinates_oneOption(int input) {
+    void onTabComplete_relativeCoordinates_oneOption(int input) {
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
 
@@ -122,7 +122,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 7})
-    public void onTabComplete_relativeCoordinates_invalidArgLength(int input) {
+    void onTabComplete_relativeCoordinates_invalidArgLength(int input) {
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
 
@@ -131,7 +131,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabComplete_hitBlockNull_returnsEmptyList() {
+    void onTabComplete_hitBlockNull_returnsEmptyList() {
         Mockito.when(player.rayTraceBlocks(Mockito.anyDouble())).thenReturn(rayTraceResult);
         final String[] args = argsOfLength(5);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
@@ -142,7 +142,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {1, 4})
-    public void onTabComplete_absoluteCoordinates_threeOptions(int input) {
+    void onTabComplete_absoluteCoordinates_threeOptions(int input) {
         mockAbsoluteCoordinates();
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
@@ -156,7 +156,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {2, 5})
-    public void onTabComplete_absoluteCoordinates_twoOptions(int input) {
+    void onTabComplete_absoluteCoordinates_twoOptions(int input) {
         mockAbsoluteCoordinates();
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
@@ -169,7 +169,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {3, 6})
-    public void onTabComplete_absoluteCoordinates_oneOption(int input) {
+    void onTabComplete_absoluteCoordinates_oneOption(int input) {
         mockAbsoluteCoordinates();
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
@@ -181,7 +181,7 @@ public class DistributionTabCompleterTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 9})
-    public void onTabComplete_absoluteCoordinates_invalidArgLength(int input) {
+    void onTabComplete_absoluteCoordinates_invalidArgLength(int input) {
         mockAbsoluteCoordinates();
         final String[] args = argsOfLength(input);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
@@ -191,7 +191,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabCompleteDistribution_emptyString_returnsFullList() {
+    void onTabCompleteDistribution_emptyString_returnsFullList() {
         final List<String> result = testTabCompleter.onTabCompleteDistribution("");
 
         assertNotNull(result);
@@ -199,7 +199,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabCompleteDistribution_noCommaOrPercent_filterMatchesNone_returnsEmptyList() {
+    void onTabCompleteDistribution_noCommaOrPercent_filterMatchesNone_returnsEmptyList() {
         final List<String> result = testTabCompleter.onTabCompleteDistribution("5");
 
         assertNotNull(result);
@@ -207,7 +207,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabCompleteDistribution_noCommaOrPercent_filterMatchesSome_returnsFilteredList() {
+    void onTabCompleteDistribution_noCommaOrPercent_filterMatchesSome_returnsFilteredList() {
         final List<String> result = testTabCompleter.onTabCompleteDistribution("oak_l");
 
         assertNotNull(result);
@@ -216,7 +216,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabCompleteDistribution_percentMoreRecent_singleMaterialDistribution() {
+    void onTabCompleteDistribution_percentMoreRecent_singleMaterialDistribution() {
         final List<String> result = testTabCompleter.onTabCompleteDistribution("50%s");
 
         assertNotNull(result);
@@ -225,7 +225,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabCompleteDistribution_percentMoreRecent_multiMaterialDistribution() {
+    void onTabCompleteDistribution_percentMoreRecent_multiMaterialDistribution() {
         final String arg = "50%spruce_leaves,40%";
         final List<String> result = testTabCompleter.onTabCompleteDistribution(arg);
 
@@ -234,7 +234,7 @@ public class DistributionTabCompleterTest {
     }
 
     @Test
-    public void onTabCompleteDistribution_commaMoreRecent_multiMaterialDistribution() {
+    void onTabCompleteDistribution_commaMoreRecent_multiMaterialDistribution() {
         final String arg = "oak_leaves,a";
         final List<String> result = testTabCompleter.onTabCompleteDistribution(arg);
 

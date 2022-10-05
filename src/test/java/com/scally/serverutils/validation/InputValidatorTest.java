@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InputValidatorTest {
+class InputValidatorTest {
 
     private ServerMock server;
     private AutoCloseable mocks;
@@ -26,18 +26,18 @@ public class InputValidatorTest {
     private AbstractHorse abstractHorse;
 
     @BeforeEach
-    public void before() {
+    void before() {
         mocks = MockitoAnnotations.openMocks(this);
         server = MockBukkit.mock();
     }
 
     @AfterEach
-    public void after() {
+    void after() {
         MockBukkit.unmock();
     }
 
     @Test
-    public void validate_happyPath() {
+    void validate_happyPath() {
         final InputValidator inputValidator = InputValidator.builder()
                 .expectedNumArgs(8)
                 .playerOnly()
@@ -63,7 +63,7 @@ public class InputValidatorTest {
     }
 
     @Test
-    public void validateArgsNumber_correctArgs_happyPath() {
+    void validateArgsNumber_correctArgs_happyPath() {
         final InputValidator validator = InputValidator.builder()
                 .expectedNumArgs(3)
                 .build();
@@ -73,7 +73,7 @@ public class InputValidatorTest {
     }
 
     @Test
-    public void validateArgsNumber_correctArgs_sadPath() {
+    void validateArgsNumber_correctArgs_sadPath() {
         final InputValidator validator = InputValidator.builder()
                 .expectedNumArgs(4)
                 .build();
@@ -83,7 +83,7 @@ public class InputValidatorTest {
     }
 
     @Test
-    public void validateCommandSenderType_happyPath_PlayerOnly() {
+    void validateCommandSenderType_happyPath_PlayerOnly() {
         final InputValidator validator = InputValidator.builder()
                 .playerOnly()
                 .build();
@@ -91,7 +91,7 @@ public class InputValidatorTest {
     }
 
     @Test
-    public void validateCommandSenderType_sadPath_PlayerOnly() {
+    void validateCommandSenderType_sadPath_PlayerOnly() {
         final InputValidator validator = InputValidator.builder()
                 .playerOnly()
                 .build();

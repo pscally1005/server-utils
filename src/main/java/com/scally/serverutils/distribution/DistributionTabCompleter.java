@@ -12,7 +12,6 @@ import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface DistributionTabCompleter extends TabCompleter {
 
@@ -92,7 +91,7 @@ public interface DistributionTabCompleter extends TabCompleter {
                 .filter(s -> s.startsWith(params.filter))
                 .sorted()
                 .map(s -> params.prefix + s)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     List<String> onTabCompleteDistribution(String arg);
