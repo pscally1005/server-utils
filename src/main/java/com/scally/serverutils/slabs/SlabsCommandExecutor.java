@@ -44,7 +44,7 @@ public class SlabsCommandExecutor extends TemplateReplaceCommandExecutor<SlabsCh
     }
 
     @Override
-    protected SlabsChange changeAtLocation(Location location, ValidationResult validationResult) {
+    public SlabsChange changeAtLocation(Location location, ValidationResult validationResult) {
         final Block block = location.getBlock();
         BlockData blockData = block.getBlockData();
         final Material material = blockData.getMaterial();

@@ -26,7 +26,7 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
 
     protected abstract InputValidator inputValidator();
     protected abstract Changeset<T> changeset();
-    protected abstract T changeAtLocation(Location location, ValidationResult validationResult);
+    public abstract T changeAtLocation(Location location, ValidationResult validationResult);
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,

@@ -2,8 +2,21 @@ package com.scally.serverutils.slabs;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import be.seeseemelk.mockbukkit.WorldMock;
+import be.seeseemelk.mockbukkit.block.data.BlockDataMock;
+import be.seeseemelk.mockbukkit.block.data.SlabMock;
+import com.scally.serverutils.distribution.Distribution;
+import com.scally.serverutils.distribution.DistributionMaterial;
 import com.scally.serverutils.undo.UndoManager;
+import com.scally.serverutils.validation.Coordinates;
+import com.scally.serverutils.validation.ValidationResult;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Slab;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,13 +44,23 @@ public class SlabsCommandExecutorTest {
     @Mock
     private UndoManager undoManager;
 
+    private WorldMock world;
+
     private ServerMock server;
 
     private SlabsCommandExecutor slabsCommandExecutor;
 
+    private Location location;
+
+    private int[] coords = {0, 0, 0, 5, 5, 5};
+
+    private Coordinates coordinates = new Coordinates(coords);
+
     @BeforeEach
     public void before() {
         server = MockBukkit.mock();
+        world = server.addSimpleWorld("test");
+        location = new Location(world, 0.0, 0.0, 0.0);
         slabsCommandExecutor = new SlabsCommandExecutor(undoManager);
     }
 
@@ -45,55 +69,39 @@ public class SlabsCommandExecutorTest {
         MockBukkit.unmock();
     }
 
-    @Test
-    public void onTabComplete_blank() {
-        final String[] args = new String[] {
-                "0", "0", "0", "0", "0", "0", ""
-        };
+    // https://github.com/MockBukkit/MockBukkit/blob/v1.19/src/main/java/be/seeseemelk/mockbukkit/block/BlockMock.java#L90
+    /*@Test
+    public void changeAtLocation_happyPath() {
 
-        final List<String> tabOptions = slabsCommandExecutor.onTabComplete(player, command, "alias", args);
-        assertNotNull(tabOptions);
-        assertEquals(Tag.SLABS.getValues().size(), tabOptions.size());
-        assertEquals("acacia_slab", tabOptions.get(0));
-    }
+        location.getBlock().setType(Material.OAK_SLAB, false);
+        BlockData beforeBlockData = location.getBlock().getBlockData();
+        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.OAK_SLAB);
+        beforeSlab.setWaterlogged(true);
+        beforeSlab.setType(Slab.Type.TOP);
+        world.setBlockData(0, 0, 0, beforeSlab);
+        Slab.Type beforeType = beforeSlab.getType();
+        boolean beforeWaterlogged = beforeSlab.isWaterlogged();
 
-    // TODO: also should be part of InputValidator tests
-//    @Test
-//    public void onCommand_volumeTooLarge_sendsCorrectMessage() {
-//        final String[] args = new String[] {
-//                "0", "0", "0", "65", "65", "65", "oak_slab", "birch_slab"
-//        };
-//
-//        final boolean result = slabsCommandExecutor.onCommand(player, command, "slabs", args);
-//        assertFalse(result);
-//
-//        final String expectedMessage = String.format("Volume must be less than %d blocks",
-//                ServerUtils.VOLUME_LIMIT);
-//
-//        Mockito.verify(messageSender, Mockito.times(1))
-//                .sendError(player, expectedMessage);
-//    }
+        Set<Material> fromMaterial = Set.of(Material.OAK_SLAB, Material.POLISHED_ANDESITE_SLAB);
+        Set<Material> toMaterial = Set.of(Material.WARPED_SLAB);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
-    // TODO: this should be an InputValidator test
-//    @Test
-//    public void onCommand_enterTilda() {
-//        final String[] args = new String[] {
-//                "~", "~", "~", "~", "~", "~"
-//        };
-//
-//        Mockito.when(location.getBlockX()).thenReturn(0);
-//        Mockito.when(location.getBlockY()).thenReturn(0);
-//        Mockito.when(location.getBlockZ()).thenReturn(0);
-//        Mockito.when(player.getLocation()).thenReturn(location);
-//
-//        final int[] coords = InputValidator.parseArgs(player, args);
-//        for(int i = 0; i < coords.length; i++) {
-//            if(i == 0 || i == 3) { assertEquals(coords[i], location.getBlockX()); }
-//            else if(i == 1 || i == 4) { assertEquals(coords[i], location.getBlockY()); }
-//            else if(i == 2 || i == 5) { assertEquals(coords[i], location.getBlockZ()); }
-//        }
-//
-//    }
+        BlockData afterBlockData = location.getBlock().getBlockData();
+        Material afterMaterial = afterBlockData.getMaterial();
+        Slab afterSlab = (Slab) afterBlockData;
+        Slab.Type afterType = afterSlab.getType();
+        boolean afterWaterlogged = afterSlab.isWaterlogged();;
+
+        assertNotNull(
+                slabsCommandExecutor.changeAtLocation(location, validationResult)
+        );
+        assertEquals(Material.WARPED_SLAB, afterMaterial);
+        assertEquals(beforeType, afterType);
+        assertEquals(beforeWaterlogged, afterWaterlogged);
+
+    }*/
 
     // TODO: onCommand tests
 
