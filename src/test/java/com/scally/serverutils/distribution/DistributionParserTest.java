@@ -9,10 +9,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DistributionParserTest {
+class DistributionParserTest {
 
     @Test
-    public void parse_oneMaterial() {
+    void parse_oneMaterial() {
         final String str = "birch_stairs";
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
@@ -24,7 +24,7 @@ public class DistributionParserTest {
     }
 
     @Test
-    public void parse_oneMaterialWithRatio() {
+    void parse_oneMaterialWithRatio() {
         final String str = "33%oak_log";
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
@@ -36,7 +36,7 @@ public class DistributionParserTest {
     }
 
     @Test
-    public void parse_twoMaterials() {
+    void parse_twoMaterials() {
         final String str = "50%cobblestone,50%oak_planks";
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
@@ -52,7 +52,7 @@ public class DistributionParserTest {
     }
 
     @Test
-    public void parse_threeMaterialsNoRatio() {
+    void parse_threeMaterialsNoRatio() {
         final String str = "birch_planks,oak_planks,spruce_planks";
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
@@ -85,7 +85,7 @@ public class DistributionParserTest {
             "25%oak_planks,35%%oak_slabs",      // multiple percent signs in material
             "sponge,sponge"                     // material found twice
     })
-    public void parse_invalidInput(String arg) {
+    void parse_invalidInput(String arg) {
         assertThrows(InvalidDistributionException.class, () -> DistributionParser.parse(arg));
     }
 }

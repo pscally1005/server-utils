@@ -26,8 +26,6 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             Material.SHULKER_BOX
     );
 
-    public FillContainerCommandExecutor() {}
-
     /**
      * /fill-container x y z distribution
      */

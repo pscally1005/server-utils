@@ -1,5 +1,7 @@
 package com.scally.serverutils.validation;
 
+import com.google.common.base.Preconditions;
+
 public class Coordinates {
 
     private int x1;
@@ -11,7 +13,8 @@ public class Coordinates {
     private int z2;
 
     public Coordinates(int[] coords) {
-        assert coords.length == 6;
+        Preconditions.checkArgument(coords.length == 6,
+                String.format("coords array must be of length 6, was length: %d", coords.length));
 
         x1 = coords[0];
         y1 = coords[1];
