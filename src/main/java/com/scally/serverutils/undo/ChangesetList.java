@@ -37,4 +37,6 @@ public abstract class ChangesetList<T extends Change> implements Changeset<T> {
         return changeList.size();
     }
 
+    public boolean isLocked() { return locked; }
+
 }
