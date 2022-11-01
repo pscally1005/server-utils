@@ -6,6 +6,7 @@ import com.scally.serverutils.undo.Change;
 import com.scally.serverutils.undo.Changeset;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
+import com.scally.serverutils.validation.InputValidationException;
 import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
@@ -31,10 +32,10 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
-        // TODO: replace validated() check with throwing exception
-        // TODO: catch exception in ServerUtils
-        final ValidationResult validationResult = inputValidator().validate(commandSender, args);
-        if (!validationResult.validated()) {
+        ValidationResult validationResult;
+        try {
+            validationResult = inputValidator().validate(commandSender, args);
+        } catch (InputValidationException e) {
             return false;
         }
 

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,14 +59,16 @@ class InputValidatorTest {
     @Test
     void validate_invalidNumberOfArgs() {
         final String[] args = new String[] { "0", "0", "0" };
-        final ValidationResult result = inputValidator.validate(player, args);
-        assertInvalid(result);
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(player, args));
+        assertEquals(InputValidationErrorCode.INVALID_ARGS_NUMBER, exception.getErrorCode());
     }
 
     @Test
     void validate_invalidCommandSenderType() {
-        final ValidationResult result = inputValidator.validate(abstractHorse, validArgs());
-        assertInvalid(result);
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(abstractHorse, validArgs()));
+        assertEquals(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER, exception.getErrorCode());
     }
 
     @Test
@@ -77,8 +79,9 @@ class InputValidatorTest {
                 "oak_slab_2_electric_boogaloo",
                 "birch_slab,jungle_slab"
         };
-        final ValidationResult result = inputValidator.validate(player, args);
-        assertInvalid(result);
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(player, args));
+        assertEquals(InputValidationErrorCode.INVALID_DISTRIBUTION_TYPES, exception.getErrorCode());
     }
 
     @Test
@@ -89,8 +92,9 @@ class InputValidatorTest {
                 "birch_slab,jungle_slab",
                 "oak_slab_2_electric_boogaloo"
         };
-        final ValidationResult result = inputValidator.validate(player, args);
-        assertInvalid(result);
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(player, args));
+        assertEquals(InputValidationErrorCode.INVALID_DISTRIBUTION_TYPES, exception.getErrorCode());
     }
 
     @Test
@@ -101,8 +105,9 @@ class InputValidatorTest {
                 "oak_slab",
                 "birch_slab,jungle_slab"
         };
-        final ValidationResult result = inputValidator.validate(player, args);
-        assertInvalid(result);
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(player, args));
+        assertEquals(InputValidationErrorCode.INVALID_COORDINATES, exception.getErrorCode());
     }
 
     @Test
@@ -113,15 +118,9 @@ class InputValidatorTest {
                 "oak_slab",
                 "birch_slab,jungle_slab"
         };
-        final ValidationResult result = inputValidator.validate(player, args);
-        assertInvalid(result);
-    }
-
-    private void assertInvalid(ValidationResult result) {
-        assertFalse(result.validated());
-        assertNull(result.coordinates());
-        assertNull(result.fromDistribution());
-        assertNull(result.toDistribution());
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(player, args));
+        assertEquals(InputValidationErrorCode.VOLUME_TOO_LARGE, exception.getErrorCode());
     }
 
     private String[] validArgs() {

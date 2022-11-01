@@ -94,9 +94,12 @@ public class InputValidator {
             validateVolumeSize(coordinates);
 
             return new ValidationResult(true, coordinates, fromDistribution, toDistribution);
-        } catch (InputValidationException | InvalidDistributionException exception) {
+        } catch (InputValidationException exception) {
             ChatMessageUtils.sendError(commandSender, exception.getMessage());
-            return ValidationResult.invalid();
+            throw exception;
+        } catch (InvalidDistributionException exception) {
+            ChatMessageUtils.sendError(commandSender, exception.getMessage());
+            throw new InputValidationException(InputValidationErrorCode.INVALID_DISTRIBUTION_TYPES);
         }
     }
 

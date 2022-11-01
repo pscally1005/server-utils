@@ -5,6 +5,7 @@ import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
+import com.scally.serverutils.validation.InputValidationException;
 import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
@@ -44,8 +45,10 @@ public class StairsCommandExecutor implements CommandExecutor, DistributionTabCo
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
-        final ValidationResult validationResult = inputValidator.validate(commandSender, args);
-        if (!validationResult.validated()) {
+        ValidationResult validationResult;
+        try {
+            validationResult = inputValidator.validate(commandSender, args);
+        } catch (InputValidationException e) {
             return false;
         }
 
