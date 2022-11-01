@@ -1,23 +1,25 @@
 package com.scally.serverutils.validation;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Tag;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockitoExtension.class)
 class InputValidatorTest {
 
-    private ServerMock server;
-    private AutoCloseable mocks;
+    private InputValidator inputValidator;
 
     @Mock
     private Player player;
@@ -27,8 +29,14 @@ class InputValidatorTest {
 
     @BeforeEach
     void before() {
-        mocks = MockitoAnnotations.openMocks(this);
-        server = MockBukkit.mock();
+        MockBukkit.mock();
+        inputValidator = InputValidator.builder()
+                .expectedNumArgs(8)
+                .playerOnly()
+                .withCoordinateValidation()
+                .withFromDistribution(6, Tag.SLABS)
+                .withToDistribution(7, Tag.SLABS)
+                .build();
     }
 
     @AfterEach
@@ -38,23 +46,9 @@ class InputValidatorTest {
 
     @Test
     void validate_happyPath() {
-        final InputValidator inputValidator = InputValidator.builder()
-                .expectedNumArgs(8)
-                .playerOnly()
-                .withCoordinateValidation()
-                .withFromDistribution(6, Tag.SLABS)
-                .withToDistribution(7, Tag.SLABS)
-                .build();
+        final String[] args = validArgs();
 
-        final String[] args = new String[] {
-                "0", "0", "0",
-                "5", "5", "5",
-                "oak_slab",
-                "birch_slab,jungle_slab"
-        };
-
-        final Player mockPlayer = Mockito.mock(Player.class);
-        final ValidationResult result = inputValidator.validate(mockPlayer, args);
+        final ValidationResult result = inputValidator.validate(player, args);
 
         assertTrue(result.validated());
         assertNotNull(result.coordinates());
@@ -63,41 +57,79 @@ class InputValidatorTest {
     }
 
     @Test
-    void validateArgsNumber_correctArgs_happyPath() {
-        final InputValidator validator = InputValidator.builder()
-                .expectedNumArgs(3)
-                .build();
-        final String[] input = {"a", "b", "c"};
-
-        validator.validateArgsNumber(input);
+    void validate_invalidNumberOfArgs() {
+        final String[] args = new String[] { "0", "0", "0" };
+        final ValidationResult result = inputValidator.validate(player, args);
+        assertInvalid(result);
     }
 
     @Test
-    void validateArgsNumber_correctArgs_sadPath() {
-        final InputValidator validator = InputValidator.builder()
-                .expectedNumArgs(4)
-                .build();
-        final String[] input = {"a", "b", "c"};
-        assertThrows(InputValidationException.class,
-                () -> validator.validateArgsNumber(input));
+    void validate_invalidCommandSenderType() {
+        final ValidationResult result = inputValidator.validate(abstractHorse, validArgs());
+        assertInvalid(result);
     }
 
     @Test
-    void validateCommandSenderType_happyPath_PlayerOnly() {
-        final InputValidator validator = InputValidator.builder()
-                .playerOnly()
-                .build();
-        validator.validateCommandSenderType(player);
+    void validate_invalidFromDistribution() {
+        final String[] args = new String[] {
+                "0", "0", "0",
+                "5", "5", "5",
+                "oak_slab_2_electric_boogaloo",
+                "birch_slab,jungle_slab"
+        };
+        final ValidationResult result = inputValidator.validate(player, args);
+        assertInvalid(result);
     }
 
     @Test
-    void validateCommandSenderType_sadPath_PlayerOnly() {
-        final InputValidator validator = InputValidator.builder()
-                .playerOnly()
-                .build();
-        assertThrows(InputValidationException.class,
-                () -> validator.validateCommandSenderType(abstractHorse));
+    void validate_invalidToDistribution() {
+        final String[] args = new String[] {
+                "0", "0", "0",
+                "5", "5", "5",
+                "birch_slab,jungle_slab",
+                "oak_slab_2_electric_boogaloo"
+        };
+        final ValidationResult result = inputValidator.validate(player, args);
+        assertInvalid(result);
     }
 
-    // TODO: more validate tests
+    @Test
+    void validate_invalidCoordinates() {
+        final String[] args = new String[] {
+                "0", "0", "0",
+                "5", "y", "5",
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+        final ValidationResult result = inputValidator.validate(player, args);
+        assertInvalid(result);
+    }
+
+    @Test
+    void validate_invalidVolumeSize() {
+        final String[] args = new String[] {
+                "-1000000", "-1000000", "-1000000",
+                "1000000", "1000000", "1000000",
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+        final ValidationResult result = inputValidator.validate(player, args);
+        assertInvalid(result);
+    }
+
+    private void assertInvalid(ValidationResult result) {
+        assertFalse(result.validated());
+        assertNull(result.coordinates());
+        assertNull(result.fromDistribution());
+        assertNull(result.toDistribution());
+    }
+
+    private String[] validArgs() {
+        return new String[] {
+                "0", "0", "0",
+                "5", "5", "5",
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+    }
 }

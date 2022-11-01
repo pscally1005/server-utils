@@ -100,23 +100,23 @@ public class InputValidator {
         }
     }
 
-    void validateArgsNumber(String[] args) {
+    private void validateArgsNumber(String[] args) {
         if (expectedNumArgs != args.length)
-            throw new InputValidationException("Invalid number of args!");
+            throw new InputValidationException(InputValidationErrorCode.INVALID_ARGS_NUMBER);
     }
 
-    void validateCommandSenderType(CommandSender commandSender) {
+    private void validateCommandSenderType(CommandSender commandSender) {
         if (playerOnly && !(commandSender instanceof Player))
-            throw new InputValidationException("Command must be send by a player!");
+            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
     }
 
-    Distribution validateFromDistribution(String[] args) {
+    private Distribution validateFromDistribution(String[] args) {
         if (fromDistributionTag == null)
             return null;
         return validateDistribution(args[fromDistributionIndex], fromDistributionTag);
     }
 
-    Distribution validateToDistribution(String[] args) {
+    private Distribution validateToDistribution(String[] args) {
         if (toDistributionTag == null)
             return null;
         return validateDistribution(args[toDistributionIndex], toDistributionTag);
@@ -126,16 +126,16 @@ public class InputValidator {
         final Distribution distribution = DistributionParser.parse(distributionStr);
         final boolean hasValidTypes = distribution.isDistributionOf(tag);
         if (!hasValidTypes)
-            throw new InputValidationException("Invalid types in distribution!");
+            throw new InputValidationException(InputValidationErrorCode.INVALID_DISTRIBUTION_TYPES);
         return distribution;
     }
 
-    Coordinates validateCoordinates(CommandSender commandSender, String[] args) {
+    private Coordinates validateCoordinates(CommandSender commandSender, String[] args) {
         if (!performCoordinateValidation)
             return null;
 
         if (!(commandSender instanceof final Entity entity)) {
-            throw new InputValidationException("Command must be sent by an entity!");
+            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
         }
 
         int[] coords = new int[6];
@@ -157,7 +157,7 @@ public class InputValidator {
             try {
                 coords[i] = Integer.parseInt(args[i]);
             } catch (NumberFormatException exception) {
-                throw new InputValidationException("Coordinates must be valid numbers!");
+                throw new InputValidationException(InputValidationErrorCode.INVALID_COORDINATES);
             }
 
             if(isRelative) {
@@ -170,12 +170,11 @@ public class InputValidator {
         return new Coordinates(coords);
     }
 
-    void validateVolumeSize(Coordinates coordinates) {
+    private void validateVolumeSize(Coordinates coordinates) {
         if (!performCoordinateValidation || coordinates == null)
             return;
         if (coordinates.volume() > ServerUtils.VOLUME_LIMIT) {
-            final String message = String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT);
-            throw new InputValidationException(message);
+            throw new InputValidationException(InputValidationErrorCode.VOLUME_TOO_LARGE);
         }
     }
 }
