@@ -69,8 +69,7 @@ public class SlabsCommandExecutorTest {
         MockBukkit.unmock();
     }
 
-    // https://github.com/MockBukkit/MockBukkit/blob/v1.19/src/main/java/be/seeseemelk/mockbukkit/block/BlockMock.java#L90
-    /*@Test
+    @Test
     public void changeAtLocation_happyPath() {
 
         location.getBlock().setType(Material.OAK_SLAB, false);
@@ -88,18 +87,23 @@ public class SlabsCommandExecutorTest {
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
+        SlabsChange slabsChange = slabsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(slabsChange);
+
         BlockData afterBlockData = location.getBlock().getBlockData();
-        Material afterMaterial = afterBlockData.getMaterial();
+        Material afterMaterial = slabsChange.afterMaterial();
         Slab afterSlab = (Slab) afterBlockData;
         Slab.Type afterType = afterSlab.getType();
         boolean afterWaterlogged = afterSlab.isWaterlogged();;
 
-        assertNotNull(
-                slabsCommandExecutor.changeAtLocation(location, validationResult)
-        );
         assertEquals(Material.WARPED_SLAB, afterMaterial);
         assertEquals(beforeType, afterType);
         assertEquals(beforeWaterlogged, afterWaterlogged);
+
+    }
+
+    /*@Test
+    public void changeAtLocation_notASlab() {
 
     }*/
 
