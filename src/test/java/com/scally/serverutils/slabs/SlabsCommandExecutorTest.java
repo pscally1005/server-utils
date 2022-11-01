@@ -69,8 +69,27 @@ public class SlabsCommandExecutorTest {
         MockBukkit.unmock();
     }
 
+    /*public ValidationResult initLocation() {
+        location.getBlock().setType(Material.OAK_SLAB, false);
+        BlockData beforeBlockData = location.getBlock().getBlockData();
+        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.OAK_SLAB);
+        beforeSlab.setWaterlogged(true);
+        beforeSlab.setType(Slab.Type.TOP);
+        world.setBlockData(0, 0, 0, beforeSlab);
+        Slab.Type beforeType = beforeSlab.getType();
+        boolean beforeWaterlogged = beforeSlab.isWaterlogged();
+
+        Set<Material> fromMaterial = Set.of(Material.OAK_SLAB, Material.POLISHED_ANDESITE_SLAB);
+        Set<Material> toMaterial = Set.of(Material.WARPED_SLAB);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+        return validationResult;
+    }*/
+
     @Test
     public void changeAtLocation_happyPath() {
+
 
         location.getBlock().setType(Material.OAK_SLAB, false);
         BlockData beforeBlockData = location.getBlock().getBlockData();
