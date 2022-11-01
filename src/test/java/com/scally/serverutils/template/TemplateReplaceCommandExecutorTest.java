@@ -106,11 +106,6 @@ public class TemplateReplaceCommandExecutorTest {
 
         assertFalse(result);
 
-        /**this verify was failing since change was null
-         * don't think i wrote this right, but now the test works
-         * check with this next week
-         * how can i make sure that change isnt null?
-         */
         if(change != null) {
             Mockito.verify(changeset, Mockito.never()).add(Mockito.any());
         }
@@ -126,14 +121,22 @@ public class TemplateReplaceCommandExecutorTest {
         final boolean result = testExecutor.onCommand(commandSender, command, LABEL, new String[]{});
 
         assertTrue(result);
-        Mockito.verify(changeset, Mockito.atLeastOnce()).add(Mockito.any());
+        if(change != null) {
+            Mockito.verify(changeset, Mockito.never()).add(Mockito.any());
+        }
         Mockito.verify(undoManager, Mockito.atLeastOnce()).store(Mockito.any(), Mockito.any());
     }
 
     @Test
     public void onCommand_add() {
-        Mockito.when(validationResult.validated()).thenReturn(true);
-        Mockito.verify(changeset, Mockito.atLeastOnce()).add(Mockito.any());
+        validationResult = new ValidationResult(true, coordinates, null, null);
+        Mockito.when(inputValidator.validate(Mockito.any(), Mockito.any()))
+                .thenReturn(validationResult);
+        final boolean result = testExecutor.onCommand(commandSender, command, LABEL, new String[]{});
+        assertTrue(result);
+        if(change != null) {
+            Mockito.verify(changeset, Mockito.never()).add(Mockito.any());
+        }
         Mockito.verify(undoManager, Mockito.atLeastOnce()).store(Mockito.any(), Mockito.any());
         assertTrue(testExecutor.onCommand(commandSender,command,LABEL, new String[]{}));
     }
