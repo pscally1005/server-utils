@@ -4,12 +4,12 @@ import com.scally.serverutils.undo.Change;
 import com.scally.serverutils.undo.Changeset;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
+import com.scally.serverutils.validation.InputValidationErrorCode;
+import com.scally.serverutils.validation.InputValidationException;
 import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
-import org.apache.commons.lang3.builder.ToStringExclude;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class TemplateReplaceCommandExecutorTest {
@@ -100,7 +101,7 @@ public class TemplateReplaceCommandExecutorTest {
     public void onCommand_invalidInput_returnsFalse() {
         validationResult = new ValidationResult(false, null, null, null);
         Mockito.when(inputValidator.validate(Mockito.any(), Mockito.any()))
-                .thenReturn(ValidationResult.invalid());
+                .thenThrow(new InputValidationException(InputValidationErrorCode.INVALID_COORDINATES));
 
         final boolean result = testExecutor.onCommand(commandSender, command, LABEL, new String[]{});
 
