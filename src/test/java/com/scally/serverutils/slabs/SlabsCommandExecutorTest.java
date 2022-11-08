@@ -9,6 +9,7 @@ import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionMaterial;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
+import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,6 +22,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,8 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SlabsCommandExecutorTest {
@@ -69,39 +70,23 @@ public class SlabsCommandExecutorTest {
         MockBukkit.unmock();
     }
 
-    /*public ValidationResult initLocation() {
-        location.getBlock().setType(Material.OAK_SLAB, false);
-        BlockData beforeBlockData = location.getBlock().getBlockData();
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.OAK_SLAB);
-        beforeSlab.setWaterlogged(true);
-        beforeSlab.setType(Slab.Type.TOP);
-        world.setBlockData(0, 0, 0, beforeSlab);
-        Slab.Type beforeType = beforeSlab.getType();
-        boolean beforeWaterlogged = beforeSlab.isWaterlogged();
-
-        Set<Material> fromMaterial = Set.of(Material.OAK_SLAB, Material.POLISHED_ANDESITE_SLAB);
-        Set<Material> toMaterial = Set.of(Material.WARPED_SLAB);
-        Distribution fromDistribution = new Distribution(fromMaterial);
-        Distribution toDistribution = new Distribution(toMaterial);
-        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
-        return validationResult;
-    }*/
-
     @Test
+    @Disabled
     public void changeAtLocation_happyPath() {
 
+        Material beforeMat = Material.OAK_SLAB;
+        Material afterMat = Material.WARPED_SLAB;
+        Slab.Type beforeType = Slab.Type.TOP;
+        boolean beforeWaterlogged = true;
 
-        location.getBlock().setType(Material.OAK_SLAB, false);
-        BlockData beforeBlockData = location.getBlock().getBlockData();
+        location.getBlock().setType(beforeMat, false);
         SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.OAK_SLAB);
-        beforeSlab.setWaterlogged(true);
-        beforeSlab.setType(Slab.Type.TOP);
+        beforeSlab.setWaterlogged(beforeWaterlogged);
+        beforeSlab.setType(beforeType);
         world.setBlockData(0, 0, 0, beforeSlab);
-        Slab.Type beforeType = beforeSlab.getType();
-        boolean beforeWaterlogged = beforeSlab.isWaterlogged();
 
-        Set<Material> fromMaterial = Set.of(Material.OAK_SLAB, Material.POLISHED_ANDESITE_SLAB);
-        Set<Material> toMaterial = Set.of(Material.WARPED_SLAB);
+        Set<Material> fromMaterial = Set.of(beforeMat);
+        Set<Material> toMaterial = Set.of(afterMat);
         Distribution fromDistribution = new Distribution(fromMaterial);
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
@@ -110,22 +95,42 @@ public class SlabsCommandExecutorTest {
         assertNotNull(slabsChange);
 
         BlockData afterBlockData = location.getBlock().getBlockData();
-        Material afterMaterial = slabsChange.afterMaterial();
         Slab afterSlab = (Slab) afterBlockData;
         Slab.Type afterType = afterSlab.getType();
-        boolean afterWaterlogged = afterSlab.isWaterlogged();;
+        boolean afterWaterlogged = afterSlab.isWaterlogged();
+        Material checkAfter = afterBlockData.getMaterial();
 
-        assertEquals(Material.WARPED_SLAB, afterMaterial);
+        assertEquals(checkAfter, afterMat);
         assertEquals(beforeType, afterType);
         assertEquals(beforeWaterlogged, afterWaterlogged);
 
     }
 
-    /*@Test
-    public void changeAtLocation_notASlab() {
+    @Test
+    public void changeAtLocation_returnNull() {
+        Material beforeMat = Material.COBBLESTONE_SLAB;
+        Material afterMat = Material.ANDESITE_SLAB;
+        Slab.Type beforeType = Slab.Type.TOP;
+        boolean beforeWaterlogged = true;
 
-    }*/
+        location.getBlock().setType(beforeMat, false);
+        // Use different material (stone brick instead of cobblestone) to return null instead
+        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.STONE_BRICK_SLAB);
+        beforeSlab.setWaterlogged(beforeWaterlogged);
+        beforeSlab.setType(beforeType);
+        world.setBlockData(0, 0, 0, beforeSlab);
 
-    // TODO: onCommand tests
+        Set<Material> fromMaterial = Set.of(beforeMat);
+        Set<Material> toMaterial = Set.of(afterMat);
+        // fromMaterial is stone brick, not cobblestone
+        // fromDistribution.hasMeterial will be false since these are diff, null will be returned
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        SlabsChange slabsChange = slabsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNull(slabsChange);
+
+    }
 
 }
