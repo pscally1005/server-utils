@@ -1,33 +1,23 @@
 package com.scally.serverutils.stairs;
 
-import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionTabCompleter;
+import com.scally.serverutils.template.TemplateReplaceCommandExecutor;
+import com.scally.serverutils.undo.Changeset;
 import com.scally.serverutils.undo.UndoManager;
-import com.scally.serverutils.validation.Coordinates;
-import com.scally.serverutils.validation.InputValidationException;
 import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Stairs;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class StairsCommandExecutor implements CommandExecutor, DistributionTabCompleter {
-
-    private final UndoManager undoManager;
+public class StairsCommandExecutor extends TemplateReplaceCommandExecutor<StairsChange> {
 
     private final InputValidator inputValidator = InputValidator.builder()
             .expectedNumArgs(8)
@@ -38,67 +28,49 @@ public class StairsCommandExecutor implements CommandExecutor, DistributionTabCo
             .build();
 
     public StairsCommandExecutor(UndoManager undoManager) {
-        this.undoManager = undoManager;
+        super(undoManager);
     }
 
-    // /stairs <x1> <y1> <z1> <x2> <y2> <z2> <from-stair> <to-stair>
     @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    protected InputValidator inputValidator() {
+        return inputValidator;
+    }
 
-        ValidationResult validationResult;
-        try {
-            validationResult = inputValidator.validate(commandSender, args);
-        } catch (InputValidationException e) {
-            return false;
-        }
+    @Override
+    protected Changeset<StairsChange> changeset() {
+        return new StairsChangeset();
+    }
 
-        final Player player = (Player) commandSender;
-        final Coordinates coordinates = validationResult.coordinates();
+    @Override
+    public StairsChange changeAtLocation(Location location, ValidationResult validationResult) {
+        final Block block = location.getBlock();
+        BlockData blockData = block.getBlockData();
+        final Material material = blockData.getMaterial();
+
         final Distribution fromDistribution = validationResult.fromDistribution();
-        final Distribution toDistribution = validationResult.toDistribution();
+        if (fromDistribution.hasMaterial(material)) {
+            Stairs stairs = (Stairs) blockData;
+            final Material fromMaterial = stairs.getMaterial();
+            final Bisected.Half half = stairs.getHalf();
+            final BlockFace facing = stairs.getFacing();
+            final Stairs.Shape shape = stairs.getShape();
+            final boolean waterlogged = stairs.isWaterlogged();
 
-        World world = player.getWorld();
+            final Distribution toDistribution = validationResult.toDistribution();
+            final Material toMaterial = toDistribution.pick();
+            block.setType(toMaterial, false);
 
-        final StairsChangeset changeset = new StairsChangeset();
+            blockData = block.getBlockData();
+            stairs = (Stairs) blockData;
+            stairs.setHalf(half);
+            stairs.setFacing(facing);
+            stairs.setShape(shape);
+            stairs.setWaterlogged(waterlogged);
 
-        for (int x = coordinates.minX(); x <= coordinates.maxX(); x++) {
-            for (int y = coordinates.minY(); y <= coordinates.maxY(); y++) {
-                for (int z = coordinates.minZ(); z <= coordinates.maxZ(); z++) {
-
-                    Block block = world.getBlockAt(x, y, z);
-                    BlockData bd = block.getBlockData();
-                    Material mat = bd.getMaterial();
-
-                    if (fromDistribution.hasMaterial(mat)) {
-
-                        Stairs stair = (Stairs) bd;
-                        Bisected.Half half = stair.getHalf();
-                        BlockFace facing = stair.getFacing();
-                        Stairs.Shape shape = stair.getShape();
-                        boolean isWaterlogged = stair.isWaterlogged();
-
-                        Material toMaterial = toDistribution.pick();
-                        block.setType(toMaterial, false);
-                        bd = block.getBlockData();
-                        ((Stairs) bd).setHalf(half);
-                        ((Stairs) bd).setFacing(facing);
-                        ((Stairs) bd).setShape(shape);
-                        ((Stairs) bd).setWaterlogged(isWaterlogged);
-                        world.setBlockData(x, y, z, bd);
-
-                        final Location loc = block.getLocation();
-                        StairsChange stairsChange = new StairsChange(loc, stair.getMaterial(), toMaterial, half, facing, shape, isWaterlogged);
-                        changeset.add(stairsChange);
-
-                    }
-                }
-            }
+            location.getWorld().setBlockData(location, blockData);
+            return new StairsChange(location, fromMaterial, toMaterial, half, facing, shape, waterlogged);
         }
-
-        undoManager.store(player, changeset);
-        ChatMessageUtils.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
-        return true;
-
+        return null;
     }
 
     public List<String> onTabCompleteDistribution(String arg) {

@@ -27,8 +27,6 @@ public class SlabsCommandExecutor extends TemplateReplaceCommandExecutor<SlabsCh
             .withToDistribution(7, Tag.SLABS)
             .build();
 
-    private final SlabsChangeset changeset = new SlabsChangeset();
-
     public SlabsCommandExecutor(UndoManager undoManager) {
         super(undoManager);
     }
@@ -40,7 +38,7 @@ public class SlabsCommandExecutor extends TemplateReplaceCommandExecutor<SlabsCh
 
     @Override
     protected Changeset<SlabsChange> changeset() {
-        return changeset;
+        return new SlabsChangeset();
     }
 
     @Override
