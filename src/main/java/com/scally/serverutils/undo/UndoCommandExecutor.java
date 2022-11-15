@@ -21,7 +21,6 @@ public class UndoCommandExecutor implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] strings) {
 
-        // TODO: look into making this an annotation
         if (!(commandSender instanceof Player)) {
             ChatMessageUtils.sendError(commandSender, "Must be sent by a player!");
             return false;

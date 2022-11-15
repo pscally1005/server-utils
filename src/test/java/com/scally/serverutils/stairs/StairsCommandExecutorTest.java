@@ -1,40 +1,37 @@
-package com.scally.serverutils.slabs;
+package com.scally.serverutils.stairs;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.block.data.BlockDataMock;
 import be.seeseemelk.mockbukkit.block.data.SlabMock;
+import be.seeseemelk.mockbukkit.block.data.StairsMock;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionMaterial;
+import com.scally.serverutils.slabs.SlabsChange;
+import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
-import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class SlabsCommandExecutorTest {
+public class StairsCommandExecutorTest {
 
     @Mock
     private Command command;
@@ -49,7 +46,7 @@ public class SlabsCommandExecutorTest {
 
     private ServerMock server;
 
-    private SlabsCommandExecutor slabsCommandExecutor;
+    private StairsCommandExecutor stairsCommandExecutor;
 
     private Location location;
 
@@ -62,7 +59,7 @@ public class SlabsCommandExecutorTest {
         server = MockBukkit.mock();
         world = server.addSimpleWorld("test");
         location = new Location(world, 0.0, 0.0, 0.0);
-        slabsCommandExecutor = new SlabsCommandExecutor(undoManager);
+        stairsCommandExecutor = new StairsCommandExecutor(undoManager);
     }
 
     @AfterEach
@@ -74,16 +71,20 @@ public class SlabsCommandExecutorTest {
     @Disabled
     public void changeAtLocation_happyPath() {
 
-        Material beforeMat = Material.OAK_SLAB;
-        Material afterMat = Material.WARPED_SLAB;
-        Slab.Type beforeType = Slab.Type.TOP;
+        Material beforeMat = Material.OAK_STAIRS;
+        Material afterMat = Material.WARPED_STAIRS;
+        Bisected.Half beforeHalf = Bisected.Half.TOP;
+        BlockFace beforeFacing = BlockFace.EAST;
+        Stairs.Shape beforeShape = Stairs.Shape.OUTER_LEFT;
         boolean beforeWaterlogged = true;
 
         location.getBlock().setType(beforeMat, false);
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(beforeMat);
-        beforeSlab.setType(beforeType);
-        beforeSlab.setWaterlogged(beforeWaterlogged);
-        world.setBlockData(0, 0, 0, beforeSlab);
+        StairsMock beforeStair = (StairsMock) BlockDataMock.mock(beforeMat);
+        beforeStair.setHalf(beforeHalf);
+        beforeStair.setFacing(beforeFacing);
+        beforeStair.setShape(beforeShape);
+        beforeStair.setWaterlogged(beforeWaterlogged);
+        world.setBlockData(0, 0, 0, beforeStair);
 
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
@@ -91,34 +92,42 @@ public class SlabsCommandExecutorTest {
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
-        SlabsChange slabsChange = slabsCommandExecutor.changeAtLocation(location, validationResult);
-        assertNotNull(slabsChange);
+        StairsChange stairsChange = stairsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(stairsChange);
 
         BlockData afterBlockData = location.getBlock().getBlockData();
-        Slab afterSlab = (Slab) afterBlockData;
-        Slab.Type afterType = afterSlab.getType();
-        boolean afterWaterlogged = afterSlab.isWaterlogged();
+        Stairs afterStair = (Stairs) afterBlockData;
+        Bisected.Half afterHalf = afterStair.getHalf();
+        BlockFace afterFacing = afterStair.getFacing();
+        Stairs.Shape afterShape = afterStair.getShape();
+        boolean afterWaterlogged = afterStair.isWaterlogged();
         Material checkAfter = afterBlockData.getMaterial();
 
         //assertEquals(checkAfter, afterMat);
-        assertEquals(beforeType, afterType);
+        assertEquals(beforeHalf, afterHalf);
+        assertEquals(beforeFacing, afterFacing);
+        assertEquals(beforeShape, afterShape);
         assertEquals(beforeWaterlogged, afterWaterlogged);
 
     }
 
     @Test
     public void changeAtLocation_returnNull() {
-        Material beforeMat = Material.COBBLESTONE_SLAB;
-        Material afterMat = Material.ANDESITE_SLAB;
-        Slab.Type beforeType = Slab.Type.TOP;
+        Material beforeMat = Material.COBBLESTONE_STAIRS;
+        Material afterMat = Material.ANDESITE_STAIRS;
+        Bisected.Half beforeHalf = Bisected.Half.BOTTOM;
+        BlockFace beforeFacing = BlockFace.SOUTH;
+        Stairs.Shape beforeShape = Stairs.Shape.INNER_RIGHT;
         boolean beforeWaterlogged = true;
 
         location.getBlock().setType(beforeMat, false);
         // Use different material (stone brick instead of cobblestone) to return null instead
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.STONE_BRICK_SLAB);
-        beforeSlab.setWaterlogged(beforeWaterlogged);
-        beforeSlab.setType(beforeType);
-        world.setBlockData(0, 0, 0, beforeSlab);
+        StairsMock beforeStair = (StairsMock) BlockDataMock.mock(Material.STONE_BRICK_STAIRS);
+        beforeStair.setHalf(beforeHalf);
+        beforeStair.setFacing(beforeFacing);
+        beforeStair.setShape(beforeShape);
+        beforeStair.setWaterlogged(beforeWaterlogged);
+        world.setBlockData(0, 0, 0, beforeStair);
 
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
@@ -128,8 +137,8 @@ public class SlabsCommandExecutorTest {
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
-        SlabsChange slabsChange = slabsCommandExecutor.changeAtLocation(location, validationResult);
-        assertNull(slabsChange);
+        StairsChange stairsChange = stairsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNull(stairsChange);
 
     }
 

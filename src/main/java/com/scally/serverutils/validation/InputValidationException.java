@@ -2,8 +2,15 @@ package com.scally.serverutils.validation;
 
 public class InputValidationException extends RuntimeException {
 
-    public InputValidationException(String message) {
-        super(message);
+    private InputValidationErrorCode errorCode;
+
+    public InputValidationException(InputValidationErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    public InputValidationErrorCode getErrorCode() {
+        return errorCode;
     }
 
 }

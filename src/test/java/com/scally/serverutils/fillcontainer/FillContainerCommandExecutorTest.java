@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class FillContainerCommandExecutorTest {
+class FillContainerCommandExecutorTest {
 
     private FillContainerCommandExecutor fillContainerCommandExecutor;
 
@@ -46,18 +46,18 @@ public class FillContainerCommandExecutorTest {
     private AutoCloseable mocks;
 
     @BeforeEach
-    public void before() {
+    void before() {
         mocks = MockitoAnnotations.openMocks(this);
         fillContainerCommandExecutor = new FillContainerCommandExecutor();
     }
 
     @AfterEach
-    public void after() throws Exception {
+    void after() throws Exception {
         mocks.close();
     }
 
     @Test
-    public void onCommand_happyPath() {
+    void onCommand_happyPath() {
         final String[] args = new String[] { "0", "0", "0", "50%cobblestone,50%oak_planks" };
 
         Mockito.when(sender.getWorld()).thenReturn(world);
@@ -72,13 +72,13 @@ public class FillContainerCommandExecutorTest {
         final boolean result = fillContainerCommandExecutor.onCommand(sender, command, "fill-container", args);
         assertTrue(result);
 
-        for (int i = 0; i < items.length; i++) {
-            assertNotNull(items[i]);
+        for (ItemStack item : items) {
+            assertNotNull(item);
         }
     }
 
     @Test
-    public void onCommand_invalidSender() {
+    void onCommand_invalidSender() {
         final String[] args = new String[] { "0", "0", "0", "50%cobblestone,50%oak_planks" };
         final BlockCommandSender blockSender = Mockito.mock(BlockCommandSender.class);
 
@@ -87,21 +87,21 @@ public class FillContainerCommandExecutorTest {
     }
 
     @Test
-    public void onCommand_invalidCoords() {
+    void onCommand_invalidCoords() {
         final String[] args = new String[] { "test", "0", "0", "cobblestone" };
         final boolean result = fillContainerCommandExecutor.onCommand(sender, command, "fill-container", args);
         assertFalse(result);
     }
 
     @Test
-    public void onCommand_invalidDistribution() {
+    void onCommand_invalidDistribution() {
         final String[] args = new String[] { "0", "0", "0", "sponge_slab" };
         final boolean result = fillContainerCommandExecutor.onCommand(sender, command, "fill-container", args);
         assertFalse(result);
     }
 
     @Test
-    public void onCommand_invalidBlockAtCoords() {
+    void onCommand_invalidBlockAtCoords() {
         final String[] args = new String[] { "0", "0", "0", "cobblestone" };
 
         Mockito.when(block.getType()).thenReturn(Material.FURNACE);

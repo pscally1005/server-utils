@@ -1,40 +1,37 @@
-package com.scally.serverutils.slabs;
+package com.scally.serverutils.trapdoors;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.block.data.BlockDataMock;
 import be.seeseemelk.mockbukkit.block.data.SlabMock;
+import be.seeseemelk.mockbukkit.block.data.TrapDoorMock;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionMaterial;
+import com.scally.serverutils.slabs.SlabsChange;
+import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
-import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class SlabsCommandExecutorTest {
+public class TrapDoorsCommandExecutorTest {
 
     @Mock
     private Command command;
@@ -49,7 +46,7 @@ public class SlabsCommandExecutorTest {
 
     private ServerMock server;
 
-    private SlabsCommandExecutor slabsCommandExecutor;
+    private TrapDoorsCommandExecutor trapDoorsCommandExecutor;
 
     private Location location;
 
@@ -62,7 +59,7 @@ public class SlabsCommandExecutorTest {
         server = MockBukkit.mock();
         world = server.addSimpleWorld("test");
         location = new Location(world, 0.0, 0.0, 0.0);
-        slabsCommandExecutor = new SlabsCommandExecutor(undoManager);
+        trapDoorsCommandExecutor = new TrapDoorsCommandExecutor(undoManager);
     }
 
     @AfterEach
@@ -74,16 +71,22 @@ public class SlabsCommandExecutorTest {
     @Disabled
     public void changeAtLocation_happyPath() {
 
-        Material beforeMat = Material.OAK_SLAB;
-        Material afterMat = Material.WARPED_SLAB;
-        Slab.Type beforeType = Slab.Type.TOP;
+        Material beforeMat = Material.OAK_TRAPDOOR;
+        Material afterMat = Material.WARPED_TRAPDOOR;
+        Bisected.Half beforeHalf = Bisected.Half.TOP;
+        BlockFace beforeFacing = BlockFace.WEST;
+        boolean beforeOpen = false;
+        boolean beforePowered = true;
         boolean beforeWaterlogged = true;
 
         location.getBlock().setType(beforeMat, false);
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(beforeMat);
-        beforeSlab.setType(beforeType);
-        beforeSlab.setWaterlogged(beforeWaterlogged);
-        world.setBlockData(0, 0, 0, beforeSlab);
+        TrapDoorMock beforeTrapDoor = (TrapDoorMock) BlockDataMock.mock(beforeMat);
+        beforeTrapDoor.setHalf(beforeHalf);
+        beforeTrapDoor.setFacing(beforeFacing);
+        beforeTrapDoor.setOpen(beforeOpen);
+        beforeTrapDoor.setPowered(beforePowered);
+        beforeTrapDoor.setWaterlogged(beforeWaterlogged);
+        world.setBlockData(0, 0, 0, beforeTrapDoor);
 
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
@@ -91,34 +94,46 @@ public class SlabsCommandExecutorTest {
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
-        SlabsChange slabsChange = slabsCommandExecutor.changeAtLocation(location, validationResult);
-        assertNotNull(slabsChange);
+        TrapDoorsChange trapDoorsChange = trapDoorsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(trapDoorsChange);
 
         BlockData afterBlockData = location.getBlock().getBlockData();
-        Slab afterSlab = (Slab) afterBlockData;
-        Slab.Type afterType = afterSlab.getType();
-        boolean afterWaterlogged = afterSlab.isWaterlogged();
+        TrapDoor afterTrapDoor = (TrapDoor) afterBlockData;
+        Bisected.Half afterHalf = afterTrapDoor.getHalf();
+        BlockFace afterFacing = afterTrapDoor.getFacing();
+        boolean afterOpen = afterTrapDoor.isOpen();
+        boolean afterPowered = afterTrapDoor.isPowered();
+        boolean afterWaterlogged = afterTrapDoor.isWaterlogged();
         Material checkAfter = afterBlockData.getMaterial();
 
-        //assertEquals(checkAfter, afterMat);
-        assertEquals(beforeType, afterType);
+//        assertEquals(checkAfter, afterMat);
+        assertEquals(beforeHalf, afterHalf);
+        assertEquals(beforeFacing, afterFacing);
+        assertEquals(beforeOpen, afterOpen);
+        assertEquals(beforePowered, afterPowered);
         assertEquals(beforeWaterlogged, afterWaterlogged);
 
     }
 
     @Test
     public void changeAtLocation_returnNull() {
-        Material beforeMat = Material.COBBLESTONE_SLAB;
-        Material afterMat = Material.ANDESITE_SLAB;
-        Slab.Type beforeType = Slab.Type.TOP;
-        boolean beforeWaterlogged = true;
+        Material beforeMat = Material.MANGROVE_TRAPDOOR;
+        Material afterMat = Material.CRIMSON_TRAPDOOR;
+        Bisected.Half beforeHalf = Bisected.Half.TOP;
+        BlockFace beforeFacing = BlockFace.NORTH;
+        boolean beforeOpen = true;
+        boolean beforePowered = false;
+        boolean beforeWaterlogged = false;
 
         location.getBlock().setType(beforeMat, false);
-        // Use different material (stone brick instead of cobblestone) to return null instead
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.STONE_BRICK_SLAB);
-        beforeSlab.setWaterlogged(beforeWaterlogged);
-        beforeSlab.setType(beforeType);
-        world.setBlockData(0, 0, 0, beforeSlab);
+        // Use different material (birch instead of mangrove) to return null instead
+        TrapDoorMock beforeTrapDoor = (TrapDoorMock) BlockDataMock.mock(Material.BIRCH_TRAPDOOR);
+        beforeTrapDoor.setHalf(beforeHalf);
+        beforeTrapDoor.setFacing(beforeFacing);
+        beforeTrapDoor.setOpen(beforeOpen);
+        beforeTrapDoor.setPowered(beforePowered);
+        beforeTrapDoor.setWaterlogged(beforeWaterlogged);
+        world.setBlockData(0, 0, 0, beforeTrapDoor);
 
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
@@ -128,8 +143,8 @@ public class SlabsCommandExecutorTest {
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
-        SlabsChange slabsChange = slabsCommandExecutor.changeAtLocation(location, validationResult);
-        assertNull(slabsChange);
+        TrapDoorsChange trapDoorsChange = trapDoorsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNull(trapDoorsChange);
 
     }
 

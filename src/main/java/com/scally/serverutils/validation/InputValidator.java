@@ -3,8 +3,11 @@ package com.scally.serverutils.validation;
 import com.scally.serverutils.ServerUtils;
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
+import com.scally.serverutils.distribution.DistributionParser;
+import com.scally.serverutils.distribution.InvalidDistributionException;
 import org.bukkit.Location;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -16,10 +19,10 @@ public class InputValidator {
     private final boolean performCoordinateValidation;
 
     private final int fromDistributionIndex;
-    private final Class<? extends BlockData> fromDistributionType;
+    private final Tag<Material> fromDistributionTag;
 
     private final int toDistributionIndex;
-    private final Class<? extends BlockData> toDistributionType;
+    private final Tag<Material> toDistributionTag;
 
     private InputValidator(Builder builder) {
         this.expectedNumArgs = builder.expectedNumArgs;
@@ -27,10 +30,10 @@ public class InputValidator {
         this.performCoordinateValidation = builder.performCoordinateValidation;
 
         this.fromDistributionIndex = builder.fromDistributionIndex;
-        this.fromDistributionType = builder.fromDistributionType;
+        this.fromDistributionTag = builder.fromDistributionTag;
 
         this.toDistributionIndex = builder.toDistributionIndex;
-        this.toDistributionType = builder.toDistributionType;
+        this.toDistributionTag = builder.toDistributionTag;
     }
 
     public static Builder builder() {
@@ -43,10 +46,10 @@ public class InputValidator {
         private boolean performCoordinateValidation;
 
         private int fromDistributionIndex;
-        private Class<? extends BlockData> fromDistributionType;
+        private Tag<Material> fromDistributionTag;
 
         private int toDistributionIndex;
-        private Class<? extends BlockData> toDistributionType;
+        private Tag<Material> toDistributionTag;
 
         public Builder expectedNumArgs(int expectedNumArgs) {
             this.expectedNumArgs = expectedNumArgs;
@@ -64,15 +67,15 @@ public class InputValidator {
             return this;
         }
 
-        public <T extends BlockData> Builder withFromDistribution(int index, Class<T> type) {
+        public Builder withFromDistribution(int index, Tag<Material> tag) {
             this.fromDistributionIndex = index;
-            this.fromDistributionType = type;
+            this.fromDistributionTag = tag;
             return this;
         }
 
-        public <T extends BlockData> Builder withToDistribution(int index, Class<T> type) {
+        public Builder withToDistribution(int index, Tag<Material> tag) {
             this.toDistributionIndex = index;
-            this.toDistributionType = type;
+            this.toDistributionTag = tag;
             return this;
         }
 
@@ -93,41 +96,40 @@ public class InputValidator {
             return new ValidationResult(true, coordinates, fromDistribution, toDistribution);
         } catch (InputValidationException exception) {
             ChatMessageUtils.sendError(commandSender, exception.getMessage());
-            return ValidationResult.invalid();
+            throw exception;
+        } catch (InvalidDistributionException exception) {
+            ChatMessageUtils.sendError(commandSender, exception.getMessage());
+            throw new InputValidationException(InputValidationErrorCode.INVALID_DISTRIBUTION_TYPES);
         }
     }
 
     private void validateArgsNumber(String[] args) {
         if (expectedNumArgs != args.length)
-            throw new InputValidationException("Invalid number of args!");
+            throw new InputValidationException(InputValidationErrorCode.INVALID_ARGS_NUMBER);
     }
 
     private void validateCommandSenderType(CommandSender commandSender) {
         if (playerOnly && !(commandSender instanceof Player))
-            throw new InputValidationException("Command must be send by a player!");
+            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
     }
 
     private Distribution validateFromDistribution(String[] args) {
-        if (fromDistributionType == null)
+        if (fromDistributionTag == null)
             return null;
-        return validateDistribution(args[fromDistributionIndex], fromDistributionType);
+        return validateDistribution(args[fromDistributionIndex], fromDistributionTag);
     }
 
     private Distribution validateToDistribution(String[] args) {
-        if (toDistributionType == null)
+        if (toDistributionTag == null)
             return null;
-        return validateDistribution(args[toDistributionIndex], toDistributionType);
+        return validateDistribution(args[toDistributionIndex], toDistributionTag);
     }
 
-    private <T extends BlockData> Distribution validateDistribution(String distributionStr, Class<T> type) {
-        final Distribution distribution = Distribution.parse(distributionStr);
-        if (distribution == null)
-            throw new InputValidationException("Invalid distribution!");
-
-        final boolean hasValidTypes = distribution.isDistributionOf(type);
+    private Distribution validateDistribution(String distributionStr, Tag<Material> tag) {
+        final Distribution distribution = DistributionParser.parse(distributionStr);
+        final boolean hasValidTypes = distribution.isDistributionOf(tag);
         if (!hasValidTypes)
-            throw new InputValidationException("Invalid types in distribution!");
-
+            throw new InputValidationException(InputValidationErrorCode.INVALID_DISTRIBUTION_TYPES);
         return distribution;
     }
 
@@ -136,7 +138,7 @@ public class InputValidator {
             return null;
 
         if (!(commandSender instanceof final Entity entity)) {
-            throw new InputValidationException("Command must be sent by an entity!");
+            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
         }
 
         int[] coords = new int[6];
@@ -148,7 +150,7 @@ public class InputValidator {
                 if(args[i].equals("~")) {
                     if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
                     else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
-                    else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ(); }
+                    else { coords[i] = loc.getBlockZ(); }
                     continue;
                 }
                 args[i] = args[i].substring(1);
@@ -158,25 +160,24 @@ public class InputValidator {
             try {
                 coords[i] = Integer.parseInt(args[i]);
             } catch (NumberFormatException exception) {
-                throw new InputValidationException("Coordinates must be valid numbers!");
+                throw new InputValidationException(InputValidationErrorCode.INVALID_COORDINATES);
             }
 
             if(isRelative) {
                 if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
                 else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
-                else if(i == 2 || i == 5) { coords[i] = loc.getBlockZ() + coords[i]; }
+                else { coords[i] = loc.getBlockZ() + coords[i]; }
             }
 
         }
         return new Coordinates(coords);
     }
 
-    public void validateVolumeSize(Coordinates coordinates) {
+    private void validateVolumeSize(Coordinates coordinates) {
         if (!performCoordinateValidation || coordinates == null)
             return;
         if (coordinates.volume() > ServerUtils.VOLUME_LIMIT) {
-            final String message = String.format("Volume must be less than %d blocks", ServerUtils.VOLUME_LIMIT);
-            throw new InputValidationException(message);
+            throw new InputValidationException(InputValidationErrorCode.VOLUME_TOO_LARGE);
         }
     }
 }

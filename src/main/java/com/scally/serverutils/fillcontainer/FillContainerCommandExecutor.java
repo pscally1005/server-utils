@@ -2,6 +2,8 @@ package com.scally.serverutils.fillcontainer;
 
 import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
+import com.scally.serverutils.distribution.DistributionParser;
+import com.scally.serverutils.distribution.InvalidDistributionException;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -23,8 +25,6 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             Material.BARREL,
             Material.SHULKER_BOX
     );
-
-    public FillContainerCommandExecutor() {}
 
     /**
      * /fill-container x y z distribution
@@ -55,8 +55,12 @@ public class FillContainerCommandExecutor implements CommandExecutor {
             }
         }
 
-        final Distribution distribution = Distribution.parse(args[3]);
-        if (distribution == null) {
+        // TODO: move exception handling up into ServerUtils
+        Distribution distribution;
+        try {
+            distribution = DistributionParser.parse(args[3]);
+        } catch (InvalidDistributionException exception) {
+            ChatMessageUtils.sendError(sender, exception.getMessage());
             return false;
         }
 
@@ -74,6 +78,4 @@ public class FillContainerCommandExecutor implements CommandExecutor {
         ChatMessageUtils.sendSuccess(sender, "Success!");
         return true;
     }
-
-
 }

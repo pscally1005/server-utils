@@ -1,5 +1,6 @@
 package com.scally.serverutils.distribution;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -8,95 +9,89 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface DistributionTabCompleter extends TabCompleter {
 
-    default List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-
-        if (!(sender instanceof Player)) {
-            return Collections.EMPTY_LIST;
+    default List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias,
+                                       String[] args) {
+        if (!(sender instanceof Player player)) {
+            return List.of();
         }
 
-        Player player = (Player) sender;
+        if (args.length == 7 || args.length == 8) {
+            return onTabCompleteDistribution(args[args.length-1]);
+        }
+
         final RayTraceResult rayTraceResult = player.rayTraceBlocks(5);
         if (rayTraceResult == null) {
-            switch(args.length) {
-                case 1,4:
-                    return List.of("~", "~ ~", "~ ~ ~");
-                case 2,5:
-                    return List.of("~", "~ ~");
-                case 3, 6:
-                    return List.of("~");
-                case 7, 8:
-                    return onTabCompleteDistribution(args[args.length-1]);
-                default:
-                    return List.of();
-            }
+            return onTabCompleteRelativeCoordinates(args.length);
         }
 
-        final Block targ = rayTraceResult.getHitBlock();
-        switch(args.length) {
-            case 1, 4:
-                return List.of(targ.getX() + "", targ.getX() + " " + targ.getY(), targ.getX() + " " + targ.getY() + " " + targ.getZ() );
-            case 2, 5:
-                return List.of(targ.getY() + "", targ.getY() + " " + targ.getZ() );
-            case 3, 6:
-                return List.of(targ.getZ() + "" );
-            case 7, 8:
-                return onTabCompleteDistribution(args[args.length-1]);
+        final Block hitBlock = rayTraceResult.getHitBlock();
+        if (hitBlock != null) {
+            return onTabCompleteAbsoluteCoordinates(args.length, hitBlock.getLocation());
         }
-        return Collections.EMPTY_LIST;
 
+        return List.of();
+    }
+
+    private List<String> onTabCompleteRelativeCoordinates(int argsLength) {
+        return switch (argsLength) {
+            case 1, 4 -> List.of("~", "~ ~", "~ ~ ~");
+            case 2, 5 -> List.of("~", "~ ~");
+            case 3, 6 -> List.of("~");
+            default -> List.of();
+        };
+    }
+
+    private List<String> onTabCompleteAbsoluteCoordinates(int argsLength, Location location) {
+        int x = location.getBlockX();
+        int y = location.getBlockY();
+        int z = location.getBlockZ();
+        return switch (argsLength) {
+            case 1, 4 -> List.of(x + "", x + " " + y, x + " " + y + " " + z);
+            case 2, 5 -> List.of(y + "", y + " " + z);
+            case 3, 6 -> List.of(z + "");
+            default -> List.of();
+        };
     }
 
     default List<String> onTabCompleteDistribution(String arg, Tag<Material> tag) {
+        final TabCompleteParams params = calculateTagCompleteParams(arg);
+        return filterMaterials(tag, params);
+    }
 
-        char lastChar = 0;
-        if (!arg.equals("")) {
-            lastChar = arg.charAt(arg.length() - 1);
-        }
+    record TabCompleteParams(String filter, String prefix) {}
 
-        if(lastChar == '%' || arg.equals("")) {
-            return tag.getValues()
-                    .stream()
-                    .map(Material::toString)
-                    .map(String::toLowerCase)
-                    .sorted()
-                    .map(s -> new StringBuilder(arg).append(s).toString())
-                    .collect(Collectors.toList());
+    private TabCompleteParams calculateTagCompleteParams(String arg) {
+        final int lastPercentIndex = arg.lastIndexOf("%");
+        final int lastCommaIndex = arg.lastIndexOf(",");
 
+        if (lastPercentIndex == -1 && lastCommaIndex == -1) {
+            return new TabCompleteParams(arg, "");
+        } else if (lastPercentIndex > lastCommaIndex) {
+            final String filter = arg.substring(lastPercentIndex + 1);
+            final String prefix = arg.substring(0, lastPercentIndex + 1);
+            return new TabCompleteParams(filter, prefix);
         } else {
-
-            int lastPercent = arg.lastIndexOf("%");
-            int lastComma = arg.lastIndexOf(",");
-            String lastPart, firstPart;
-
-            if(lastPercent == -1 && lastComma == -1) {
-                lastPart = arg;
-                firstPart = "";
-            } else if(lastPercent >= lastComma) {
-                lastPart = arg.substring(lastPercent+1);
-                firstPart = arg.substring(0,lastPercent+1);
-            } else {
-                lastPart = arg.substring(lastComma+1);
-                firstPart = arg.substring(0,lastComma+1);
-            }
-
-            return tag.getValues()
-                    .stream()
-                    .map(Material::toString)
-                    .map(String::toLowerCase)
-                    .filter(s -> s.startsWith(lastPart))
-                    .sorted()
-                    .map(s -> new StringBuilder(firstPart).append(s).toString())
-                    .collect(Collectors.toList());
-
+            final String filter = arg.substring(lastCommaIndex + 1);
+            final String prefix = arg.substring(0, lastCommaIndex + 1);
+            return new TabCompleteParams(filter, prefix);
         }
+    }
 
+    private List<String> filterMaterials(Tag<Material> tag, TabCompleteParams params) {
+        return tag.getValues()
+                .stream()
+                .map(Material::toString)
+                .map(String::toLowerCase)
+                .filter(s -> s.startsWith(params.filter))
+                .sorted()
+                .map(s -> params.prefix + s)
+                .toList();
     }
 
     List<String> onTabCompleteDistribution(String arg);

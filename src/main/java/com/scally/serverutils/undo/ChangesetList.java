@@ -3,7 +3,7 @@ package com.scally.serverutils.undo;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ChangesetList<T extends Change> implements Changeset {
+public abstract class ChangesetList<T extends Change> implements Changeset<T> {
 
     private final List<Change> changeList = new ArrayList<>();
     private boolean locked = false;
@@ -36,5 +36,7 @@ public abstract class ChangesetList<T extends Change> implements Changeset {
     public int count() {
         return changeList.size();
     }
+
+    public boolean isLocked() { return locked; }
 
 }

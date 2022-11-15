@@ -1,147 +1,110 @@
 package com.scally.serverutils.distribution;
 
+import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DistributionTest {
+class DistributionTest {
+
+    private ServerMock serverMock;
+
+    @BeforeEach
+    public void before() {
+        serverMock = MockBukkit.mock();
+    }
+
+    @AfterEach
+    public void after() {
+        MockBukkit.unmock();
+    }
 
     @Test
-    public void pick_length1_pickFirst() {
-        final Distribution distribution = Distribution.parse("1%air");
+    void pick_length1_pickFirst() {
+        final Distribution distribution = DistributionParser.parse("1%air");
+        assertNotNull(distribution);
+
         final Material material = distribution.pick(0.5D);
         assertEquals(Material.AIR, material);
     }
 
-    @Test
-    public void pick_length2() {
-        final Distribution distribution = Distribution.parse("50%stone,50%cobblestone");
-        final Material first = distribution.pick(25D);
-        final Material second = distribution.pick(75D);
+    @ParameterizedTest
+    @CsvSource(value = {"25D,STONE", "75D,COBBLESTONE"})
+    void pick_length2(double threshold, String expectedMaterial) {
+        final Distribution distribution = DistributionParser.parse("50%stone,50%cobblestone");
+        assertNotNull(distribution);
 
-        assertEquals(Material.STONE, first);
-        assertEquals(Material.COBBLESTONE, second);
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"1.5D,BIRCH_PLANKS", "2.5D,OAK_PLANKS", "3.5D,JUNGLE_PLANKS"})
+    void pick_length3(double threshold, String expectedMaterial) {
+        final Distribution distribution = DistributionParser.parse(
+                "2%birch_planks,1%oak_planks,1%jungle_planks");
+        assertNotNull(distribution);
+
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"1.5D,BRICKS", "2.5D,POLISHED_ANDESITE", "3.5D,POLISHED_GRANITE", "5.5D,AIR"})
+    void pick_length4(double threshold, String expectedMaterial) {
+        final Distribution distribution = DistributionParser.parse(
+                "2%bricks,1%polished_andesite,1%polished_granite,2%air");
+        assertNotNull(distribution);
+
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"-100D,STRIPPED_BIRCH_LOG", "100D,STRIPPED_ACACIA_LOG"})
+    void pick_outOfRange(double threshold, String expectedMaterial) {
+        final Distribution distribution = DistributionParser.parse(
+                "1%stripped_birch_log,1%stripped_oak_log,1%stripped_acacia_log");
+        assertNotNull(distribution);
+
+        final Material material = distribution.pick(threshold);
+        assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
     @Test
-    public void pick_length3() {
-        final Distribution distribution = Distribution.parse("2%birch_planks,1%oak_planks,1%jungle_planks");
-        final Material first = distribution.pick(1.5D);
-        final Material second = distribution.pick(2.5D);
-        final Material third = distribution.pick(3.5D);
-
-        assertEquals(Material.BIRCH_PLANKS, first);
-        assertEquals(Material.OAK_PLANKS, second);
-        assertEquals(Material.JUNGLE_PLANKS, third);
+    void hasMaterial_doesHaveMaterial() {
+        final Distribution distribution = DistributionParser.parse("oak_stairs,birch_stairs");
+        assertTrue(distribution.hasMaterial(Material.BIRCH_STAIRS));
     }
 
     @Test
-    public void pick_length4() {
-        final Distribution distribution = Distribution.parse("2%bricks,1%polished_andesite,1%polished_granite,2%air");
-        final Material first = distribution.pick(1.5D);
-        final Material second = distribution.pick(2.5D);
-        final Material third = distribution.pick(3.5D);
-        final Material fourth = distribution.pick(5.5D);
-
-        assertEquals(Material.BRICKS, first);
-        assertEquals(Material.POLISHED_ANDESITE, second);
-        assertEquals(Material.POLISHED_GRANITE, third);
-        assertEquals(Material.AIR, fourth);
+    void hasMaterial_doesNotHaveMaterial() {
+        final Distribution distribution = DistributionParser.parse("oak_slab,birch_slab");
+        assertFalse(distribution.hasMaterial(Material.SPRUCE_SLAB));
     }
 
     @Test
-    public void pick_outOfRange() {
-        final Distribution distribution = Distribution.parse("1%stripped_birch_log,1%stripped_oak_log,1%stripped_acacia_log");
-        final Material lessThanMin = distribution.pick(-100D);
-        final Material greaterThanMax = distribution.pick(100D);
-
-        assertEquals(Material.STRIPPED_BIRCH_LOG, lessThanMin);
-        assertEquals(Material.STRIPPED_ACACIA_LOG, greaterThanMax);
+    void isDistributionOf_allMatchType_returnsTrue() {
+        final Distribution distribution = DistributionParser.parse("oak_leaves,spruce_leaves");
+        assertTrue(distribution.isDistributionOf(Tag.LEAVES));
     }
 
     @Test
-    public void parse_oneMaterial() {
-        final String str = "birch_stairs";
-        final Distribution distribution = Distribution.parse(str);
-
-        final List<DistributionPair> pairs = distribution.getPairs();
-        assertEquals(1, pairs.size());
-        assertEquals(Material.BIRCH_STAIRS, pairs.get(0).getMaterial());
-        assertEquals(1D, pairs.get(0).getThreshold());
+    void isDistributionOf_someMatchType_returnsFalse() {
+        final Distribution distribution = DistributionParser.parse("oak_log,oak_leaves");
+        assertFalse(distribution.isDistributionOf(Tag.LEAVES));
     }
 
     @Test
-    public void parse_oneMaterialWithRatio() {
-        final String str = "33%oak_log";
-        final Distribution distribution = Distribution.parse(str);
-
-        final List<DistributionPair> pairs = distribution.getPairs();
-        assertEquals(1, pairs.size());
-        assertEquals(Material.OAK_LOG, pairs.get(0).getMaterial());
-        assertEquals(33D, pairs.get(0).getThreshold());
-    }
-
-    @Test
-    public void parse_twoMaterials() {
-        final String str = "50%cobblestone,50%oak_planks";
-        final Distribution distribution = Distribution.parse(str);
-
-        final List<DistributionPair> pairs = distribution.getPairs();
-        assertEquals(2, pairs.size());
-
-        assertEquals(Material.COBBLESTONE, pairs.get(0).getMaterial());
-        assertEquals(50D, pairs.get(0).getThreshold());
-
-        assertEquals(Material.OAK_PLANKS, pairs.get(1).getMaterial());
-        assertEquals(100D, pairs.get(1).getThreshold());
-    }
-
-    @Test
-    public void parse_threeMaterialsNoRatio() {
-        final String str = "birch_planks,oak_planks,spruce_planks";
-        final Distribution distribution = Distribution.parse(str);
-
-        final List<DistributionPair> pairs = distribution.getPairs();
-        assertEquals(3, pairs.size());
-
-        boolean hasBirch = false;
-        boolean hasOak = false;
-        boolean hasSpruce = false;
-
-        for (int i = 0; i < pairs.size(); i++) {
-            assertEquals(i + 1D, pairs.get(i).getThreshold());
-            switch (pairs.get(i).getMaterial()) {
-                case BIRCH_PLANKS:
-                    hasBirch = true;
-                    break;
-                case OAK_PLANKS:
-                    hasOak = true;
-                    break;
-                case SPRUCE_PLANKS:
-                    hasSpruce = true;
-                    break;
-            }
-        }
-
-        assertTrue(hasBirch);
-        assertTrue(hasOak);
-        assertTrue(hasSpruce);
-    }
-
-    @Test
-    public void parse_invalidMaterial() {
-        final String str = "50%cobblestone,50%pine_log";
-        final Distribution distribution = Distribution.parse(str);
-        assertNull(distribution);
-    }
-
-    @Test
-    public void parse_invalidFormat() {
-        final String str = "25%cobbled_deepslate,deepslate";
-        final Distribution distribution = Distribution.parse(str);
-        assertNull(distribution);
+    void isDistributionOf_noneMatchType_returnsFalse() {
+        final Distribution distribution = DistributionParser.parse("jungle_slab,dark_oak_slab");
+        assertFalse(distribution.isDistributionOf(Tag.STAIRS));
     }
 }
