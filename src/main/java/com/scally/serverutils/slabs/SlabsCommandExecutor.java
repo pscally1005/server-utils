@@ -15,8 +15,6 @@ import org.bukkit.block.data.type.Slab;
 
 import java.util.List;
 
-// TODO: unit tests
-
 public class SlabsCommandExecutor extends TemplateReplaceCommandExecutor<SlabsChange> {
 
     private final InputValidator inputValidator = InputValidator.builder()

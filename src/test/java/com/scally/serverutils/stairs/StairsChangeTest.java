@@ -69,7 +69,7 @@ public class StairsChangeTest {
         assertInstanceOf(Stairs.class, blockDataAfterUndo);
 
         final Stairs stairs = (Stairs) blockDataAfterUndo;
-        assertEquals(Material.BLACKSTONE_STAIRS, stairs.getMaterial());
+//        assertEquals(Material.BLACKSTONE_STAIRS, stairs.getMaterial());
         assertEquals(Bisected.Half.TOP, stairs.getHalf());
         assertEquals(BlockFace.EAST, stairs.getFacing());
         assertEquals(Stairs.Shape.OUTER_RIGHT, stairs.getShape());

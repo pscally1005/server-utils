@@ -91,6 +91,7 @@ class InputValidatorTest {
                 "5", "5", "5",
                 "birch_slab,jungle_slab",
                 "oak_slab_2_electric_boogaloo"
+                //lol nice
         };
         final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
                 () -> inputValidator.validate(player, args));
