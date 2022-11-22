@@ -37,7 +37,7 @@ public class TrapDoorsCommandExecutor extends TemplateReplaceCommandExecutor<Tra
     }
 
     @Override
-    protected Changeset<TrapDoorsChange> changeset() {
+    protected Changeset<TrapDoorsChange> newChangeset() {
         return new TrapDoorsChangeset();
     }
 

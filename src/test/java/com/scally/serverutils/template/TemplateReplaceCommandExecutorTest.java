@@ -46,7 +46,7 @@ public class TemplateReplaceCommandExecutorTest {
         }
 
         @Override
-        protected Changeset changeset() {
+        protected Changeset newChangeset() {
             return changeset;
         }
 

@@ -35,7 +35,7 @@ public class SlabsCommandExecutor extends TemplateReplaceCommandExecutor<SlabsCh
     }
 
     @Override
-    protected Changeset<SlabsChange> changeset() {
+    protected Changeset<SlabsChange> newChangeset() {
         return new SlabsChangeset();
     }
 

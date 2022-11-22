@@ -26,7 +26,7 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
     }
 
     protected abstract InputValidator inputValidator();
-    protected abstract Changeset<T> changeset();
+    protected abstract Changeset<T> newChangeset();
     public abstract T changeAtLocation(Location location, ValidationResult validationResult);
 
     @Override
@@ -43,19 +43,22 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
         final Coordinates coordinates = validationResult.coordinates();
         final World world = player.getWorld();
 
+        Changeset<T> changeset = newChangeset();
         for (int x = coordinates.minX(); x <= coordinates.maxX(); x++) {
             for (int y = coordinates.minY(); y <= coordinates.maxY(); y++) {
                 for (int z = coordinates.minZ(); z <= coordinates.maxZ(); z++) {
                     final Location location = new Location(world, x, y, z);
                     final T change = changeAtLocation(location, validationResult);
                     if (change != null)
-                        changeset().add(change);
+                        changeset.add(change);
                 }
             }
         }
 
-        undoManager.store(player, changeset());
-        ChatMessageUtils.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset().count()));
+        if(changeset.count() > 0) {
+            undoManager.store(player, changeset);
+        }
+        ChatMessageUtils.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
         return true;
     }
 }
