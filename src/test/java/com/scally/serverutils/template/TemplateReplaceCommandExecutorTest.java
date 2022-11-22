@@ -1,7 +1,9 @@
 package com.scally.serverutils.template;
 
+import com.scally.serverutils.slabs.SlabsChangeset;
 import com.scally.serverutils.undo.Change;
 import com.scally.serverutils.undo.Changeset;
+import com.scally.serverutils.undo.ChangesetList;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
 import com.scally.serverutils.validation.InputValidationErrorCode;
@@ -46,7 +48,7 @@ public class TemplateReplaceCommandExecutorTest {
         }
 
         @Override
-        protected Changeset changeset() {
+        protected Changeset newChangeset() {
             return changeset;
         }
 
@@ -71,8 +73,8 @@ public class TemplateReplaceCommandExecutorTest {
     @Mock
     private InputValidator inputValidator;
 
-    @Mock
-    private Changeset changeset;
+//    @Mock
+    private Changeset changeset = new SlabsChangeset();
 
     @Mock
     private Player commandSender;
@@ -106,40 +108,34 @@ public class TemplateReplaceCommandExecutorTest {
         final boolean result = testExecutor.onCommand(commandSender, command, LABEL, new String[]{});
 
         assertFalse(result);
-
-        if(change != null) {
-            Mockito.verify(changeset, Mockito.never()).add(Mockito.any());
-        }
+        assert(changeset.count() == 0);
         Mockito.verify(undoManager, Mockito.never()).store(Mockito.any(), Mockito.any());
     }
 
     @Test
-    public void onCommand_validInput() {
+    public void onCommand_validInputNoChange() {
         validationResult = new ValidationResult(true, coordinates, null, null);
         Mockito.when(inputValidator.validate(Mockito.any(), Mockito.any()))
                 .thenReturn(validationResult);
-
         final boolean result = testExecutor.onCommand(commandSender, command, LABEL, new String[]{});
-
         assertTrue(result);
-        if(change != null) {
-            Mockito.verify(changeset, Mockito.never()).add(Mockito.any());
-        }
-        Mockito.verify(undoManager, Mockito.atLeastOnce()).store(Mockito.any(), Mockito.any());
+
+        assert(changeset.count() == 0);
+        Mockito.verify(undoManager, Mockito.never()).store(Mockito.any(), Mockito.any());
     }
 
     @Test
-    public void onCommand_add() {
+    public void onCommand_validInputWithChange() {
         validationResult = new ValidationResult(true, coordinates, null, null);
         Mockito.when(inputValidator.validate(Mockito.any(), Mockito.any()))
                 .thenReturn(validationResult);
+
+        testExecutor.stubChangeAtLocation(change);
         final boolean result = testExecutor.onCommand(commandSender, command, LABEL, new String[]{});
         assertTrue(result);
-        if(change != null) {
-            Mockito.verify(changeset, Mockito.never()).add(Mockito.any());
-        }
+
+        assert(changeset.count() == 1);
         Mockito.verify(undoManager, Mockito.atLeastOnce()).store(Mockito.any(), Mockito.any());
-        assertTrue(testExecutor.onCommand(commandSender,command,LABEL, new String[]{}));
     }
 
 }

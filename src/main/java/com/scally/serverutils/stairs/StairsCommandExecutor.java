@@ -37,7 +37,7 @@ public class StairsCommandExecutor extends TemplateReplaceCommandExecutor<Stairs
     }
 
     @Override
-    protected Changeset<StairsChange> changeset() {
+    protected Changeset<StairsChange> newChangeset() {
         return new StairsChangeset();
     }
 
