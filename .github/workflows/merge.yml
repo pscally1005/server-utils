@@ -1,6 +1,6 @@
 name: Upload Artifact
 
-on
+on:
   push:
     branches: [ main ]
 
