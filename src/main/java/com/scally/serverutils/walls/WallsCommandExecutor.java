@@ -2,8 +2,6 @@ package com.scally.serverutils.walls;
 
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.template.TemplateReplaceCommandExecutor;
-import com.scally.serverutils.walls.WallsChange;
-import com.scally.serverutils.walls.WallsChangeset;
 import com.scally.serverutils.undo.Changeset;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.InputValidator;
@@ -13,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Wall;
 
@@ -81,7 +78,7 @@ public class WallsCommandExecutor extends TemplateReplaceCommandExecutor<WallsCh
 
     @Override
     public List<String> onTabCompleteDistribution(String arg) {
-        return onTabCompleteDistribution(arg, Tag.TRAPDOORS);
+        return onTabCompleteDistribution(arg, Tag.WALLS);
     }
 
 }
