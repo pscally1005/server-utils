@@ -23,3 +23,7 @@ commands:
   s-undo:
     description: Undo last command(s)
     usage: /s-undo [int]
+
+  walls:
+    description: Replace walls
+    usage: /walls <x1> <y1> <z1> <x2> <y2> <z2> <from-wall> <to-wall>
