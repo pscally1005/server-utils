@@ -137,7 +137,7 @@ public class TrapDoorsCommandExecutorTest {
 
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
-        // fromMaterial is stone brick, not cobblestone
+        // fromMaterial is birch, not mangrove
         // fromDistribution.hasMeterial will be false since these are diff, null will be returned
         Distribution fromDistribution = new Distribution(fromMaterial);
         Distribution toDistribution = new Distribution(toMaterial);
