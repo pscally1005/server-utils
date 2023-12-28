@@ -1,5 +1,6 @@
 package com.scally.serverutils;
 
+import com.scally.serverutils.bootstrap.BootstrapCommandExecutor;
 import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
 import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.stairs.StairsCommandExecutor;
@@ -17,6 +18,7 @@ public final class ServerUtils extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
+        this.getCommand("bootstrap").setExecutor(new BootstrapCommandExecutor());
         this.getCommand("slabs").setExecutor(new SlabsCommandExecutor(undoManager));
         this.getCommand("stairs").setExecutor(new StairsCommandExecutor(undoManager));
         this.getCommand("fill-container").setExecutor(new FillContainerCommandExecutor());
