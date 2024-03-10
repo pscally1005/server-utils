@@ -1,6 +1,6 @@
 package com.scally.serverutils.undo;
 
-import com.scally.serverutils.chat.ChatMessageUtils;
+import com.scally.serverutils.distribution.chat.ChatMessageUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

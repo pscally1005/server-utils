@@ -8,6 +8,10 @@ commands:
     description: Bootstraps hotbar with Creative-mode items
     usage: /bootstrap
 
+  paul:
+    description: Paul's Bootstraps hotbar with Creative-mode items
+    usage: /paul
+
   slabs:
     description: Replace slabs
     usage: /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>

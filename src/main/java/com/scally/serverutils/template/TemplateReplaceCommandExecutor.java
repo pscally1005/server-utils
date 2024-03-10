@@ -1,6 +1,6 @@
 package com.scally.serverutils.template;
 
-import com.scally.serverutils.chat.ChatMessageUtils;
+import com.scally.serverutils.distribution.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.DistributionTabCompleter;
 import com.scally.serverutils.undo.Change;
 import com.scally.serverutils.undo.Changeset;

@@ -1,6 +1,6 @@
 package com.scally.serverutils.undo;
 
-import com.scally.serverutils.chat.ChatMessageUtils;
+import com.scally.serverutils.distribution.chat.ChatMessageUtils;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
