@@ -60,7 +60,7 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         leggings.addEnchantments(leggingsEnchants);
 
         // init boots with mending, unbreaking, protection, thorns, feather falling, depth strider, and soul speed
-        ItemStack boots = new ItemStack(Material.NETHERITE_LEGGINGS);
+        ItemStack boots = new ItemStack(Material.NETHERITE_BOOTS);
         Map<Enchantment,Integer> bootsEnchants = new HashMap<Enchantment,Integer>();
         bootsEnchants.put(Enchantment.MENDING, 1);
         bootsEnchants.put(Enchantment.DURABILITY,3);
@@ -69,19 +69,24 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         bootsEnchants.put(Enchantment.PROTECTION_FALL,4);
         bootsEnchants.put(Enchantment.DEPTH_STRIDER,3);
         bootsEnchants.put(Enchantment.SOUL_SPEED,3);
-        leggings.addEnchantments(leggingsEnchants);
+        boots.addEnchantments(bootsEnchants);
 
         // init statues book
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-
-        // Cast the ItemStack to BookMeta
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
-
-        // Set the title of the book
-        bookMeta.setTitle("Statues");
-
-        // Set the book meta to the ItemStack
         book.setItemMeta(bookMeta);
+
+        // init sword with mending, unbreaking, sharpness, fire aspect, looting, knockback, and sweeping edge
+        ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+        Map<Enchantment,Integer> swordEnchants = new HashMap<Enchantment,Integer>();
+        swordEnchants.put(Enchantment.MENDING,1);
+        swordEnchants.put(Enchantment.DURABILITY,3);
+        swordEnchants.put(Enchantment.DAMAGE_ALL,5);
+        swordEnchants.put(Enchantment.FIRE_ASPECT,2);
+        swordEnchants.put(Enchantment.LOOT_BONUS_MOBS,3);
+        swordEnchants.put(Enchantment.KNOCKBACK,2);
+        swordEnchants.put(Enchantment.SWEEPING_EDGE,3);
+        sword.addEnchantments(swordEnchants);
 
         // set armor and off hand
         player.getInventory().setItem(EquipmentSlot.HEAD, helmet);
@@ -91,9 +96,13 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         player.getInventory().setItem(EquipmentSlot.OFF_HAND, new ItemStack(Material.FIREWORK_ROCKET));
 
         // set inventory slots
-        player.getInventory().setItem(0, new ItemStack(Material.DEBUG_STICK));
-        player.getInventory().setItem(1, new ItemStack(Material.WOODEN_AXE));
+        player.getInventory().setItem(0, new ItemStack(Material.WOODEN_AXE));
+        player.getInventory().setItem(1, new ItemStack(Material.DEBUG_STICK));
         player.getInventory().setItem(2, book);
+        player.getInventory().setItem(3, new ItemStack(Material.ARMOR_STAND));
+        player.getInventory().setItem(4, new ItemStack(Material.ITEM_FRAME));
+        player.getInventory().setItem(5, new ItemStack(Material.GLOW_ITEM_FRAME));
+        player.getInventory().setItem(6, sword);
 
         return true;
     }
