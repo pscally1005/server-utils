@@ -74,6 +74,7 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         // init statues book
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
+        bookMeta.setTitle("Statues");
         book.setItemMeta(bookMeta);
 
         // init sword with mending, unbreaking, sharpness, fire aspect, looting, knockback, and sweeping edge
