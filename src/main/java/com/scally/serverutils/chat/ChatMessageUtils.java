@@ -1,4 +1,4 @@
-package com.scally.serverutils.distribution.chat;
+package com.scally.serverutils.chat;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

@@ -1,6 +1,6 @@
 package com.scally.serverutils.fillcontainer;
 
-import com.scally.serverutils.distribution.chat.ChatMessageUtils;
+import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionParser;
 import com.scally.serverutils.distribution.InvalidDistributionException;
