@@ -25,8 +25,8 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withFromDistribution(6, null)
-            .withToDistribution(7, null)
+//            .withFromDistribution(6, null)
+//            .withToDistribution(7, null)
             .build();
 
     public BlocksCommandExecutor(UndoManager undoManager) {
@@ -76,7 +76,6 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
     }
 
     public List<String> onTabCompleteDistribution(String arg) {
-//        return onTabCompleteDistribution(arg, Tag.SCULK_REPLACEABLE);
         List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
         List<String> mats = new ArrayList<String>();
         for(Material mat : materials) {
