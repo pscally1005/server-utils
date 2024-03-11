@@ -95,7 +95,7 @@ public class BlocksCommandExecutorTest {
 
         location.getBlock().setType(beforeMat, false);
         // Use different material (stone brick instead of cobblestone) to return null instead
-        StairsMock beforeBlock = (StairsMock) BlockDataMock.mock(Material.STONE_BRICKS);
+        BlockDataMock beforeBlock = (BlockDataMock) BlockDataMock.mock(Material.STONE_BRICKS);
         world.setBlockData(0, 0, 0, beforeBlock);
 
         Set<Material> fromMaterial = Set.of(beforeMat);
