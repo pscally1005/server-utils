@@ -35,3 +35,7 @@ commands:
   walls:
     description: Replace walls
     usage: /walls <x1> <y1> <z1> <x2> <y2> <z2> <from-wall> <to-wall>
+
+  blocks:
+    description: Replace all types of blocks
+    usage: /blocks <x1> <y1> <z1> <x2> <y2> <z2> <from-block> <to-block>
