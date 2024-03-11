@@ -76,13 +76,13 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
     }
 
     public List<String> onTabCompleteDistribution(String arg) {
-//        return onTabCompleteDistribution(arg);
-        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
-        List<String> mats = new ArrayList<String>();
-        for(Material mat : materials) {
-            mats.add(mat.toString());
-        }
-        return mats;
+        return onTabCompleteDistribution(arg, Tag.SCULK_REPLACEABLE);
+//        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
+//        List<String> mats = new ArrayList<String>();
+//        for(Material mat : materials) {
+//            mats.add(mat.toString().toLowerCase());
+//        }
+//        return mats;
     }
 
 }
