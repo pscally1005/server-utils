@@ -14,8 +14,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Stairs;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<BlocksChange> {
 
@@ -74,7 +76,13 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
     }
 
     public List<String> onTabCompleteDistribution(String arg) {
-        return onTabCompleteDistribution(arg);
+//        return onTabCompleteDistribution(arg);
+        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
+        List<String> mats = new ArrayList<String>();
+        for(Material mat : materials) {
+            mats.add(mat.toString());
+        }
+        return mats;
     }
 
 }
