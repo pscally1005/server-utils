@@ -103,7 +103,7 @@ public class StairsCommandExecutorTest {
         boolean afterWaterlogged = afterStair.isWaterlogged();
         Material checkAfter = afterBlockData.getMaterial();
 
-        //assertEquals(checkAfter, afterMat);
+//        assertEquals(checkAfter, afterMat);
         assertEquals(beforeHalf, afterHalf);
         assertEquals(beforeFacing, afterFacing);
         assertEquals(beforeShape, afterShape);

@@ -61,7 +61,7 @@ public class BlocksChangeTest {
         final BlockData blockDataAfterUndo = world.getBlockData(location);
         assertInstanceOf(BlockData.class, blockDataAfterUndo);
 
-        final BlockData bd = (BlockData) blockDataAfterUndo;
+        final BlockData bd = blockDataAfterUndo;
 
         final Block block = world.getBlockAt(location);
         assertEquals(bd, block.getBlockData());

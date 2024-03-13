@@ -25,8 +25,8 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-//            .withFromDistribution(6, null)
-//            .withToDistribution(7, null)
+            .withFromDistribution(6, Tag.SCULK_REPLACEABLE)
+            .withToDistribution(7, Tag.SCULK_REPLACEABLE)
             .build();
 
     public BlocksCommandExecutor(UndoManager undoManager) {
@@ -51,37 +51,28 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
 
         final Distribution fromDistribution = validationResult.fromDistribution();
         if (fromDistribution.hasMaterial(material)) {
-//            Stairs stairs = (Stairs) blockData;
             final Material fromMaterial = blockData.getMaterial();
-//            final Bisected.Half half = blockData.getHalf();
-//            final BlockFace facing = blockData.getFacing();
-//            final Stairs.Shape shape = blockData.getShape();
-//            final boolean waterlogged = blockData.isWaterlogged();
 
             final Distribution toDistribution = validationResult.toDistribution();
             final Material toMaterial = toDistribution.pick();
             block.setType(toMaterial, false);
 
             blockData = block.getBlockData();
-//            blockData = (Stairs) blockData;
-//            blockData.setHalf(half);
-//            blockData.setFacing(facing);
-//            blockData.setShape(shape);
-//            blockData.setWaterlogged(waterlogged);
 
             location.getWorld().setBlockData(location, blockData);
-            return new BlocksChange(location, fromMaterial, toMaterial/*, half, facing, shape, waterlogged*/);
+            return new BlocksChange(location, fromMaterial, toMaterial);
         }
         return null;
     }
 
     public List<String> onTabCompleteDistribution(String arg) {
-        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
-        List<String> mats = new ArrayList<String>();
-        for(Material mat : materials) {
-            mats.add(mat.toString().toLowerCase());
-        }
-        return mats;
+        return onTabCompleteDistribution(arg, Tag.SCULK_REPLACEABLE);
+//        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
+//        List<String> mats = new ArrayList<String>();
+//        for(Material mat : materials) {
+//            mats.add(mat.toString().toLowerCase());
+//        }
+//        return mats;
     }
 
 }

@@ -12,9 +12,7 @@ import org.bukkit.block.data.type.Stairs;
 
 public record BlocksChange(Location location,
                            Material beforeMaterial,
-                           Material afterMaterial/*,
-                           BlockFace facing,
-                           boolean waterlogged*/) implements Change {
+                           Material afterMaterial) implements Change {
     @Override
     public boolean undo() {
         Block block = location.getBlock();
@@ -22,8 +20,6 @@ public record BlocksChange(Location location,
         block.setType(beforeMaterial, false);
 
         BlockData bd = block.getBlockData();
-//        Block block = (Block) bd;
-//        block.setFacing(facing);
 
         World world = location.getWorld();
         world.setBlockData(location, bd);

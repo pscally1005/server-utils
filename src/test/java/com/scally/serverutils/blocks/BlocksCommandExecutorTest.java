@@ -64,14 +64,13 @@ public class BlocksCommandExecutorTest {
     }
 
     @Test
-    @Disabled
     public void changeAtLocation_happyPath() {
 
         Material beforeMat = Material.OAK_PLANKS;
         Material afterMat = Material.WARPED_PLANKS;
 
         location.getBlock().setType(beforeMat, false);
-        BlockDataMock beforeBlock = (BlockDataMock) BlockDataMock.mock(beforeMat);
+        BlockDataMock beforeBlock = BlockDataMock.mock(beforeMat);
         world.setBlockData(0, 0, 0, beforeBlock);
 
         Set<Material> fromMaterial = Set.of(beforeMat);
@@ -84,7 +83,7 @@ public class BlocksCommandExecutorTest {
         assertNotNull(blocksChange);
 
         BlockData afterBlockData = location.getBlock().getBlockData();
-        BlockData afterBlock = (BlockData) afterBlockData;
+        BlockData afterBlock = afterBlockData;
         Material checkAfter = afterBlockData.getMaterial();
     }
 
@@ -101,7 +100,7 @@ public class BlocksCommandExecutorTest {
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
         // fromMaterial is stone brick, not cobblestone
-        // fromDistribution.hasMeterial will be false since these are diff, null will be returned
+        // fromDistribution.hasMaterial will be false since these are diff, null will be returned
         Distribution fromDistribution = new Distribution(fromMaterial);
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
