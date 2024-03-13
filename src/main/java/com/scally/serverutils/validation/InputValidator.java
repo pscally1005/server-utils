@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 public class InputValidator {
 
     private final int expectedNumArgs;
-    private final boolean playerOnly;
+//    private final boolean playerOnly;
     private final boolean performCoordinateValidation;
 
     private final int fromDistributionIndex;
@@ -26,7 +26,7 @@ public class InputValidator {
 
     private InputValidator(Builder builder) {
         this.expectedNumArgs = builder.expectedNumArgs;
-        this.playerOnly = builder.playerOnly;
+//        this.playerOnly = builder.playerOnly;
         this.performCoordinateValidation = builder.performCoordinateValidation;
 
         this.fromDistributionIndex = builder.fromDistributionIndex;
@@ -57,12 +57,12 @@ public class InputValidator {
         }
 
         public Builder playerOnly() {
-            this.playerOnly = true;
+//            this.playerOnly = true;
             return this;
         }
 
         public Builder withCoordinateValidation() {
-            this.playerOnly = true;
+//            this.playerOnly = true;
             this.performCoordinateValidation = true;
             return this;
         }
@@ -109,8 +109,8 @@ public class InputValidator {
     }
 
     private void validateCommandSenderType(CommandSender commandSender) {
-        if (playerOnly && !(commandSender instanceof Player))
-            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
+//        if (playerOnly && !(commandSender instanceof Player))
+//            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
     }
 
     private Distribution validateFromDistribution(String[] args) {
