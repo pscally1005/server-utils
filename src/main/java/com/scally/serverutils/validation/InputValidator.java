@@ -113,7 +113,7 @@ public class InputValidator {
     }
 
     private void validateCommandSenderType(CommandSender commandSender) {
-        if (playerOnly && !(commandSender instanceof Player) && !(commandSender instanceof CommandMinecart))
+        if (playerOnly && !(commandSender instanceof Player) && !(commandSender instanceof CommandMinecart) && !(commandSender instanceof BlockCommandSender))
             throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
     }
 
@@ -142,12 +142,18 @@ public class InputValidator {
             return null;
 
         boolean isEntity = true;
-        if (!(commandSender instanceof final Entity entity)) {
-            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
+        if (!(commandSender instanceof Entity)) {
+            if(commandSender instanceof BlockCommandSender) isEntity = false;
+            else throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
         }
 
         int[] coords = new int[6];
-        final Location loc = entity.getLocation();
+        Location loc;
+
+        if(isEntity) {
+            Entity entity = (Entity) commandSender;
+            loc = entity.getLocation();
+        } else loc = null;
 
         for (int i = 0; i < coords.length; i++) {
             boolean isRelative = false;
