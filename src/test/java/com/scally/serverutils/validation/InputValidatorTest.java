@@ -2,10 +2,15 @@ package com.scally.serverutils.validation;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import org.bukkit.Tag;
+import org.bukkit.block.CommandBlock;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.CommandMinecart;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -23,6 +28,12 @@ class InputValidatorTest {
 
     @Mock
     private Player player;
+
+    @Mock
+    private CommandMinecart commandMinecart;
+
+    @Mock
+    private BlockCommandSender blockCommandSender;
 
     @Mock
     private AbstractHorse abstractHorse;
@@ -49,6 +60,30 @@ class InputValidatorTest {
         final String[] args = validArgs();
 
         final ValidationResult result = inputValidator.validate(player, args);
+
+        assertTrue(result.validated());
+        assertNotNull(result.coordinates());
+        assertNotNull(result.fromDistribution());
+        assertNotNull(result.toDistribution());
+    }
+
+    @Test
+    void validate_happyPath2() {
+        final String[] args = validArgs();
+
+        final ValidationResult result = inputValidator.validate(commandMinecart, args);
+
+        assertTrue(result.validated());
+        assertNotNull(result.coordinates());
+        assertNotNull(result.fromDistribution());
+        assertNotNull(result.toDistribution());
+    }
+
+    @Test
+    void validate_happyPath3() {
+        final String[] args = validArgs();
+
+        final ValidationResult result = inputValidator.validate(blockCommandSender, args);
 
         assertTrue(result.validated());
         assertNotNull(result.coordinates());
