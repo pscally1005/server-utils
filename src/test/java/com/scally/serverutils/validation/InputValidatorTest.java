@@ -7,6 +7,7 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.CommandMinecart;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -29,7 +30,7 @@ class InputValidatorTest {
     private Player player;
 
     @Mock
-    private BlockCommandSender blockCommandSender;
+    private CommandMinecart commandMinecart;
 
     @Mock
     private AbstractHorse abstractHorse;
@@ -67,7 +68,7 @@ class InputValidatorTest {
     void validate_happyPath2() {
         final String[] args = validArgs();
 
-        final ValidationResult result = inputValidator.validate(blockCommandSender, args);
+        final ValidationResult result = inputValidator.validate(commandMinecart, args);
 
         assertTrue(result.validated());
         assertNotNull(result.coordinates());

@@ -14,6 +14,7 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.CommandMinecart;
 
 public class InputValidator {
 
@@ -112,7 +113,7 @@ public class InputValidator {
     }
 
     private void validateCommandSenderType(CommandSender commandSender) {
-        if (playerOnly && !(commandSender instanceof Player) && !(commandSender instanceof BlockCommandSender))
+        if (playerOnly && !(commandSender instanceof Player) && !(commandSender instanceof CommandMinecart))
             throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
     }
 
@@ -141,19 +142,12 @@ public class InputValidator {
             return null;
 
         boolean isEntity = true;
-        if (!(commandSender instanceof Entity)) {
-            if(commandSender instanceof BlockCommandSender) isEntity = false;
-            else throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
+        if (!(commandSender instanceof final Entity entity)) {
+            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
         }
 
         int[] coords = new int[6];
-
-        Location loc;
-        if(isEntity) {
-            final Entity entity = (Entity) commandSender;
-            loc = entity.getLocation();
-        }
-        else loc = null;
+        final Location loc = entity.getLocation();
 
         for (int i = 0; i < coords.length; i++) {
             boolean isRelative = false;
