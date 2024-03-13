@@ -2,6 +2,9 @@ package com.scally.serverutils.validation;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import org.bukkit.Tag;
+import org.bukkit.block.CommandBlock;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +27,9 @@ class InputValidatorTest {
 
     @Mock
     private Player player;
+
+    @Mock
+    private BlockCommandSender blockCommandSender;
 
     @Mock
     private AbstractHorse abstractHorse;
@@ -58,6 +64,18 @@ class InputValidatorTest {
     }
 
     @Test
+    void validate_happyPath2() {
+        final String[] args = validArgs();
+
+        final ValidationResult result = inputValidator.validate(blockCommandSender, args);
+
+        assertTrue(result.validated());
+        assertNotNull(result.coordinates());
+        assertNotNull(result.fromDistribution());
+        assertNotNull(result.toDistribution());
+    }
+
+    @Test
     void validate_invalidNumberOfArgs() {
         final String[] args = new String[] { "0", "0", "0" };
         final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
@@ -66,12 +84,12 @@ class InputValidatorTest {
     }
 
     @Test
-    @Disabled
     void validate_invalidCommandSenderType() {
         final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
                 () -> inputValidator.validate(abstractHorse, validArgs()));
         assertEquals(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER, exception.getErrorCode());
     }
+
 
     @Test
     void validate_invalidFromDistribution() {
