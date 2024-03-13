@@ -21,12 +21,14 @@ import java.util.stream.Collectors;
 
 public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<BlocksChange> {
 
+    private Tag<Material> tag = Tag.MINEABLE_PICKAXE;
+
     private final InputValidator inputValidator = InputValidator.builder()
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
-            .withFromDistribution(6, Tag.SCULK_REPLACEABLE)
-            .withToDistribution(7, Tag.SCULK_REPLACEABLE)
+            .withFromDistribution(6, tag)
+            .withToDistribution(7, tag)
             .build();
 
     public BlocksCommandExecutor(UndoManager undoManager) {
@@ -66,7 +68,7 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
     }
 
     public List<String> onTabCompleteDistribution(String arg) {
-        return onTabCompleteDistribution(arg, Tag.SCULK_REPLACEABLE);
+        return onTabCompleteDistribution(arg, tag);
 //        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
 //        List<String> mats = new ArrayList<String>();
 //        for(Material mat : materials) {
