@@ -73,21 +73,9 @@ public class InputValidator {
             return this;
         }
 
-        public Builder withFromDistribution(int index) {
-            this.fromDistributionIndex = index;
-            this.fromDistributionTag = null;
-            return this;
-        }
-
         public Builder withToDistribution(int index, Tag<Material> tag) {
             this.toDistributionIndex = index;
             this.toDistributionTag = tag;
-            return this;
-        }
-
-        public Builder withToDistribution(int index) {
-            this.toDistributionIndex = index;
-            this.toDistributionTag = null;
             return this;
         }
 

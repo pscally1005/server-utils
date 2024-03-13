@@ -11,10 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface DistributionTabCompleter extends TabCompleter {
 
@@ -67,10 +64,6 @@ public interface DistributionTabCompleter extends TabCompleter {
         return filterMaterials(tag, params);
     }
 
-    default List<String> onTabCompleteDistribution(String arg) {
-        return filterMaterials();
-    }
-
     record TabCompleteParams(String filter, String prefix) {}
 
     private TabCompleteParams calculateTagCompleteParams(String arg) {
@@ -101,13 +94,6 @@ public interface DistributionTabCompleter extends TabCompleter {
                 .toList();
     }
 
-    private List<String> filterMaterials() {
-        List<Material> materials = Arrays.stream(Material.values()).filter(Material::isBlock).collect(Collectors.toList());
-        List<String> mats = new ArrayList<String>();
-        for(Material mat : materials) {
-            mats.add(mat.toString().toLowerCase());
-        }
-        return mats;
-    }
+    List<String> onTabCompleteDistribution(String arg);
 
 }
