@@ -7,7 +7,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DistributionParserTest {
 
@@ -17,10 +20,10 @@ class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getMaterials();
+        final List<DistributionItem> pairs = distribution.getMaterials();
         assertEquals(1, pairs.size());
-        assertEquals(Material.BIRCH_STAIRS, pairs.get(0).getMaterial());
-        assertEquals(1D, pairs.get(0).getMaxRange());
+        assertEquals(Material.BIRCH_STAIRS, pairs.getFirst().material());
+        assertEquals(1D, pairs.getFirst().probRangeMax());
     }
 
     @Test
@@ -29,10 +32,10 @@ class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getMaterials();
+        final List<DistributionItem> pairs = distribution.getMaterials();
         assertEquals(1, pairs.size());
-        assertEquals(Material.OAK_LOG, pairs.get(0).getMaterial());
-        assertEquals(33D, pairs.get(0).getMaxRange());
+        assertEquals(Material.OAK_LOG, pairs.getFirst().material());
+        assertEquals(33D, pairs.getFirst().probRangeMax());
     }
 
     @Test
@@ -41,14 +44,14 @@ class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getMaterials();
+        final List<DistributionItem> pairs = distribution.getMaterials();
         assertEquals(2, pairs.size());
 
-        assertEquals(Material.COBBLESTONE, pairs.get(0).getMaterial());
-        assertEquals(50D, pairs.get(0).getMaxRange());
+        assertEquals(Material.COBBLESTONE, pairs.get(0).material());
+        assertEquals(50D, pairs.get(0).probRangeMax());
 
-        assertEquals(Material.OAK_PLANKS, pairs.get(1).getMaterial());
-        assertEquals(100D, pairs.get(1).getMaxRange());
+        assertEquals(Material.OAK_PLANKS, pairs.get(1).material());
+        assertEquals(100D, pairs.get(1).probRangeMax());
     }
 
     @Test
@@ -57,7 +60,7 @@ class DistributionParserTest {
         final Distribution distribution = DistributionParser.parse(str);
         assertNotNull(distribution);
 
-        final List<DistributionMaterial> pairs = distribution.getMaterials();
+        final List<DistributionItem> pairs = distribution.getMaterials();
         assertEquals(3, pairs.size());
 
         boolean hasBirch = false;
@@ -65,8 +68,8 @@ class DistributionParserTest {
         boolean hasSpruce = false;
 
         for (int i = 0; i < pairs.size(); i++) {
-            assertEquals(i + 1D, pairs.get(i).getMaxRange());
-            switch (pairs.get(i).getMaterial()) {
+            assertEquals(i + 1D, pairs.get(i).probRangeMax());
+            switch (pairs.get(i).material()) {
                 case BIRCH_PLANKS -> hasBirch = true;
                 case OAK_PLANKS -> hasOak = true;
                 case SPRUCE_PLANKS -> hasSpruce = true;

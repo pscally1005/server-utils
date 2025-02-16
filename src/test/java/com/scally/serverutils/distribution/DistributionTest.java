@@ -1,37 +1,32 @@
 package com.scally.serverutils.distribution;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockbukkit.mockbukkit.MockBukkitExtension;
+import org.mockbukkit.mockbukkit.MockBukkitInject;
+import org.mockbukkit.mockbukkit.ServerMock;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockBukkitExtension.class)
 class DistributionTest {
 
+    @MockBukkitInject
     private ServerMock serverMock;
-
-    @BeforeEach
-    public void before() {
-        serverMock = MockBukkit.mock();
-    }
-
-    @AfterEach
-    public void after() {
-        MockBukkit.unmock();
-    }
 
     @Test
     void pick_length1_pickFirst() {
         final Distribution distribution = DistributionParser.parse("1%air");
         assertNotNull(distribution);
 
-        final Material material = distribution.pick(0.5D);
+        final Material material = distribution.pick(0.5D).material();
         assertEquals(Material.AIR, material);
     }
 
@@ -41,7 +36,7 @@ class DistributionTest {
         final Distribution distribution = DistributionParser.parse("50%stone,50%cobblestone");
         assertNotNull(distribution);
 
-        final Material material = distribution.pick(threshold);
+        final Material material = distribution.pick(threshold).material();
         assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
@@ -52,7 +47,7 @@ class DistributionTest {
                 "2%birch_planks,1%oak_planks,1%jungle_planks");
         assertNotNull(distribution);
 
-        final Material material = distribution.pick(threshold);
+        final Material material = distribution.pick(threshold).material();
         assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
@@ -63,7 +58,7 @@ class DistributionTest {
                 "2%bricks,1%polished_andesite,1%polished_granite,2%air");
         assertNotNull(distribution);
 
-        final Material material = distribution.pick(threshold);
+        final Material material = distribution.pick(threshold).material();
         assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 
@@ -74,7 +69,7 @@ class DistributionTest {
                 "1%stripped_birch_log,1%stripped_oak_log,1%stripped_acacia_log");
         assertNotNull(distribution);
 
-        final Material material = distribution.pick(threshold);
+        final Material material = distribution.pick(threshold).material();
         assertEquals(Material.getMaterial(expectedMaterial), material);
     }
 

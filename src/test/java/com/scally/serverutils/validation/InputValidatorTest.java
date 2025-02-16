@@ -1,6 +1,5 @@
 package com.scally.serverutils.validation;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
 import org.bukkit.Tag;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.command.BlockCommandSender;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 

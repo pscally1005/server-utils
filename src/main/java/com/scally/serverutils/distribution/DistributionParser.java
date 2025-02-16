@@ -2,7 +2,11 @@ package com.scally.serverutils.distribution;
 
 import org.bukkit.Material;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class DistributionParser {
 
@@ -27,7 +31,7 @@ public final class DistributionParser {
         if (noneHavePercentage)
             return new Distribution(materialSet);
 
-        final List<DistributionMaterial> distMaterials = parseRatios(materials);
+        final List<DistributionItem> distMaterials = parseRatios(materials);
         return new Distribution(distMaterials);
     }
 
@@ -53,8 +57,8 @@ public final class DistributionParser {
         return materialSet;
     }
 
-    private static List<DistributionMaterial> parseRatios(String[] materials) {
-        final List<DistributionMaterial> distMaterials = new ArrayList<>();
+    private static List<DistributionItem> parseRatios(String[] materials) {
+        final List<DistributionItem> distMaterials = new ArrayList<>();
         double sum = 0D;
         double previous;
 
@@ -75,7 +79,7 @@ public final class DistributionParser {
             previous = sum;
             sum += ratio;
 
-            distMaterials.add(new DistributionMaterial(material, previous, sum));
+            distMaterials.add(new DistributionItem(material, previous, sum, 1, 1));
         }
         return distMaterials;
     }

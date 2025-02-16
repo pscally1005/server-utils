@@ -1,8 +1,5 @@
 package com.scally.serverutils.trapdoors;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.block.data.TrapDoorMock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.block.data.TrapDoorDataMock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,7 +35,7 @@ public class TrapDoorsChangeTest {
         world = serverMock.addSimpleWorld("test");
         location = new Location(world, 10, 20, 30);
 
-        blockData = new TrapDoorMock(Material.BIRCH_TRAPDOOR);
+        blockData = new TrapDoorDataMock(Material.BIRCH_TRAPDOOR);
         blockData.setHalf(Bisected.Half.BOTTOM);
         blockData.setFacing(BlockFace.WEST);
         blockData.setOpen(true);
