@@ -1,14 +1,6 @@
 package com.scally.serverutils.trapdoors;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.WorldMock;
-import be.seeseemelk.mockbukkit.block.data.BlockDataMock;
-import be.seeseemelk.mockbukkit.block.data.SlabMock;
-import be.seeseemelk.mockbukkit.block.data.TrapDoorMock;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.slabs.SlabsChange;
-import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
 import com.scally.serverutils.validation.ValidationResult;
@@ -17,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -25,11 +16,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.block.data.BlockDataMock;
+import org.mockbukkit.mockbukkit.block.data.TrapDoorDataMock;
+import org.mockbukkit.mockbukkit.world.WorldMock;
 import org.mockito.Mock;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TrapDoorsCommandExecutorTest {
 
@@ -80,7 +78,7 @@ public class TrapDoorsCommandExecutorTest {
         boolean beforeWaterlogged = true;
 
         location.getBlock().setType(beforeMat, false);
-        TrapDoorMock beforeTrapDoor = (TrapDoorMock) BlockDataMock.mock(beforeMat);
+        TrapDoorDataMock beforeTrapDoor = (TrapDoorDataMock) BlockDataMock.mock(beforeMat);
         beforeTrapDoor.setHalf(beforeHalf);
         beforeTrapDoor.setFacing(beforeFacing);
         beforeTrapDoor.setOpen(beforeOpen);
@@ -127,7 +125,7 @@ public class TrapDoorsCommandExecutorTest {
 
         location.getBlock().setType(beforeMat, false);
         // Use different material (birch instead of mangrove) to return null instead
-        TrapDoorMock beforeTrapDoor = (TrapDoorMock) BlockDataMock.mock(Material.BIRCH_TRAPDOOR);
+        TrapDoorDataMock beforeTrapDoor = (TrapDoorDataMock) BlockDataMock.mock(Material.BIRCH_TRAPDOOR);
         beforeTrapDoor.setHalf(beforeHalf);
         beforeTrapDoor.setFacing(beforeFacing);
         beforeTrapDoor.setOpen(beforeOpen);

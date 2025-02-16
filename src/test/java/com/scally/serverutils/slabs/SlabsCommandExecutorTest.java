@@ -1,21 +1,11 @@
 package com.scally.serverutils.slabs;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.WorldMock;
-import be.seeseemelk.mockbukkit.block.data.BlockDataMock;
-import be.seeseemelk.mockbukkit.block.data.SlabMock;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.distribution.DistributionMaterial;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
-import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.command.Command;
@@ -25,13 +15,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.block.data.BlockDataMock;
+import org.mockbukkit.mockbukkit.block.data.SlabDataMock;
+import org.mockbukkit.mockbukkit.world.WorldMock;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 public class SlabsCommandExecutorTest {
@@ -80,7 +76,7 @@ public class SlabsCommandExecutorTest {
         boolean beforeWaterlogged = true;
 
         location.getBlock().setType(beforeMat, false);
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(beforeMat);
+        SlabDataMock beforeSlab = (SlabDataMock) BlockDataMock.mock(beforeMat);
         beforeSlab.setType(beforeType);
         beforeSlab.setWaterlogged(beforeWaterlogged);
         world.setBlockData(0, 0, 0, beforeSlab);
@@ -115,7 +111,7 @@ public class SlabsCommandExecutorTest {
 
         location.getBlock().setType(beforeMat, false);
         // Use different material (stone brick instead of cobblestone) to return null instead
-        SlabMock beforeSlab = (SlabMock) BlockDataMock.mock(Material.STONE_BRICK_SLAB);
+        SlabDataMock beforeSlab = (SlabDataMock) BlockDataMock.mock(Material.STONE_BRICK_SLAB);
         beforeSlab.setWaterlogged(beforeWaterlogged);
         beforeSlab.setType(beforeType);
         world.setBlockData(0, 0, 0, beforeSlab);

@@ -1,6 +1,6 @@
 package com.scally.serverutils.distribution;
 
-import org.bukkit.Location;
+import com.scally.serverutils.tabcompleter.TabCompleteCoordinate;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -22,41 +22,22 @@ public interface DistributionTabCompleter extends TabCompleter {
         }
 
         if (args.length == 7 || args.length == 8) {
-            return onTabCompleteDistribution(args[args.length-1]);
+            return onTabCompleteDistribution(args[args.length - 1]);
         }
+
+        final TabCompleteCoordinate coordinate = TabCompleteCoordinate.forTwoCoordinateCommand(args.length);
 
         final RayTraceResult rayTraceResult = player.rayTraceBlocks(5);
         if (rayTraceResult == null) {
-            return onTabCompleteRelativeCoordinates(args.length);
+            return coordinate.getTabCompleteRelativeCoordinates();
         }
 
         final Block hitBlock = rayTraceResult.getHitBlock();
         if (hitBlock != null) {
-            return onTabCompleteAbsoluteCoordinates(args.length, hitBlock.getLocation());
+            return coordinate.getTabCompleteAbsoluteCoordinates(hitBlock.getLocation());
         }
 
         return List.of();
-    }
-
-    private List<String> onTabCompleteRelativeCoordinates(int argsLength) {
-        return switch (argsLength) {
-            case 1, 4 -> List.of("~", "~ ~", "~ ~ ~");
-            case 2, 5 -> List.of("~", "~ ~");
-            case 3, 6 -> List.of("~");
-            default -> List.of();
-        };
-    }
-
-    private List<String> onTabCompleteAbsoluteCoordinates(int argsLength, Location location) {
-        int x = location.getBlockX();
-        int y = location.getBlockY();
-        int z = location.getBlockZ();
-        return switch (argsLength) {
-            case 1, 4 -> List.of(x + "", x + " " + y, x + " " + y + " " + z);
-            case 2, 5 -> List.of(y + "", y + " " + z);
-            case 3, 6 -> List.of(z + "");
-            default -> List.of();
-        };
     }
 
     default List<String> onTabCompleteDistribution(String arg, Tag<Material> tag) {
@@ -64,7 +45,8 @@ public interface DistributionTabCompleter extends TabCompleter {
         return filterMaterials(tag, params);
     }
 
-    record TabCompleteParams(String filter, String prefix) {}
+    record TabCompleteParams(String filter, String prefix) {
+    }
 
     private TabCompleteParams calculateTagCompleteParams(String arg) {
         final int lastPercentIndex = arg.lastIndexOf("%");

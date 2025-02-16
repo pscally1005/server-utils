@@ -1,14 +1,6 @@
 package com.scally.serverutils.stairs;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.WorldMock;
-import be.seeseemelk.mockbukkit.block.data.BlockDataMock;
-import be.seeseemelk.mockbukkit.block.data.SlabMock;
-import be.seeseemelk.mockbukkit.block.data.StairsMock;
 import com.scally.serverutils.distribution.Distribution;
-import com.scally.serverutils.slabs.SlabsChange;
-import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.undo.UndoManager;
 import com.scally.serverutils.validation.Coordinates;
 import com.scally.serverutils.validation.ValidationResult;
@@ -17,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -25,11 +16,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.block.data.BlockDataMock;
+import org.mockbukkit.mockbukkit.block.data.StairsDataMock;
+import org.mockbukkit.mockbukkit.world.WorldMock;
 import org.mockito.Mock;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StairsCommandExecutorTest {
 
@@ -79,7 +77,7 @@ public class StairsCommandExecutorTest {
         boolean beforeWaterlogged = true;
 
         location.getBlock().setType(beforeMat, false);
-        StairsMock beforeStair = (StairsMock) BlockDataMock.mock(beforeMat);
+        StairsDataMock beforeStair = (StairsDataMock) BlockDataMock.mock(beforeMat);
         beforeStair.setHalf(beforeHalf);
         beforeStair.setFacing(beforeFacing);
         beforeStair.setShape(beforeShape);
@@ -122,7 +120,7 @@ public class StairsCommandExecutorTest {
 
         location.getBlock().setType(beforeMat, false);
         // Use different material (stone brick instead of cobblestone) to return null instead
-        StairsMock beforeStair = (StairsMock) BlockDataMock.mock(Material.STONE_BRICK_STAIRS);
+        StairsDataMock beforeStair = (StairsDataMock) BlockDataMock.mock(Material.STONE_BRICK_STAIRS);
         beforeStair.setHalf(beforeHalf);
         beforeStair.setFacing(beforeFacing);
         beforeStair.setShape(beforeShape);
@@ -132,7 +130,7 @@ public class StairsCommandExecutorTest {
         Set<Material> fromMaterial = Set.of(beforeMat);
         Set<Material> toMaterial = Set.of(afterMat);
         // fromMaterial is stone brick, not cobblestone
-        // fromDistribution.hasMeterial will be false since these are diff, null will be returned
+        // fromDistribution.hasMaterial will be false since these are diff, null will be returned
         Distribution fromDistribution = new Distribution(fromMaterial);
         Distribution toDistribution = new Distribution(toMaterial);
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);

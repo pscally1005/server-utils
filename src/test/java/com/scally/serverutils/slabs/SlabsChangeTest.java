@@ -1,8 +1,5 @@
 package com.scally.serverutils.slabs;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.block.data.SlabMock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,9 +10,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.block.data.SlabDataMock;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SlabsChangeTest {
 
@@ -31,7 +32,7 @@ class SlabsChangeTest {
         world = serverMock.addSimpleWorld("test");
         location = new Location(world, 10, 20, 30);
 
-        blockData = new SlabMock(Material.JUNGLE_SLAB);
+        blockData = new SlabDataMock(Material.JUNGLE_SLAB);
         blockData.setType(Slab.Type.TOP);
         blockData.setWaterlogged(true);
 
