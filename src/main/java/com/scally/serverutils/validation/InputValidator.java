@@ -8,9 +8,13 @@ import com.scally.serverutils.distribution.InvalidDistributionException;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.block.CommandBlock;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.CommandMinecart;
 
 public class InputValidator {
 
@@ -109,7 +113,7 @@ public class InputValidator {
     }
 
     private void validateCommandSenderType(CommandSender commandSender) {
-        if (playerOnly && !(commandSender instanceof Player))
+        if (playerOnly && !(commandSender instanceof Player) && !(commandSender instanceof CommandMinecart) && !(commandSender instanceof BlockCommandSender))
             throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_PLAYER);
     }
 
@@ -137,17 +141,25 @@ public class InputValidator {
         if (!performCoordinateValidation)
             return null;
 
-        if (!(commandSender instanceof final Entity entity)) {
-            throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
+        boolean isEntity = true;
+        if (!(commandSender instanceof Entity)) {
+            if(commandSender instanceof BlockCommandSender) isEntity = false;
+            else throw new InputValidationException(InputValidationErrorCode.COMMAND_SENDER_NOT_ENTITY);
         }
 
         int[] coords = new int[6];
-        final Location loc = entity.getLocation();
+        Location loc;
+
+        if(isEntity) {
+            Entity entity = (Entity) commandSender;
+            loc = entity.getLocation();
+        } else loc = null;
+
         for (int i = 0; i < coords.length; i++) {
             boolean isRelative = false;
             if(args[i].startsWith("~")) {
 
-                if(args[i].equals("~")) {
+                if(args[i].equals("~") && isEntity) {
                     if(i == 0 || i == 3) { coords[i] = loc.getBlockX(); }
                     else if(i == 1 || i == 4) { coords[i] = loc.getBlockY(); }
                     else { coords[i] = loc.getBlockZ(); }
@@ -163,7 +175,7 @@ public class InputValidator {
                 throw new InputValidationException(InputValidationErrorCode.INVALID_COORDINATES);
             }
 
-            if(isRelative) {
+            if(isRelative && isEntity) {
                 if(i == 0 || i == 3) { coords[i] = loc.getBlockX() + coords[i]; }
                 else if(i == 1 || i == 4) { coords[i] = loc.getBlockY() + coords[i]; }
                 else { coords[i] = loc.getBlockZ() + coords[i]; }

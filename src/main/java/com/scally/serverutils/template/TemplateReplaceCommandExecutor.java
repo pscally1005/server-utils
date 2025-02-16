@@ -11,10 +11,12 @@ import com.scally.serverutils.validation.InputValidator;
 import com.scally.serverutils.validation.ValidationResult;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.CommandMinecart;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class TemplateReplaceCommandExecutor<T extends Change> implements CommandExecutor, DistributionTabCompleter {
@@ -38,6 +40,8 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
         } catch (InputValidationException e) {
             return false;
         }
+
+        if(commandSender instanceof CommandMinecart || commandSender instanceof BlockCommandSender) return true;
 
         final Player player = (Player) commandSender;
         final Coordinates coordinates = validationResult.coordinates();
