@@ -12,12 +12,12 @@ import java.util.Set;
 
 public final class Distribution {
 
-    private final List<DistributionMaterial> materials = new ArrayList<>();
+    private final List<DistributionItem> items = new ArrayList<>();
     private final double max;
 
-    public Distribution(List<DistributionMaterial> materials) {
-        this.materials.addAll(materials);
-        this.max = this.materials.get(this.materials.size() - 1).getMaxRange();
+    public Distribution(List<DistributionItem> items) {
+        this.items.addAll(items);
+        this.max = this.items.getLast().probRangeMax();
     }
 
     public Distribution(Set<Material> materials) {
@@ -26,7 +26,7 @@ public final class Distribution {
         for (Material material : materials) {
             previous = sum;
             sum += 1D;
-            this.materials.add(new DistributionMaterial(material, previous, sum));
+            this.items.add(new DistributionItem(material, previous, sum, 1, 1));
         }
         max = sum;
     }
@@ -36,66 +36,67 @@ public final class Distribution {
      */
     public Material pick() {
         final double randomDouble = Math.random() * max;
-        return pick(randomDouble);
+        return pick(randomDouble).material();
     }
 
     /**
      * @param threshold to use for picking
-     * @return Material for the given threshold
+     * @return ItemStack for the given threshold
      */
-    public Material pick(double threshold) {
+    public DistributionItem pick(double threshold) {
         if (threshold >= max) {
-            return materials.get(materials.size() - 1).getMaterial();
+            return items.getLast();
         } else if (threshold <= 0) {
-            return materials.get(0).getMaterial();
+            return items.getFirst();
         }
 
         int start = 0;
-        int end = materials.size() - 1;
+        int end = items.size() - 1;
         int mid = (start + end) / 2;
 
-        DistributionMaterial current = materials.get(mid);
-        DistributionMaterial previous = current;
+        DistributionItem current = items.get(mid);
+        DistributionItem previous = current;
 
         while (start <= end) {
             mid = (start + end) / 2;
-            current = materials.get(mid);
+            current = items.get(mid);
 
             if (current.inRange(threshold)) {
-                return current.getMaterial();
-            } else if (threshold <= current.getMinRange()) {
+                return current;
+            } else if (threshold <= current.probRangeMin()) {
                 end = mid - 1;
             } else {
                 start = mid + 1;
             }
             previous = current;
         }
-        return previous.getMaterial();
+        return previous;
     }
 
     /**
      * @param inventory to fill randomly
      */
     public void fill(Inventory inventory) {
-        final ItemStack[] items = inventory.getContents();
-        for (int i = 0; i < items.length; i++) {
+        final ItemStack[] inventoryContents = inventory.getContents();
+        for (int i = 0; i < inventoryContents.length; i++) {
             final double randomDouble = Math.random() * max;
-            items[i] = new ItemStack(pick(randomDouble));
+            final DistributionItem distItem = pick(randomDouble);
+            inventoryContents[i] = distItem.pickStack();
         }
-        inventory.setContents(items);
+        inventory.setContents(inventoryContents);
     }
 
     /**
      * @return copy of the List of DistributionMaterials
      */
     @VisibleForTesting
-    public List<DistributionMaterial> getMaterials() {
-        return new ArrayList<>(materials);
+    public List<DistributionItem> getMaterials() {
+        return new ArrayList<>(items);
     }
 
     public boolean hasMaterial(Material m) {
-        for (DistributionMaterial distMaterial : materials) {
-            final Material mat = distMaterial.getMaterial();
+        for (DistributionItem distItem : items) {
+            final Material mat = distItem.material();
             if (mat == m) {
                 return true;
             }
@@ -104,13 +105,13 @@ public final class Distribution {
     }
 
     public boolean isDistributionOf(Tag<Material> tag) {
-        return materials.stream().allMatch(m -> tag.getValues().contains(m.getMaterial()));
+        return items.stream().allMatch(i -> tag.getValues().contains(i.material()));
     }
 
     @Override
     public String toString() {
         return "Distribution{" +
-                "materials=" + materials +
+                "items=" + items +
                 ", max=" + max +
                 '}';
     }

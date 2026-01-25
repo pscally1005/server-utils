@@ -1,7 +1,5 @@
 package com.scally.serverutils.distribution;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -10,21 +8,25 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zoglin;
 import org.bukkit.util.RayTraceResult;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockbukkit.mockbukkit.MockBukkitExtension;
+import org.mockbukkit.mockbukkit.MockBukkitInject;
+import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, MockBukkitExtension.class})
 class DistributionTabCompleterTest {
 
     private static class TestTabCompleter implements DistributionTabCompleter {
@@ -51,17 +53,8 @@ class DistributionTabCompleterTest {
     @Mock
     private Location hitBlockLocation;
 
+    @MockBukkitInject
     private ServerMock serverMock;
-
-    @BeforeEach
-    public void before() {
-        serverMock = MockBukkit.mock();
-    }
-
-    @AfterEach
-    public void after() {
-        MockBukkit.unmock();
-    }
 
     @Test
     void onTabComplete_notPlayer_returnsEmptyList() {
@@ -117,7 +110,7 @@ class DistributionTabCompleterTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("~", result.get(0));
+        assertEquals("~", result.getFirst());
     }
 
     @ParameterizedTest
@@ -176,7 +169,7 @@ class DistributionTabCompleterTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("300", result.get(0));
+        assertEquals("300", result.getFirst());
     }
 
     @ParameterizedTest
@@ -246,9 +239,7 @@ class DistributionTabCompleterTest {
 
     private String[] argsOfLength(int length) {
         final String[] args = new String[length];
-        for (int i = 0; i < length; i++) {
-           args[i] = String.valueOf(length);
-        }
+        Arrays.fill(args, String.valueOf(length));
         return args;
     }
 

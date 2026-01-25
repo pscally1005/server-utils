@@ -1,8 +1,5 @@
 package com.scally.serverutils.stairs;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.block.data.StairsMock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.block.data.StairsDataMock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,7 +35,7 @@ public class StairsChangeTest {
         world = serverMock.addSimpleWorld("test");
         location = new Location(world, 10, 20, 30);
 
-        blockData = new StairsMock(Material.JUNGLE_STAIRS);
+        blockData = new StairsDataMock(Material.JUNGLE_STAIRS);
         blockData.setHalf(Bisected.Half.TOP);
         blockData.setFacing(BlockFace.EAST);
         blockData.setShape(Stairs.Shape.OUTER_RIGHT);

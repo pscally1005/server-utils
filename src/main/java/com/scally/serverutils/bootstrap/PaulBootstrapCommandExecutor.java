@@ -31,30 +31,30 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         player.getEquipment().setBoots(null);
         player.getEquipment().setItemInOffHand(null);
 
-        // init helmet with mending, unbreaking, protection, thorns, acqua affinity, and respiration
+        // init helmet with mending, unbreaking, protection, thorns, aqua affinity, and respiration
         ItemStack helmet = new ItemStack(Material.NETHERITE_HELMET);
         Map<Enchantment,Integer> helmetEnchants = new HashMap<Enchantment,Integer>();
         helmetEnchants.put(Enchantment.MENDING, 1);
-        helmetEnchants.put(Enchantment.DURABILITY,3);
-        helmetEnchants.put(Enchantment.PROTECTION_ENVIRONMENTAL,4);
+        helmetEnchants.put(Enchantment.UNBREAKING,3);
+        helmetEnchants.put(Enchantment.PROTECTION,4);
         helmetEnchants.put(Enchantment.THORNS,3);
-        helmetEnchants.put(Enchantment.WATER_WORKER,1);
-        helmetEnchants.put(Enchantment.OXYGEN,3);
+        helmetEnchants.put(Enchantment.AQUA_AFFINITY,1);
+        helmetEnchants.put(Enchantment.RESPIRATION,3);
         helmet.addEnchantments(helmetEnchants);
 
         // init elytra with mending and unbreaking
         ItemStack elytra = new ItemStack(Material.ELYTRA);
         Map<Enchantment,Integer> elytraEnchants = new HashMap<Enchantment,Integer>();
         elytraEnchants.put(Enchantment.MENDING, 1);
-        elytraEnchants.put(Enchantment.DURABILITY,3);
+        elytraEnchants.put(Enchantment.UNBREAKING,3);
         elytra.addEnchantments(elytraEnchants);
 
         // init leggings with mending, unbreaking, protection, thorns, and swift sneak
         ItemStack leggings = new ItemStack(Material.NETHERITE_LEGGINGS);
         Map<Enchantment,Integer> leggingsEnchants = new HashMap<Enchantment,Integer>();
         leggingsEnchants.put(Enchantment.MENDING, 1);
-        leggingsEnchants.put(Enchantment.DURABILITY,3);
-        leggingsEnchants.put(Enchantment.PROTECTION_ENVIRONMENTAL,4);
+        leggingsEnchants.put(Enchantment.UNBREAKING,3);
+        leggingsEnchants.put(Enchantment.PROTECTION,4);
         leggingsEnchants.put(Enchantment.THORNS,3);
         leggingsEnchants.put(Enchantment.SWIFT_SNEAK,3);
         leggings.addEnchantments(leggingsEnchants);
@@ -63,10 +63,10 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         ItemStack boots = new ItemStack(Material.NETHERITE_BOOTS);
         Map<Enchantment,Integer> bootsEnchants = new HashMap<Enchantment,Integer>();
         bootsEnchants.put(Enchantment.MENDING, 1);
-        bootsEnchants.put(Enchantment.DURABILITY,3);
-        bootsEnchants.put(Enchantment.PROTECTION_ENVIRONMENTAL,4);
+        bootsEnchants.put(Enchantment.UNBREAKING,3);
+        bootsEnchants.put(Enchantment.PROTECTION,4);
         bootsEnchants.put(Enchantment.THORNS,3);
-        bootsEnchants.put(Enchantment.PROTECTION_FALL,4);
+        bootsEnchants.put(Enchantment.FEATHER_FALLING,4);
         bootsEnchants.put(Enchantment.DEPTH_STRIDER,3);
         bootsEnchants.put(Enchantment.SOUL_SPEED,3);
         boots.addEnchantments(bootsEnchants);
@@ -81,10 +81,10 @@ public class PaulBootstrapCommandExecutor implements CommandExecutor {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         Map<Enchantment,Integer> swordEnchants = new HashMap<Enchantment,Integer>();
         swordEnchants.put(Enchantment.MENDING,1);
-        swordEnchants.put(Enchantment.DURABILITY,3);
-        swordEnchants.put(Enchantment.DAMAGE_ALL,5);
+        swordEnchants.put(Enchantment.UNBREAKING,3);
+        swordEnchants.put(Enchantment.SHARPNESS,5);
         swordEnchants.put(Enchantment.FIRE_ASPECT,2);
-        swordEnchants.put(Enchantment.LOOT_BONUS_MOBS,3);
+        swordEnchants.put(Enchantment.LOOTING,3);
         swordEnchants.put(Enchantment.KNOCKBACK,2);
         swordEnchants.put(Enchantment.SWEEPING_EDGE,3);
         sword.addEnchantments(swordEnchants);
