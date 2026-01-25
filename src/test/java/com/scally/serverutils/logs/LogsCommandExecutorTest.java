@@ -13,7 +13,6 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockbukkit.mockbukkit.MockBukkit;
@@ -67,7 +66,6 @@ public class LogsCommandExecutorTest {
     }
 
     @Test
-    @Disabled
     public void changeAtLocation_happyPath() {
 
         Material beforeMat = Material.OAK_LOG;
@@ -93,7 +91,7 @@ public class LogsCommandExecutorTest {
         Axis afterAxis = afterLog.getAxis();
         Material checkAfter = afterBlockData.getMaterial();
 
-        //assertEquals(checkAfter, afterMat);
+        assertEquals(checkAfter, afterMat);
         assertEquals(beforeAxis, afterAxis);
 
     }
@@ -124,7 +122,6 @@ public class LogsCommandExecutorTest {
     }
 
     @Test
-    @Disabled
     public void changeAtLocation_strippedLog() {
 
         Material beforeMat = Material.STRIPPED_OAK_LOG;
@@ -150,9 +147,128 @@ public class LogsCommandExecutorTest {
         Axis afterAxis = afterLog.getAxis();
         Material checkAfter = afterBlockData.getMaterial();
 
-        //assertEquals(checkAfter, afterMat);
+        assertEquals(checkAfter, afterMat);
         assertEquals(beforeAxis, afterAxis);
 
+    }
+
+    @Test
+    public void changeAtLocation_oakLogMatchesAllOakVariants() {
+        // Test that specifying OAK_LOG in from distribution matches OAK_WOOD
+        Material beforeMat = Material.OAK_WOOD;
+        Material fromDistributionMat = Material.OAK_LOG; // Only specify log, but should match wood too
+        Material toDistributionMat = Material.BIRCH_LOG;
+        Axis beforeAxis = Axis.X;
+
+        location.getBlock().setType(beforeMat, false);
+        Orientable beforeLog = (Orientable) BlockDataMock.mock(beforeMat);
+        beforeLog.setAxis(beforeAxis);
+        world.setBlockData(0, 0, 0, (BlockData) beforeLog);
+
+        Set<Material> fromMaterial = Set.of(fromDistributionMat);
+        Set<Material> toMaterial = Set.of(toDistributionMat);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(logsChange);
+
+        BlockData afterBlockData = location.getBlock().getBlockData();
+        Orientable afterLog = (Orientable) afterBlockData;
+        Axis afterAxis = afterLog.getAxis();
+        Material checkAfter = afterBlockData.getMaterial();
+
+        // Should map OAK_WOOD -> BIRCH_WOOD (preserving variant)
+        assertEquals(Material.BIRCH_WOOD, checkAfter);
+        assertEquals(beforeAxis, afterAxis);
+    }
+
+    @Test
+    public void changeAtLocation_strippedOakLogMatchesStrippedOakWood() {
+        // Test that specifying STRIPPED_OAK_LOG matches STRIPPED_OAK_WOOD
+        Material beforeMat = Material.STRIPPED_OAK_WOOD;
+        Material fromDistributionMat = Material.STRIPPED_OAK_LOG;
+        Material toDistributionMat = Material.STRIPPED_BIRCH_LOG;
+        Axis beforeAxis = Axis.Z;
+
+        location.getBlock().setType(beforeMat, false);
+        Orientable beforeLog = (Orientable) BlockDataMock.mock(beforeMat);
+        beforeLog.setAxis(beforeAxis);
+        world.setBlockData(0, 0, 0, (BlockData) beforeLog);
+
+        Set<Material> fromMaterial = Set.of(fromDistributionMat);
+        Set<Material> toMaterial = Set.of(toDistributionMat);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(logsChange);
+
+        BlockData afterBlockData = location.getBlock().getBlockData();
+        Orientable afterLog = (Orientable) afterBlockData;
+        Axis afterAxis = afterLog.getAxis();
+        Material checkAfter = afterBlockData.getMaterial();
+
+        // Should map STRIPPED_OAK_WOOD -> STRIPPED_BIRCH_WOOD
+        assertEquals(Material.STRIPPED_BIRCH_WOOD, checkAfter);
+        assertEquals(beforeAxis, afterAxis);
+    }
+
+    @Test
+    public void changeAtLocation_differentWoodTypeReturnsNull() {
+        // Test that JUNGLE_LOG doesn't match when from distribution has OAK_LOG
+        Material beforeMat = Material.JUNGLE_LOG;
+        Material fromDistributionMat = Material.OAK_LOG;
+        Material toDistributionMat = Material.BIRCH_LOG;
+        Axis beforeAxis = Axis.Y;
+
+        location.getBlock().setType(beforeMat, false);
+        Orientable beforeLog = (Orientable) BlockDataMock.mock(beforeMat);
+        beforeLog.setAxis(beforeAxis);
+        world.setBlockData(0, 0, 0, (BlockData) beforeLog);
+
+        Set<Material> fromMaterial = Set.of(fromDistributionMat);
+        Set<Material> toMaterial = Set.of(toDistributionMat);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNull(logsChange);
+    }
+
+    @Test
+    public void changeAtLocation_oakLogToBirchLogMapsAllVariants() {
+        // Test that OAK_LOG -> BIRCH_LOG maps OAK_LOG -> BIRCH_LOG
+        Material beforeMat = Material.OAK_LOG;
+        Material fromDistributionMat = Material.OAK_LOG;
+        Material toDistributionMat = Material.BIRCH_LOG;
+        Axis beforeAxis = Axis.X;
+
+        location.getBlock().setType(beforeMat, false);
+        Orientable beforeLog = (Orientable) BlockDataMock.mock(beforeMat);
+        beforeLog.setAxis(beforeAxis);
+        world.setBlockData(0, 0, 0, (BlockData) beforeLog);
+
+        Set<Material> fromMaterial = Set.of(fromDistributionMat);
+        Set<Material> toMaterial = Set.of(toDistributionMat);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(logsChange);
+
+        BlockData afterBlockData = location.getBlock().getBlockData();
+        Orientable afterLog = (Orientable) afterBlockData;
+        Axis afterAxis = afterLog.getAxis();
+        Material checkAfter = afterBlockData.getMaterial();
+
+        // Should map OAK_LOG -> BIRCH_LOG
+        assertEquals(Material.BIRCH_LOG, checkAfter);
+        assertEquals(beforeAxis, afterAxis);
     }
 
 }

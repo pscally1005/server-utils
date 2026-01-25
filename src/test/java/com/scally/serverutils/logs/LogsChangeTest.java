@@ -9,7 +9,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Orientable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
@@ -52,7 +51,6 @@ class LogsChangeTest {
     }
 
     @Test
-    @Disabled
     public void undo_happyPath() {
         final boolean result = change.undo();
         assertTrue(result);
@@ -61,7 +59,7 @@ class LogsChangeTest {
         assertInstanceOf(Orientable.class, blockDataAfterUndo);
 
         final Orientable orientable = (Orientable) blockDataAfterUndo;
-//        assertEquals(Material.BIRCH_LOG, orientable.getMaterial());
+        assertEquals(Material.BIRCH_LOG, orientable.getMaterial());
         assertEquals(Axis.Y, orientable.getAxis());
 
         final Block block = world.getBlockAt(location);
