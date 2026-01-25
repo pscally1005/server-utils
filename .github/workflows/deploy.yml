@@ -41,5 +41,5 @@ jobs:
         port: ${{ secrets.SFTP_PORT }}
         password: ${{ secrets.SFTP_PASSWORD }}
         local_path: "./ftp/"
-        remote_path: "/\"${{ secrets`.SFTP_ROOT_DIR }}\"/plugins/"
+        remote_path: "/\"${{ secrets.SFTP_ROOT_DIR }}\"/plugins/"
         sftp_only: true
