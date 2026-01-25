@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up JDK 17
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
         cache: maven
 
@@ -34,11 +34,12 @@ jobs:
         mv ./target/server-utils-1.0-SNAPSHOT.jar ./ftp
 
     - name: Upload JAR
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.5
       with:
-        server: ${{ secrets.FTP_SERVER_IP }}
-        username: ${{ secrets.FTP_SERVER_USERNAME }}
-        password: ${{ secrets.FTP_SERVER_PASSWORD }}
-        local-dir: "./ftp/"
-        server-dir: "/plugins/"
-
+        username: ${{ secrets.SFTP_USERNAME }}
+        server: ${{ secrets.SFTP_HOST }}
+        port: ${{ secrets.SFTP_PORT }}
+        password: ${{ secrets.SFTP_PASSWORD }}
+        local_path: "./ftp/"
+        remote_path: "/plugins/"
+        sftp_only: true
