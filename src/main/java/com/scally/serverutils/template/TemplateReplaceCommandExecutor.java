@@ -62,7 +62,7 @@ public abstract class TemplateReplaceCommandExecutor<T extends Change> implement
         if(changeset.count() > 0) {
             undoManager.store(player, changeset);
         }
-        ChatMessageUtils.sendSuccess(commandSender, String.format("Success! %d blocks changed.", changeset.count()));
+        ChatMessageUtils.sendSuccess(commandSender, String.format("Success!!! %d blocks changed.", changeset.count()));
         return true;
     }
 }
