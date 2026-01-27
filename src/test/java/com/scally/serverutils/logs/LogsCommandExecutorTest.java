@@ -153,10 +153,10 @@ public class LogsCommandExecutorTest {
     }
 
     @Test
-    public void changeAtLocation_oakLogMatchesAllOakVariants() {
-        // Test that specifying OAK_LOG in from distribution matches OAK_WOOD
+    public void changeAtLocation_oakLogDoesNotMatchOakWood() {
+        // Test that specifying OAK_LOG in from distribution does NOT match OAK_WOOD
         Material beforeMat = Material.OAK_WOOD;
-        Material fromDistributionMat = Material.OAK_LOG; // Only specify log, but should match wood too
+        Material fromDistributionMat = Material.OAK_LOG; // Only matches OAK_LOG exactly
         Material toDistributionMat = Material.BIRCH_LOG;
         Axis beforeAxis = Axis.X;
 
@@ -172,21 +172,13 @@ public class LogsCommandExecutorTest {
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
         LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
-        assertNotNull(logsChange);
-
-        BlockData afterBlockData = location.getBlock().getBlockData();
-        Orientable afterLog = (Orientable) afterBlockData;
-        Axis afterAxis = afterLog.getAxis();
-        Material checkAfter = afterBlockData.getMaterial();
-
-        // Should map OAK_WOOD -> BIRCH_WOOD (preserving variant)
-        assertEquals(Material.BIRCH_WOOD, checkAfter);
-        assertEquals(beforeAxis, afterAxis);
+        // Should return null because OAK_LOG does not match OAK_WOOD
+        assertNull(logsChange);
     }
 
     @Test
-    public void changeAtLocation_strippedOakLogMatchesStrippedOakWood() {
-        // Test that specifying STRIPPED_OAK_LOG matches STRIPPED_OAK_WOOD
+    public void changeAtLocation_strippedOakLogDoesNotMatchStrippedOakWood() {
+        // Test that specifying STRIPPED_OAK_LOG does NOT match STRIPPED_OAK_WOOD
         Material beforeMat = Material.STRIPPED_OAK_WOOD;
         Material fromDistributionMat = Material.STRIPPED_OAK_LOG;
         Material toDistributionMat = Material.STRIPPED_BIRCH_LOG;
@@ -204,16 +196,8 @@ public class LogsCommandExecutorTest {
         ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
 
         LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
-        assertNotNull(logsChange);
-
-        BlockData afterBlockData = location.getBlock().getBlockData();
-        Orientable afterLog = (Orientable) afterBlockData;
-        Axis afterAxis = afterLog.getAxis();
-        Material checkAfter = afterBlockData.getMaterial();
-
-        // Should map STRIPPED_OAK_WOOD -> STRIPPED_BIRCH_WOOD
-        assertEquals(Material.STRIPPED_BIRCH_WOOD, checkAfter);
-        assertEquals(beforeAxis, afterAxis);
+        // Should return null because STRIPPED_OAK_LOG does not match STRIPPED_OAK_WOOD
+        assertNull(logsChange);
     }
 
     @Test
@@ -240,8 +224,8 @@ public class LogsCommandExecutorTest {
     }
 
     @Test
-    public void changeAtLocation_oakLogToBirchLogMapsAllVariants() {
-        // Test that OAK_LOG -> BIRCH_LOG maps OAK_LOG -> BIRCH_LOG
+    public void changeAtLocation_oakLogToBirchLog() {
+        // Test that OAK_LOG -> BIRCH_LOG works correctly
         Material beforeMat = Material.OAK_LOG;
         Material fromDistributionMat = Material.OAK_LOG;
         Material toDistributionMat = Material.BIRCH_LOG;
@@ -266,7 +250,71 @@ public class LogsCommandExecutorTest {
         Axis afterAxis = afterLog.getAxis();
         Material checkAfter = afterBlockData.getMaterial();
 
-        // Should map OAK_LOG -> BIRCH_LOG
+        // Should change to exactly BIRCH_LOG
+        assertEquals(Material.BIRCH_LOG, checkAfter);
+        assertEquals(beforeAxis, afterAxis);
+    }
+
+    @Test
+    public void changeAtLocation_oakLogToStrippedCherryWood() {
+        // Test that OAK_LOG -> STRIPPED_CHERRY_WOOD replaces with exact material
+        Material beforeMat = Material.OAK_LOG;
+        Material fromDistributionMat = Material.OAK_LOG;
+        Material toDistributionMat = Material.STRIPPED_CHERRY_WOOD;
+        Axis beforeAxis = Axis.Y;
+
+        location.getBlock().setType(beforeMat, false);
+        Orientable beforeLog = (Orientable) BlockDataMock.mock(beforeMat);
+        beforeLog.setAxis(beforeAxis);
+        world.setBlockData(0, 0, 0, (BlockData) beforeLog);
+
+        Set<Material> fromMaterial = Set.of(fromDistributionMat);
+        Set<Material> toMaterial = Set.of(toDistributionMat);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(logsChange);
+
+        BlockData afterBlockData = location.getBlock().getBlockData();
+        Orientable afterLog = (Orientable) afterBlockData;
+        Axis afterAxis = afterLog.getAxis();
+        Material checkAfter = afterBlockData.getMaterial();
+
+        // Should change to exactly STRIPPED_CHERRY_WOOD (not OAK_WOOD or any other variant)
+        assertEquals(Material.STRIPPED_CHERRY_WOOD, checkAfter);
+        assertEquals(beforeAxis, afterAxis);
+    }
+
+    @Test
+    public void changeAtLocation_strippedOakLogToBirchLog() {
+        // Test that STRIPPED_OAK_LOG -> BIRCH_LOG replaces with exact material (removes stripped)
+        Material beforeMat = Material.STRIPPED_OAK_LOG;
+        Material fromDistributionMat = Material.STRIPPED_OAK_LOG;
+        Material toDistributionMat = Material.BIRCH_LOG;
+        Axis beforeAxis = Axis.Z;
+
+        location.getBlock().setType(beforeMat, false);
+        Orientable beforeLog = (Orientable) BlockDataMock.mock(beforeMat);
+        beforeLog.setAxis(beforeAxis);
+        world.setBlockData(0, 0, 0, (BlockData) beforeLog);
+
+        Set<Material> fromMaterial = Set.of(fromDistributionMat);
+        Set<Material> toMaterial = Set.of(toDistributionMat);
+        Distribution fromDistribution = new Distribution(fromMaterial);
+        Distribution toDistribution = new Distribution(toMaterial);
+        ValidationResult validationResult = new ValidationResult(true, coordinates, fromDistribution, toDistribution);
+
+        LogsChange logsChange = logsCommandExecutor.changeAtLocation(location, validationResult);
+        assertNotNull(logsChange);
+
+        BlockData afterBlockData = location.getBlock().getBlockData();
+        Orientable afterLog = (Orientable) afterBlockData;
+        Axis afterAxis = afterLog.getAxis();
+        Material checkAfter = afterBlockData.getMaterial();
+
+        // Should change to exactly BIRCH_LOG (not STRIPPED_BIRCH_LOG)
         assertEquals(Material.BIRCH_LOG, checkAfter);
         assertEquals(beforeAxis, afterAxis);
     }
