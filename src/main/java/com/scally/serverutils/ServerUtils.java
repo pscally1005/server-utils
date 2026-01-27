@@ -4,6 +4,7 @@ import com.scally.serverutils.blocks.BlocksCommandExecutor;
 import com.scally.serverutils.bootstrap.BootstrapCommandExecutor;
 import com.scally.serverutils.bootstrap.PaulBootstrapCommandExecutor;
 import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
+import com.scally.serverutils.fillcontainer.FillContainersCommandExecutor;
 import com.scally.serverutils.logs.LogsCommandExecutor;
 import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.stairs.StairsCommandExecutor;
@@ -27,6 +28,7 @@ public final class ServerUtils extends JavaPlugin {
         this.getCommand("slabs").setExecutor(new SlabsCommandExecutor(undoManager));
         this.getCommand("stairs").setExecutor(new StairsCommandExecutor(undoManager));
         this.getCommand("fill-container").setExecutor(new FillContainerCommandExecutor());
+        this.getCommand("fill-containers").setExecutor(new FillContainersCommandExecutor());
         this.getCommand("s-undo").setExecutor(new UndoCommandExecutor(undoManager));
         this.getCommand("trapdoors").setExecutor(new TrapDoorsCommandExecutor(undoManager));
         this.getCommand("walls").setExecutor(new WallsCommandExecutor(undoManager));

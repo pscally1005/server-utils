@@ -5,32 +5,21 @@ import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionParser;
 import com.scally.serverutils.distribution.InvalidDistributionException;
 import com.scally.serverutils.tabcompleter.TabCompleteCoordinate;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
 
 public class FillContainerCommandExecutor implements CommandExecutor, TabCompleter {
-
-    // TODO: how to handle double chests?
-    private static final Set<Material> ALLOWED_MATERIALS = Set.of(
-            Material.CHEST,
-            Material.BARREL,
-            Material.SHULKER_BOX
-    );
 
     /**
      * /fill-container x y z distribution
@@ -72,14 +61,15 @@ public class FillContainerCommandExecutor implements CommandExecutor, TabComplet
 
         final World world = entity.getWorld();
         final Block block = world.getBlockAt(coords[0], coords[1], coords[2]);
-        if (!ALLOWED_MATERIALS.contains(block.getType())) {
+        if (!ContainerUtils.isAllowedMaterial(block.getType())) {
             ChatMessageUtils.sendError(sender, String.format("Invalid block at position. Found %s", block.getType()));
             return false;
         }
 
-        final Container container = (Container) block.getState();
-        final Inventory inventory = container.getInventory();
-        distribution.fill(inventory);
+        if (!ContainerUtils.fillContainer(block, distribution)) {
+            ChatMessageUtils.sendError(sender, "Failed to fill container.");
+            return false;
+        }
 
         ChatMessageUtils.sendSuccess(sender, "Success!");
         return true;
