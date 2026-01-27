@@ -28,6 +28,10 @@ commands:
     description: Fill a container with a random distribution
     usage: /fill-container <x> <y> <z> <distribution>
 
+  fill-containers:
+    description: Fill all containers in a volume with a random distribution
+    usage: /fill-containers <block> <x1> <y1> <z1> <x2> <y2> <z2> <distribution>
+
   s-undo:
     description: Undo last command(s)
     usage: /s-undo [int]
