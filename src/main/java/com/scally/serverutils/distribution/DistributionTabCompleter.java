@@ -1,6 +1,7 @@
 package com.scally.serverutils.distribution;
 
 import com.scally.serverutils.tabcompleter.TabCompleteCoordinate;
+import com.scally.serverutils.validation.InputValidator;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface DistributionTabCompleter extends TabCompleter {
@@ -21,6 +23,11 @@ public interface DistributionTabCompleter extends TabCompleter {
             return List.of();
         }
 
+        if ((args.length == 2 || args.length == 3)
+                && args[0].equalsIgnoreCase(InputValidator.WORLD_EDIT_SELECTION_KEYWORD)) {
+            return onTabCompleteDistribution(args[args.length - 1]);
+        }
+
         if (args.length == 7 || args.length == 8) {
             return onTabCompleteDistribution(args[args.length - 1]);
         }
@@ -28,16 +35,26 @@ public interface DistributionTabCompleter extends TabCompleter {
         final TabCompleteCoordinate coordinate = TabCompleteCoordinate.forTwoCoordinateCommand(args.length);
 
         final RayTraceResult rayTraceResult = player.rayTraceBlocks(5);
+        final List<String> coordSuggestions;
         if (rayTraceResult == null) {
-            return coordinate.getTabCompleteRelativeCoordinates();
+            coordSuggestions = coordinate.getTabCompleteRelativeCoordinates();
+        } else {
+            final Block hitBlock = rayTraceResult.getHitBlock();
+            if (hitBlock != null) {
+                coordSuggestions = coordinate.getTabCompleteAbsoluteCoordinates(hitBlock.getLocation());
+            } else {
+                coordSuggestions = List.of();
+            }
         }
 
-        final Block hitBlock = rayTraceResult.getHitBlock();
-        if (hitBlock != null) {
-            return coordinate.getTabCompleteAbsoluteCoordinates(hitBlock.getLocation());
+        if (args.length == 1) {
+            List<String> merged = new ArrayList<>(1 + coordSuggestions.size());
+            merged.add(InputValidator.WORLD_EDIT_SELECTION_KEYWORD);
+            merged.addAll(coordSuggestions);
+            return merged;
         }
 
-        return List.of();
+        return coordSuggestions;
     }
 
     default List<String> onTabCompleteDistribution(String arg, Tag<Material> tag) {

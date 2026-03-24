@@ -22,6 +22,7 @@ public class WallsCommandExecutor extends TemplateReplaceCommandExecutor<WallsCh
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .allowWorldEditSelection()
             .withFromDistribution(6, Tag.WALLS)
             .withToDistribution(7, Tag.WALLS)
             .build();

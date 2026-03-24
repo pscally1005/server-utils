@@ -23,6 +23,7 @@ public class TrapDoorsCommandExecutor extends TemplateReplaceCommandExecutor<Tra
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .allowWorldEditSelection()
             .withFromDistribution(6, Tag.TRAPDOORS)
             .withToDistribution(7, Tag.TRAPDOORS)
             .build();

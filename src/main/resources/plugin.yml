@@ -2,6 +2,7 @@ name: scally
 version: '${project.version}'
 main: com.scally.serverutils.ServerUtils
 api-version: 1.19
+softdepend: [WorldEdit]
 
 commands:
   bootstrap:
@@ -14,15 +15,15 @@ commands:
 
   slabs:
     description: Replace slabs
-    usage: /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab>
+    usage: /slabs <x1> <y1> <z1> <x2> <y2> <z2> <from-slab> <to-slab> | /slabs we <from-slab> <to-slab>
     
   stairs:
     description: Replace stairs
-    usage: /stairs <x1> <y1> <z1> <x2> <y2> <z2> <from-stair> <to-stair>
+    usage: /stairs <x1> <y1> <z1> <x2> <y2> <z2> <from-stair> <to-stair> | /stairs we <from-stair> <to-stair>
 
   trapdoors:
     description: Replace trapdoors
-    usage: /trapdoors <x1> <y1> <z1> <x2> <y2> <z2> <from-trapdoor> <to-trapdoor>
+    usage: /trapdoors <x1> <y1> <z1> <x2> <y2> <z2> <from-trapdoor> <to-trapdoor> | /trapdoors we <from-trapdoor> <to-trapdoor>
 
   fill-container:
     description: Fill a container with a random distribution
@@ -38,12 +39,12 @@ commands:
 
   walls:
     description: Replace walls
-    usage: /walls <x1> <y1> <z1> <x2> <y2> <z2> <from-wall> <to-wall>
+    usage: /walls <x1> <y1> <z1> <x2> <y2> <z2> <from-wall> <to-wall> | /walls we <from-wall> <to-wall>
 
   logs:
     description: Replace logs
-    usage: /logs <x1> <y1> <z1> <x2> <y2> <z2> <from-log> <to-log>
+    usage: /logs <x1> <y1> <z1> <x2> <y2> <z2> <from-log> <to-log> | /logs we <from-log> <to-log>
 
   blocks:
     description: Replace all types of blocks
-    usage: /blocks <x1> <y1> <z1> <x2> <y2> <z2> <from-block> <to-block>
+    usage: /blocks <x1> <y1> <z1> <x2> <y2> <z2> <from-block> <to-block> | /blocks we <from-block> <to-block>

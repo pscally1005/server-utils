@@ -23,6 +23,7 @@ public class StairsCommandExecutor extends TemplateReplaceCommandExecutor<Stairs
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .allowWorldEditSelection()
             .withFromDistribution(6, Tag.STAIRS)
             .withToDistribution(7, Tag.STAIRS)
             .build();

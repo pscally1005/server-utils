@@ -1,15 +1,12 @@
 package com.scally.serverutils.validation;
 
 import org.bukkit.Tag;
-import org.bukkit.block.CommandBlock;
 import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockbukkit.mockbukkit.MockBukkit;
@@ -25,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InputValidatorTest {
 
     private InputValidator inputValidator;
+    private InputValidator inputValidatorWithWorldEditSelection;
 
     @Mock
     private Player player;
@@ -45,6 +43,14 @@ class InputValidatorTest {
                 .expectedNumArgs(8)
                 .playerOnly()
                 .withCoordinateValidation()
+                .withFromDistribution(6, Tag.SLABS)
+                .withToDistribution(7, Tag.SLABS)
+                .build();
+        inputValidatorWithWorldEditSelection = InputValidator.builder()
+                .expectedNumArgs(8)
+                .playerOnly()
+                .withCoordinateValidation()
+                .allowWorldEditSelection()
                 .withFromDistribution(6, Tag.SLABS)
                 .withToDistribution(7, Tag.SLABS)
                 .build();
@@ -144,6 +150,54 @@ class InputValidatorTest {
         final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
                 () -> inputValidator.validate(player, args));
         assertEquals(InputValidationErrorCode.INVALID_COORDINATES, exception.getErrorCode());
+    }
+
+    @Test
+    void validate_worldEditForm_withoutAllowFlag_invalidArgsNumber() {
+        final String[] args = new String[] {
+                InputValidator.WORLD_EDIT_SELECTION_KEYWORD,
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidator.validate(player, args));
+        assertEquals(InputValidationErrorCode.INVALID_ARGS_NUMBER, exception.getErrorCode());
+    }
+
+    @Test
+    void validate_worldEditForm_minecart_requiresPlayer() {
+        final String[] args = new String[] {
+                InputValidator.WORLD_EDIT_SELECTION_KEYWORD,
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidatorWithWorldEditSelection.validate(commandMinecart, args));
+        assertEquals(InputValidationErrorCode.WORLDEDIT_REQUIRES_PLAYER, exception.getErrorCode());
+    }
+
+    @Test
+    void validate_worldEditForm_blockCommandSender_requiresPlayer() {
+        final String[] args = new String[] {
+                InputValidator.WORLD_EDIT_SELECTION_KEYWORD,
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidatorWithWorldEditSelection.validate(blockCommandSender, args));
+        assertEquals(InputValidationErrorCode.WORLDEDIT_REQUIRES_PLAYER, exception.getErrorCode());
+    }
+
+    @Test
+    void validate_worldEditForm_playerWithoutWorldEdit_notInstalled() {
+        final String[] args = new String[] {
+                InputValidator.WORLD_EDIT_SELECTION_KEYWORD,
+                "oak_slab",
+                "birch_slab,jungle_slab"
+        };
+        final InputValidationException exception = assertThrowsExactly(InputValidationException.class,
+                () -> inputValidatorWithWorldEditSelection.validate(player, args));
+        assertEquals(InputValidationErrorCode.WORLDEDIT_NOT_INSTALLED, exception.getErrorCode());
     }
 
     @Test

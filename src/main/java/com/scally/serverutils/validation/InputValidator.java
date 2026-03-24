@@ -5,11 +5,10 @@ import com.scally.serverutils.chat.ChatMessageUtils;
 import com.scally.serverutils.distribution.Distribution;
 import com.scally.serverutils.distribution.DistributionParser;
 import com.scally.serverutils.distribution.InvalidDistributionException;
+import com.scally.serverutils.worldedit.WorldEditCoordinates;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.block.Block;
-import org.bukkit.block.CommandBlock;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -18,9 +17,12 @@ import org.bukkit.entity.minecart.CommandMinecart;
 
 public class InputValidator {
 
+    public static final String WORLD_EDIT_SELECTION_KEYWORD = "we";
+
     private final int expectedNumArgs;
     private final boolean playerOnly;
     private final boolean performCoordinateValidation;
+    private final boolean allowWorldEditSelection;
 
     private final int fromDistributionIndex;
     private final Tag<Material> fromDistributionTag;
@@ -32,6 +34,7 @@ public class InputValidator {
         this.expectedNumArgs = builder.expectedNumArgs;
         this.playerOnly = builder.playerOnly;
         this.performCoordinateValidation = builder.performCoordinateValidation;
+        this.allowWorldEditSelection = builder.allowWorldEditSelection;
 
         this.fromDistributionIndex = builder.fromDistributionIndex;
         this.fromDistributionTag = builder.fromDistributionTag;
@@ -44,10 +47,19 @@ public class InputValidator {
         return new Builder();
     }
 
+    /**
+     * True when args use {@value #WORLD_EDIT_SELECTION_KEYWORD} &lt;from&gt; &lt;to&gt; (three arguments).
+     */
+    public static boolean isWorldEditSelectionForm(String[] args) {
+        return args.length == 3
+                && args[0].equalsIgnoreCase(WORLD_EDIT_SELECTION_KEYWORD);
+    }
+
     public static class Builder {
         private int expectedNumArgs;
         private boolean playerOnly;
         private boolean performCoordinateValidation;
+        private boolean allowWorldEditSelection;
 
         private int fromDistributionIndex;
         private Tag<Material> fromDistributionTag;
@@ -68,6 +80,15 @@ public class InputValidator {
         public Builder withCoordinateValidation() {
             this.playerOnly = true;
             this.performCoordinateValidation = true;
+            return this;
+        }
+
+        /**
+         * When set with {@link #withCoordinateValidation()}, also accepts {@code we &lt;from&gt; &lt;to&gt;}
+         * and takes the region from the player's WorldEdit selection.
+         */
+        public Builder allowWorldEditSelection() {
+            this.allowWorldEditSelection = true;
             return this;
         }
 
@@ -108,8 +129,13 @@ public class InputValidator {
     }
 
     private void validateArgsNumber(String[] args) {
-        if (expectedNumArgs != args.length)
-            throw new InputValidationException(InputValidationErrorCode.INVALID_ARGS_NUMBER);
+        if (expectedNumArgs == args.length) {
+            return;
+        }
+        if (allowWorldEditSelection && performCoordinateValidation && isWorldEditSelectionForm(args)) {
+            return;
+        }
+        throw new InputValidationException(InputValidationErrorCode.INVALID_ARGS_NUMBER);
     }
 
     private void validateCommandSenderType(CommandSender commandSender) {
@@ -120,13 +146,15 @@ public class InputValidator {
     private Distribution validateFromDistribution(String[] args) {
         if (fromDistributionTag == null)
             return null;
-        return validateDistribution(args[fromDistributionIndex], fromDistributionTag);
+        int index = isWorldEditSelectionForm(args) ? 1 : fromDistributionIndex;
+        return validateDistribution(args[index], fromDistributionTag);
     }
 
     private Distribution validateToDistribution(String[] args) {
         if (toDistributionTag == null)
             return null;
-        return validateDistribution(args[toDistributionIndex], toDistributionTag);
+        int index = isWorldEditSelectionForm(args) ? 2 : toDistributionIndex;
+        return validateDistribution(args[index], toDistributionTag);
     }
 
     private Distribution validateDistribution(String distributionStr, Tag<Material> tag) {
@@ -140,6 +168,13 @@ public class InputValidator {
     private Coordinates validateCoordinates(CommandSender commandSender, String[] args) {
         if (!performCoordinateValidation)
             return null;
+
+        if (allowWorldEditSelection && isWorldEditSelectionForm(args)) {
+            if (!(commandSender instanceof Player player)) {
+                throw new InputValidationException(InputValidationErrorCode.WORLDEDIT_REQUIRES_PLAYER);
+            }
+            return WorldEditCoordinates.fromPlayer(player);
+        }
 
         boolean isEntity = true;
         if (!(commandSender instanceof Entity)) {

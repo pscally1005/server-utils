@@ -27,6 +27,7 @@ public class BlocksCommandExecutor extends TemplateReplaceCommandExecutor<Blocks
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .allowWorldEditSelection()
             .withFromDistribution(6, tag)
             .withToDistribution(7, tag)
             .build();

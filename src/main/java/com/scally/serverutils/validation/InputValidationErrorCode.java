@@ -8,7 +8,11 @@ public enum InputValidationErrorCode {
     INVALID_ARGS_NUMBER("Invalid number of args!"),
     INVALID_COORDINATES("Coordinates must be valid numbers!"),
     INVALID_DISTRIBUTION_TYPES("Invalid types in distribution!"),
-    VOLUME_TOO_LARGE(String.format("Volume must be less than %d blocks!", ServerUtils.VOLUME_LIMIT));
+    VOLUME_TOO_LARGE(String.format("Volume must be less than %d blocks!", ServerUtils.VOLUME_LIMIT)),
+    WORLDEDIT_NOT_INSTALLED("WorldEdit must be installed and enabled to use 'we'."),
+    WORLDEDIT_INCOMPLETE_SELECTION("Set a complete WorldEdit selection first (//pos1, //pos2, or wand)."),
+    WORLDEDIT_REQUIRES_PLAYER("WorldEdit selection mode requires a player command sender."),
+    WORLDEDIT_SELECTION_FAILED("Could not read your WorldEdit selection.");
 
     private String message;
 
