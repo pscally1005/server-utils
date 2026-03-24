@@ -1,5 +1,6 @@
 package com.scally.serverutils.distribution;
 
+import com.scally.serverutils.validation.InputValidator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -65,6 +66,30 @@ class DistributionTabCompleterTest {
         assertEquals(0, result.size());
     }
 
+    @Test
+    void onTabComplete_worldEditPrefix_length2_suggestsDistribution() {
+        final String[] args = new String[] { InputValidator.WORLD_EDIT_SELECTION_KEYWORD, "oak_" };
+        final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("oak_leaves", result.get(0));
+    }
+
+    @Test
+    void onTabComplete_worldEditPrefix_length3_suggestsDistribution() {
+        final String[] args = new String[] {
+                InputValidator.WORLD_EDIT_SELECTION_KEYWORD,
+                "oak_leaves",
+                "spru"
+        };
+        final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("spruce_leaves", result.get(0));
+    }
+
     @ParameterizedTest
     @ValueSource(ints = {7, 8})
     void onTabComplete_suggestsDistribution(int input) {
@@ -77,10 +102,22 @@ class DistributionTabCompleterTest {
         assertEquals("oak_leaves", result.get(0));
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 4})
-    void onTabComplete_relativeCoordinates_threeOptions(int input) {
-        final String[] args = argsOfLength(input);
+    @Test
+    void onTabComplete_relativeCoordinates_firstArg_includesWeAndThreeTildeOptions() {
+        final String[] args = argsOfLength(1);
+        final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
+
+        assertNotNull(result);
+        assertEquals(4, result.size());
+        assertEquals(InputValidator.WORLD_EDIT_SELECTION_KEYWORD, result.get(0));
+        assertEquals("~", result.get(1));
+        assertEquals("~ ~", result.get(2));
+        assertEquals("~ ~ ~", result.get(3));
+    }
+
+    @Test
+    void onTabComplete_relativeCoordinates_fourArgs_threeTildeOptions() {
+        final String[] args = argsOfLength(4);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
 
         assertNotNull(result);
@@ -133,11 +170,24 @@ class DistributionTabCompleterTest {
         assertEquals(0, result.size());
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 4})
-    void onTabComplete_absoluteCoordinates_threeOptions(int input) {
+    @Test
+    void onTabComplete_absoluteCoordinates_firstArg_includesWeAndThreeCoordinateOptions() {
         mockAbsoluteCoordinates();
-        final String[] args = argsOfLength(input);
+        final String[] args = argsOfLength(1);
+        final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
+
+        assertNotNull(result);
+        assertEquals(4, result.size());
+        assertEquals(InputValidator.WORLD_EDIT_SELECTION_KEYWORD, result.get(0));
+        assertEquals("100", result.get(1));
+        assertEquals("100 200", result.get(2));
+        assertEquals("100 200 300", result.get(3));
+    }
+
+    @Test
+    void onTabComplete_absoluteCoordinates_fourArgs_threeCoordinateOptions() {
+        mockAbsoluteCoordinates();
+        final String[] args = argsOfLength(4);
         final List<String> result = testTabCompleter.onTabComplete(player, command, "test", args);
 
         assertNotNull(result);

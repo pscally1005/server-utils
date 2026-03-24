@@ -21,6 +21,7 @@ public class SlabsCommandExecutor extends TemplateReplaceCommandExecutor<SlabsCh
             .expectedNumArgs(8)
             .playerOnly()
             .withCoordinateValidation()
+            .allowWorldEditSelection()
             .withFromDistribution(6, Tag.SLABS)
             .withToDistribution(7, Tag.SLABS)
             .build();
