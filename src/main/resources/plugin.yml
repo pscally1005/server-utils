@@ -48,3 +48,16 @@ commands:
   blocks:
     description: Replace all types of blocks
     usage: /blocks <x1> <y1> <z1> <x2> <y2> <z2> <from-block> <to-block> | /blocks we <from-block> <to-block>
+
+  dist:
+    description: Save and retrieve block distribution strings
+    usage: /dist list [player] | /dist get <name> | /dist get <player> <name> | /dist save <name> <distribution> | /dist update <name> <distribution> | /dist delete <name>
+    permission: scally.dist.read
+
+permissions:
+  scally.dist.read:
+    description: List and get saved distributions for any player
+    default: true
+  scally.dist.write:
+    description: Save, update, or delete your own distributions
+    default: true
