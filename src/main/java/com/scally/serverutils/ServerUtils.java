@@ -3,6 +3,9 @@ package com.scally.serverutils;
 import com.scally.serverutils.blocks.BlocksCommandExecutor;
 import com.scally.serverutils.bootstrap.BootstrapCommandExecutor;
 import com.scally.serverutils.bootstrap.PaulBootstrapCommandExecutor;
+import com.scally.serverutils.distribution.DistCommandExecutor;
+import com.scally.serverutils.distribution.DistTabCompleter;
+import com.scally.serverutils.distribution.SavedDistributionStore;
 import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
 import com.scally.serverutils.fillcontainer.FillContainersCommandExecutor;
 import com.scally.serverutils.logs.LogsCommandExecutor;
@@ -34,6 +37,11 @@ public final class ServerUtils extends JavaPlugin {
         this.getCommand("walls").setExecutor(new WallsCommandExecutor(undoManager));
         this.getCommand("blocks").setExecutor(new BlocksCommandExecutor(undoManager));
         this.getCommand("logs").setExecutor(new LogsCommandExecutor(undoManager));
+
+        final SavedDistributionStore savedDistributionStore = new SavedDistributionStore(getDataFolder());
+        savedDistributionStore.load();
+        this.getCommand("dist").setExecutor(new DistCommandExecutor(savedDistributionStore));
+        this.getCommand("dist").setTabCompleter(new DistTabCompleter(savedDistributionStore));
     }
 
     @Override
