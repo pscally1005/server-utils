@@ -21,6 +21,10 @@ commands:
     description: Replace stairs
     usage: /stairs <x1> <y1> <z1> <x2> <y2> <z2> <from-stair> <to-stair> | /stairs we <from-stair> <to-stair>
 
+  shelves:
+    description: Replace shelves
+    usage: /shelves <x1> <y1> <z1> <x2> <y2> <z2> <from-shelf> <to-shelf> | /shelves we <from-shelf> <to-shelf>
+
   trapdoors:
     description: Replace trapdoors
     usage: /trapdoors <x1> <y1> <z1> <x2> <y2> <z2> <from-trapdoor> <to-trapdoor> | /trapdoors we <from-trapdoor> <to-trapdoor>

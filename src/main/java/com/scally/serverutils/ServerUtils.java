@@ -9,6 +9,7 @@ import com.scally.serverutils.distribution.SavedDistributionStore;
 import com.scally.serverutils.fillcontainer.FillContainerCommandExecutor;
 import com.scally.serverutils.fillcontainer.FillContainersCommandExecutor;
 import com.scally.serverutils.logs.LogsCommandExecutor;
+import com.scally.serverutils.shelves.ShelvesCommandExecutor;
 import com.scally.serverutils.slabs.SlabsCommandExecutor;
 import com.scally.serverutils.stairs.StairsCommandExecutor;
 import com.scally.serverutils.trapdoors.TrapDoorsCommandExecutor;
@@ -30,6 +31,7 @@ public final class ServerUtils extends JavaPlugin {
         this.getCommand("paul").setExecutor(new PaulBootstrapCommandExecutor());
         this.getCommand("slabs").setExecutor(new SlabsCommandExecutor(undoManager));
         this.getCommand("stairs").setExecutor(new StairsCommandExecutor(undoManager));
+        this.getCommand("shelves").setExecutor(new ShelvesCommandExecutor(undoManager));
         this.getCommand("fill-container").setExecutor(new FillContainerCommandExecutor());
         this.getCommand("fill-containers").setExecutor(new FillContainersCommandExecutor());
         this.getCommand("s-undo").setExecutor(new UndoCommandExecutor(undoManager));
