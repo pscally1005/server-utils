@@ -11,9 +11,13 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.SideChaining;
 import org.bukkit.block.data.type.Shelf;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -56,6 +60,7 @@ public class ShelvesCommandExecutor extends TemplateReplaceCommandExecutor<Shelv
             final SideChaining.ChainPart sideChain = shelf.getSideChain();
             final boolean powered = shelf.isPowered();
             final boolean waterlogged = shelf.isWaterlogged();
+            final ItemStack[] shelfContents = snapshotShelfContents(block);
 
             final Distribution toDistribution = validationResult.toDistribution();
             final Material toMaterial = toDistribution.pick();
@@ -69,7 +74,9 @@ public class ShelvesCommandExecutor extends TemplateReplaceCommandExecutor<Shelv
             shelf.setWaterlogged(waterlogged);
 
             location.getWorld().setBlockData(location, blockData);
-            return new ShelvesChange(location, fromMaterial, toMaterial, facing, sideChain, powered, waterlogged);
+            restoreShelfContents(block, shelfContents);
+            return new ShelvesChange(location, fromMaterial, toMaterial, facing, sideChain, powered, waterlogged,
+                    shelfContents);
         }
         return null;
     }
@@ -77,6 +84,36 @@ public class ShelvesCommandExecutor extends TemplateReplaceCommandExecutor<Shelv
     @Override
     public List<String> onTabCompleteDistribution(String arg) {
         return onTabCompleteDistribution(arg, Tag.WOODEN_SHELVES);
+    }
+
+    static ItemStack[] snapshotShelfContents(Block block) {
+        final BlockState state = block.getState();
+        if (state instanceof BlockInventoryHolder holder) {
+            final Inventory inventory = holder.getInventory();
+            final ItemStack[] contents = inventory.getContents();
+            final ItemStack[] snapshot = new ItemStack[contents.length];
+            for (int i = 0; i < contents.length; i++) {
+                snapshot[i] = contents[i] == null ? null : contents[i].clone();
+            }
+            return snapshot;
+        }
+        return new ItemStack[0];
+    }
+
+    static void restoreShelfContents(Block block, ItemStack[] contents) {
+        if (contents == null || contents.length == 0) {
+            return;
+        }
+        final BlockState state = block.getState();
+        if (state instanceof BlockInventoryHolder holder) {
+            final Inventory inventory = holder.getInventory();
+            final ItemStack[] restored = new ItemStack[contents.length];
+            for (int i = 0; i < contents.length; i++) {
+                restored[i] = contents[i] == null ? null : contents[i].clone();
+            }
+            inventory.setContents(restored);
+            state.update(true, false);
+        }
     }
 
 }

@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.SideChaining;
 import org.bukkit.block.data.type.Shelf;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -40,7 +41,8 @@ public class ShelvesChangeTest {
                 BlockFace.WEST,
                 SideChaining.ChainPart.RIGHT,
                 true,
-                false
+                false,
+                new ItemStack[0]
         );
     }
 
