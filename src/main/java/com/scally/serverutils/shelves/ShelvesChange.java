@@ -41,8 +41,16 @@ public record ShelvesChange(Location location,
         world.setBlockData(location, bd);
 
         if (contents != null && contents.length > 0) {
-            final BlockState state = block.getState();
-            if (state instanceof BlockInventoryHolder holder) {
+            final BlockState state = block.getState(false);
+            if (state instanceof org.bukkit.block.Shelf shelfState) {
+                final Inventory inventory = shelfState.getInventory();
+                final ItemStack[] restored = new ItemStack[contents.length];
+                for (int i = 0; i < contents.length; i++) {
+                    restored[i] = contents[i] == null ? null : contents[i].clone();
+                }
+                inventory.setContents(restored);
+                state.update(true, false);
+            } else if (state instanceof BlockInventoryHolder holder) {
                 final Inventory inventory = holder.getInventory();
                 final ItemStack[] restored = new ItemStack[contents.length];
                 for (int i = 0; i < contents.length; i++) {

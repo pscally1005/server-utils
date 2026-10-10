@@ -15,7 +15,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.SideChaining;
 import org.bukkit.block.data.type.Shelf;
-import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -87,8 +86,22 @@ public class ShelvesCommandExecutor extends TemplateReplaceCommandExecutor<Shelv
     }
 
     static ItemStack[] snapshotShelfContents(Block block) {
+        final BlockState state = block.getState(false);
+        if (state instanceof org.bukkit.block.Shelf shelfState) {
+            final Inventory inventory = shelfState.getInventory();
+            final ItemStack[] contents = inventory.getContents();
+            final ItemStack[] snapshot = new ItemStack[contents.length];
+            for (int i = 0; i < contents.length; i++) {
+                snapshot[i] = contents[i] == null ? null : contents[i].clone();
+            }
+            return snapshot;
+        }
+        return snapshotShelfContentsLegacy(block);
+    }
+
+    private static ItemStack[] snapshotShelfContentsLegacy(Block block) {
         final BlockState state = block.getState();
-        if (state instanceof BlockInventoryHolder holder) {
+        if (state instanceof org.bukkit.inventory.BlockInventoryHolder holder) {
             final Inventory inventory = holder.getInventory();
             final ItemStack[] contents = inventory.getContents();
             final ItemStack[] snapshot = new ItemStack[contents.length];
@@ -104,15 +117,26 @@ public class ShelvesCommandExecutor extends TemplateReplaceCommandExecutor<Shelv
         if (contents == null || contents.length == 0) {
             return;
         }
-        final BlockState state = block.getState();
-        if (state instanceof BlockInventoryHolder holder) {
-            final Inventory inventory = holder.getInventory();
+        final BlockState state = block.getState(false);
+        if (state instanceof org.bukkit.block.Shelf shelfState) {
+            final Inventory inventory = shelfState.getInventory();
             final ItemStack[] restored = new ItemStack[contents.length];
             for (int i = 0; i < contents.length; i++) {
                 restored[i] = contents[i] == null ? null : contents[i].clone();
             }
             inventory.setContents(restored);
             state.update(true, false);
+            return;
+        }
+        final BlockState snapshotState = block.getState();
+        if (snapshotState instanceof org.bukkit.inventory.BlockInventoryHolder holder) {
+            final Inventory inventory = holder.getInventory();
+            final ItemStack[] restored = new ItemStack[contents.length];
+            for (int i = 0; i < contents.length; i++) {
+                restored[i] = contents[i] == null ? null : contents[i].clone();
+            }
+            inventory.setContents(restored);
+            snapshotState.update(true, false);
         }
     }
 
