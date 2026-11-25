@@ -90,6 +90,7 @@ class DistributionParserTest {
     })
     void parse_invalidInput(String arg) {
         assertThrows(InvalidDistributionException.class, () -> DistributionParser.parse(arg));
+    }
     @Test
     void parse_stackSizeFixed() {
         final Distribution distribution = DistributionParser.parse("50%sugar:25,50%air");
@@ -118,7 +119,5 @@ class DistributionParserTest {
     })
     void parse_invalidStackSize(String arg) {
         assertThrows(InvalidDistributionException.class, () -> DistributionParser.parse(arg));
-    }
-
     }
 }
