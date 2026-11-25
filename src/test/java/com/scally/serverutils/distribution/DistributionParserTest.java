@@ -91,4 +91,33 @@ class DistributionParserTest {
     void parse_invalidInput(String arg) {
         assertThrows(InvalidDistributionException.class, () -> DistributionParser.parse(arg));
     }
+    @Test
+    void parse_stackSizeFixed() {
+        final Distribution distribution = DistributionParser.parse("50%sugar:25,50%air");
+        final List<DistributionItem> pairs = distribution.getMaterials();
+        assertEquals(25, pairs.get(0).stackSizeMin());
+        assertEquals(25, pairs.get(0).stackSizeMax());
+        assertEquals(1, pairs.get(1).stackSizeMin());
+        assertEquals(1, pairs.get(1).stackSizeMax());
+    }
+
+    @Test
+    void parse_stackSizeRange() {
+        final Distribution distribution = DistributionParser.parse("sugar:10-30,air");
+        final List<DistributionItem> pairs = distribution.getMaterials();
+        assertEquals(10, pairs.get(0).stackSizeMin());
+        assertEquals(30, pairs.get(0).stackSizeMax());
+        assertEquals(1, pairs.get(1).stackSizeMin());
+        assertEquals(1, pairs.get(1).stackSizeMax());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "sugar:0",
+            "sugar:30-10",
+            "sugar:65"
+    })
+    void parse_invalidStackSize(String arg) {
+        assertThrows(InvalidDistributionException.class, () -> DistributionParser.parse(arg));
+    }
 }

@@ -12,11 +12,6 @@ public final class DistributionParser {
 
     private DistributionParser() {}
 
-    /**
-     * @param distributionStr arg from command
-     * @return Distribution object if valid
-     * @throws InvalidDistributionException if arg is invalid
-     */
     public static Distribution parse(String distributionStr) {
         final String[] materials = distributionStr.split(",");
 
@@ -26,12 +21,17 @@ public final class DistributionParser {
         if (!allHavePercentage && !noneHavePercentage)
             throw new InvalidDistributionException("Materials must either all have percentages, or none!");
 
-        final Set<Material> materialSet = matchAndValidateMaterials(materials);
+        matchAndValidateMaterials(materials);
 
-        if (noneHavePercentage)
+        if (noneHavePercentage && !anyHasStackSize(materials)) {
+            final Set<Material> materialSet = new HashSet<>();
+            for (String materialStr : materials) {
+                materialSet.add(parseMaterial(materialStr));
+            }
             return new Distribution(materialSet);
+        }
 
-        final List<DistributionItem> distMaterials = parseRatios(materials);
+        final List<DistributionItem> distMaterials = parseRatios(materials, !noneHavePercentage);
         return new Distribution(distMaterials);
     }
 
@@ -43,44 +43,106 @@ public final class DistributionParser {
         return Arrays.stream(materials).noneMatch(m -> m.contains("%"));
     }
 
-    private static Set<Material> matchAndValidateMaterials(String[] materials) {
+    private static boolean anyHasStackSize(String[] materials) {
+        return Arrays.stream(materials).anyMatch(m -> extractStackSpec(m) != null);
+    }
+
+    private static String extractStackSpec(String materialStr) {
+        String rest = materialStr;
+        final int pct = rest.indexOf('%');
+        if (pct >= 0) rest = rest.substring(pct + 1);
+        final int colon = rest.indexOf(':');
+        if (colon < 0) return null;
+        final String spec = rest.substring(colon + 1).trim();
+        return spec.isEmpty() ? null : spec;
+    }
+
+    private static void matchAndValidateMaterials(String[] materials) {
         final Set<Material> materialSet = new HashSet<>();
         for (String materialStr : materials) {
-            final String[] parts = materialStr.split("%");
-            final Material material = Material.matchMaterial(parts[parts.length - 1]);
+            final Material material = parseMaterial(materialStr);
             if (material == null)
                 throw new InvalidDistributionException(String.format("Material %s not found!", materialStr));
             if (materialSet.contains(material))
                 throw new InvalidDistributionException(String.format("Material %s was found twice!", materialStr));
             materialSet.add(material);
         }
-        return materialSet;
     }
 
-    private static List<DistributionItem> parseRatios(String[] materials) {
+    private static Material parseMaterial(String materialStr) {
+        String rest = materialStr;
+        final int pct = rest.indexOf('%');
+        if (pct >= 0) rest = rest.substring(pct + 1);
+        final int colon = rest.indexOf(':');
+        if (colon >= 0) rest = rest.substring(0, colon);
+        return Material.matchMaterial(rest.trim());
+    }
+
+    private static List<DistributionItem> parseRatios(String[] materials, boolean hasPercentages) {
         final List<DistributionItem> distMaterials = new ArrayList<>();
         double sum = 0D;
-        double previous;
 
         for (String materialStr : materials) {
-            final String[] parts = materialStr.split("%");
-            if (parts.length != 2)
-                throw new InvalidDistributionException(
-                        String.format("Found multiple percentage signs: %s", materialStr));
-
             double ratio;
-            try {
-                ratio = Double.parseDouble(parts[0]);
-            } catch (NumberFormatException exception) {
-                throw new InvalidDistributionException(String.format("Found invalid number: %s", parts[0]));
+            String materialAndStack;
+            if (hasPercentages) {
+                final String[] parts = materialStr.split("%", 2);
+                if (parts.length != 2)
+                    throw new InvalidDistributionException(
+                            String.format("Found multiple percentage signs: %s", materialStr));
+                try {
+                    ratio = Double.parseDouble(parts[0]);
+                } catch (NumberFormatException exception) {
+                    throw new InvalidDistributionException(String.format("Found invalid number: %s", parts[0]));
+                }
+                materialAndStack = parts[1];
+            } else {
+                ratio = 1D;
+                materialAndStack = materialStr;
             }
 
-            final Material material = Material.matchMaterial(parts[1]);
-            previous = sum;
-            sum += ratio;
+            final Material material = parseMaterial(materialAndStack);
+            if (material == null)
+                throw new InvalidDistributionException(String.format("Material %s not found!", materialStr));
 
-            distMaterials.add(new DistributionItem(material, previous, sum, 1, 1));
+            final int[] stack = parseStackSize(extractStackSpec(materialAndStack), materialStr);
+
+            sum += ratio;
+            distMaterials.add(new DistributionItem(material, sum - ratio, sum, stack[0], stack[1]));
         }
         return distMaterials;
+    }
+
+    private static int[] parseStackSize(String stackSpec, String original) {
+        if (stackSpec == null || stackSpec.isEmpty()) {
+            return new int[]{1, 1};
+        }
+        if (stackSpec.contains("-")) {
+            final String[] range = stackSpec.split("-", 2);
+            int min, max;
+            try {
+                min = Integer.parseInt(range[0].trim());
+                max = Integer.parseInt(range[1].trim());
+            } catch (NumberFormatException exception) {
+                throw new InvalidDistributionException(String.format("Found invalid stack size: %s", stackSpec));
+            }
+            if (min < 1 || max < 1 || min > max) {
+                throw new InvalidDistributionException(String.format("Invalid stack size range: %s", stackSpec));
+            }
+            if (max > 64) {
+                throw new InvalidDistributionException(String.format("Stack size exceeds 64: %s", stackSpec));
+            }
+            return new int[]{min, max};
+        }
+        int amount;
+        try {
+            amount = Integer.parseInt(stackSpec.trim());
+        } catch (NumberFormatException exception) {
+            throw new InvalidDistributionException(String.format("Found invalid stack size: %s", stackSpec));
+        }
+        if (amount < 1 || amount > 64) {
+            throw new InvalidDistributionException(String.format("Invalid stack size: %s", stackSpec));
+        }
+        return new int[]{amount, amount};
     }
 }
