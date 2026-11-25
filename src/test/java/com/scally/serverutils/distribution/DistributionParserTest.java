@@ -120,4 +120,11 @@ class DistributionParserTest {
     void parse_invalidStackSize(String arg) {
         assertThrows(InvalidDistributionException.class, () -> DistributionParser.parse(arg));
     }
+
+    @Test
+    void parse_multiMaterialWithStacks() {
+        final Distribution distribution = DistributionParser.parse("50%sugar:10-24,50%dirt:9,10%stone");
+        final List<DistributionItem> pairs = distribution.getMaterials();
+        assertEquals(3, pairs.size());
+    }
 }
