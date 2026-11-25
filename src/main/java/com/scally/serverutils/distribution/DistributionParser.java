@@ -75,7 +75,15 @@ public final class DistributionParser {
         if (pct >= 0) rest = rest.substring(pct + 1);
         final int colon = rest.indexOf(':');
         if (colon >= 0) rest = rest.substring(0, colon);
-        return Material.matchMaterial(rest.trim());
+        rest = rest.trim();
+        Material material = Material.matchMaterial(rest);
+        if (material == null) {
+            try {
+                material = Material.valueOf(rest.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return material;
     }
 
     private static List<DistributionItem> parseRatios(String[] materials, boolean hasPercentages) {
